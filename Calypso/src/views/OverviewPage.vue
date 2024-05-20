@@ -78,7 +78,6 @@ export default {
   margin-bottom: 15px;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #007bff;
 }
 .card-text {
   margin-bottom: 20px;
