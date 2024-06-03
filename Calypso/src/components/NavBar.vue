@@ -30,6 +30,9 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/bms-reading">BMS</router-link>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/fire-alarm-system">Fire Alarm System</router-link>
+          </li>
         </ul>
       </div>
     </div>

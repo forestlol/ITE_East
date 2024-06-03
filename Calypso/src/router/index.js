@@ -4,6 +4,7 @@ import PowerMeterReadingPage from '@/views/PowerMeterReadingPage.vue';
 import WaterMeterReadingPage from '@/views/WaterMeterReadingPage.vue';
 import IAQDevicesReadingPage from '@/views/IAQDevicesReadingPage.vue';
 import BMSReadingPage from '@/views/BMSReadingPage.vue';
+import FireAlarmSystem from '@/views/FireAlarmSystem.vue';
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/bms-reading',
     name: 'BMSReadingPage',
     component: BMSReadingPage,
+  },
+  {
+    path: '/fire-alarm-system',
+    name: 'FireAlarmReadingPage',
+    component: FireAlarmSystem,
   },
 ];
 
