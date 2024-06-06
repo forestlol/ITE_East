@@ -3,26 +3,32 @@
   <div class="container-fluid mt-5">
     <div class="row">
       <!-- Fire Alarm System -->
-      <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+      <div class="col-lg-7 col-md-6 col-sm-12 mb-4">
         <div class="card shadow">
           <div class="card-header bg-primary text-white">
-            Fire Alarm System
+            SAP
           </div>
           <div class="card-body">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>Alarm</th>
+                  <th>SAP</th>
                   <th>Status</th>
+                  <th>Fire Alarm</th>
                   <th>Last Updated</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="alarm in alarms" :key="alarm.id">
-                  <td>Alarm {{ alarm.id }}</td>
+                  <td>SAP-{{ alarm.id }}</td>
                   <td>
-                    <span :class="{'badge bg-success': alarm.isActive, 'badge bg-danger': !alarm.isActive}">
-                      {{ alarm.isActive ? 'Active' : 'Inactive' }}
+                    <span :class="{'badge bg-success': alarm.isOnline, 'badge bg-danger': !alarm.isOnline}">
+                      {{ alarm.isOnline ? 'Online' : 'Offline' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span :class="{'badge bg-danger': alarm.isActive, 'badge bg-success': !alarm.isActive}">
+                      {{ alarm.isActive ? 'On' : 'Off' }}
                     </span>
                   </td>
                   <td>{{ alarm.lastUpdated }}</td>
@@ -35,7 +41,7 @@
       </div>
 
       <!-- IAQ Devices -->
-      <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+      <div class="col-lg-5 col-md-6 col-sm-12 mb-4">
         <div class="card shadow">
           <div class="card-header bg-primary text-white">
             IAQ Devices
@@ -67,13 +73,13 @@
                 </tr>
               </tbody>
             </table>
-            <button @click="navigateTo('/iaq-devices-reading')" class="btn btn-primary mt-3 w-100">View Details</button>
+            <button @click="navigateTo('/iaq-devices')" class="btn btn-primary mt-3 w-100">View Details</button>
           </div>
         </div>
       </div>
 
       <!-- Power Meter -->
-      <div class="col-lg-2 col-md-6 col-sm-12 mb-4">
+      <div class="col-lg-5 col-md-6 col-sm-12 mb-4">
         <div class="card shadow">
           <div class="card-header bg-primary text-white">
             Power Meter
@@ -93,13 +99,13 @@
                 </tr>
               </tbody>
             </table>
-            <button @click="navigateTo('/power-meter-reading')" class="btn btn-primary mt-3 w-100">View Details</button>
+            <button @click="navigateTo('/power-meter')" class="btn btn-primary mt-3 w-100">View Details</button>
           </div>
         </div>
       </div>
 
       <!-- Water Meter -->
-      <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+      <div class="col-lg-7 col-md-6 col-sm-12 mb-4">
         <div class="card shadow">
           <div class="card-header bg-primary text-white">
             Water Meter
@@ -131,7 +137,7 @@
                 </tr>
               </tbody>
             </table>
-            <button @click="navigateTo('/water-meter-reading')" class="btn btn-primary mt-3 w-100">View Details</button>
+            <button @click="navigateTo('/water-meter')" class="btn btn-primary mt-3 w-100">View Details</button>
           </div>
         </div>
       </div>
@@ -144,12 +150,12 @@ export default {
   data() {
     return {
       alarms: [
-        { id: 1, isActive: true, lastUpdated: '2024-06-07 14:30:15' },
-        { id: 2, isActive: true, lastUpdated: '2024-06-07 14:20:23' },
-        { id: 3, isActive: true, lastUpdated: '2024-06-07 14:25:22' },
-        { id: 4, isActive: false, lastUpdated: '2024-06-07 14:15:56' },
-        { id: 5, isActive: true, lastUpdated: '2024-06-07 14:35:23' },
-        { id: 6, isActive: false, lastUpdated: '2024-06-07 14:10:53' },
+        { id: 1, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 2, isActive: false, isOnline: true, lastUpdated: '2024-05-29 14:20:00' },
+        { id: 3, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:25:00' },
+        { id: 4, isActive: false, isOnline: false, lastUpdated: '2024-05-29 14:15:00' },
+        { id: 5, isActive: true, isOnline: false, lastUpdated: '2024-05-29 14:35:00' },
+        { id: 6, isActive: false, isOnline: true, lastUpdated: '2024-05-29 14:10:00' },
       ],
       devices: [
         { id: 1, name: 'Device 1', temperature: 22, humidity: 45, pressure: 1013, co2: 400 },
