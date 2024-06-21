@@ -15,7 +15,7 @@
           <div v-for="(id, index) in group.group" :key="id" class="m-2" style="width: 18rem;">
             <div v-if="findLatestDataById(id)" class="card">
               <div class="card-body">
-                <h5 class="card-title">{{ findLatestDataById(id).Name || 'Data Unavailable' }}</h5>
+                <h5 class="card-title">{{ group.item_name[index] || 'Data Unavailable' }}</h5>
                 <p class="card-text">
                   <span :class="{'status-label': true, 'ok': findLatestDataById(id).Status === 'OK', 'not-ok': findLatestDataById(id).Status !== 'OK'}">
                     Connection: {{ findLatestDataById(id).Status || 'N/A' }}
@@ -41,12 +41,8 @@
   </div>
 </template>
 
-
-
 <script>
-
 import * as CacheManager from '@/CacheManager.js';
-
 
 export default {
   data() {
@@ -57,25 +53,25 @@ export default {
       latestData: [],
       refreshInternal: null,
       search: '',
-    }
+    };
   },
-  async created(){
-    if(CacheManager.getItem('bms') != null){
-        this.latestData == CacheManager.getItem('bms')
-        await this.fetchLatestData();
-        await this.fetchData();
-      }else{
-        await this.fetchLatestData();
-        await this.fetchData();
-      }
-      this.setRefreshInterval();
+  async created() {
+    if (CacheManager.getItem('bms') != null) {
+      this.latestData = CacheManager.getItem('bms');
+      await this.fetchLatestData();
+      await this.fetchData();
+    } else {
+      await this.fetchLatestData();
+      await this.fetchData();
+    }
+    this.setRefreshInterval();
   },
   beforeUnmount() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
   },
-  computed:{
+  computed: {
     filteredGroups() {
       const searchTerm = this.search.toLowerCase();
       return this.groups.filter(group => group.name.toLowerCase().includes(searchTerm));
@@ -91,7 +87,7 @@ export default {
     async fetchData() {
       this.loading = true;
       try {
-        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/bms/groups');
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/east/bms/groups');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -109,7 +105,7 @@ export default {
     async fetchLatestData() {
       this.loading = true;
       try {
-        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/all/latest/data');
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/all/east/latest/data');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -120,9 +116,8 @@ export default {
         const data = JSON.parse(textData);
         console.log(data);
         this.latestData = data;
-        
-        CacheManager.setItem('bms', this.latestData);
 
+        CacheManager.setItem('bms', this.latestData);
       } catch (error) {
         this.error = error.message;
       } finally {
@@ -133,7 +128,7 @@ export default {
       const filteredData = this.latestData.filter(data => data.ObjectId === objectId);
       return filteredData.length > 0 ? filteredData[filteredData.length - 1] : {};
     },
-    
+
     getActiveValue(id) {
       const latestData = this.findLatestDataById(id);
       if (latestData.Name && latestData.Name.includes('Status')) {
@@ -157,9 +152,8 @@ export default {
       return name && (name.includes('Status') || name.includes('_GD') || name.includes('_SD'));
     }
   }
-}
+};
 </script>
-
 
 <style>
 /* Additional CSS styles for hover effect and transitions */
@@ -204,6 +198,3 @@ export default {
   background-color: #dc3545; /* Red background for non-'OK' statuses */
 }
 </style>
-
-  
-  

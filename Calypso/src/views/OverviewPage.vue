@@ -1,143 +1,109 @@
-<!-- eslint-disable -->
 <template>
-  <div class="container-fluid mt-5">
-    <div class="row">
-      <!-- Fire Alarm System -->
-      <div class="col-lg-7 col-md-6 col-sm-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header bg-primary text-white">
-            SAP
-          </div>
-          <div class="card-body">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>SAP</th>
-                  <th>Status</th>
-                  <th>Fire Alarm</th>
-                  <th>Last Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="alarm in alarms" :key="alarm.id">
-                  <td>SAP-{{ alarm.id }}</td>
-                  <td>
-                    <span :class="{'badge bg-success': alarm.isOnline, 'badge bg-danger': !alarm.isOnline}">
-                      {{ alarm.isOnline ? 'Online' : 'Offline' }}
-                    </span>
-                  </td>
-                  <td>
-                    <span :class="{'badge bg-danger': alarm.isActive, 'badge bg-success': !alarm.isActive}">
-                      {{ alarm.isActive ? 'On' : 'Off' }}
-                    </span>
-                  </td>
-                  <td>{{ alarm.lastUpdated }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <button @click="navigateTo('/fire-alarm-system')" class="btn btn-primary mt-3 w-100">View Details</button>
+  <div class="overview-container">
+    <div class="summary-be">
+      <h3>Summary of BE</h3>
+      <div class="summary-content">
+        <div class="progress-bars">
+          <div v-for="(progress, index) in progressData" :key="index" class="progress-bar-container">
+            <CircularProgressBar :percentage="progress.value" :label="progress.label" />
           </div>
         </div>
       </div>
-
-      <!-- IAQ Devices -->
-      <div class="col-lg-5 col-md-6 col-sm-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header bg-primary text-white">
-            IAQ Devices
+    </div>
+    <div class="map-hierarchy">
+      <h3>Map of Area or Sub-System Hierarchy Selection</h3>
+      <div class="map-content">
+        <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="ITE East Floor Plan" class="img-fluid fixed-size">
+      </div>
+    </div>
+    <div class="summary-subsystems">
+      <h3>Summary of Sub-Systems</h3>
+      <div class="subsystems-content">
+        <div class="subsystem-card">
+          <h4>{{ currentFireAlarm.name }}</h4>
+          <div v-if="currentFireAlarmIndex === 0" class="semi-circle-progress">
+            <SemiCircleProgressBar :percentage="currentFireAlarm.operational" />
           </div>
-          <div class="card-body">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Average Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Temperature</td>
-                  <td>{{ calculateAverage(devices, 'temperature') }} °C</td>
-                </tr>
-                <tr>
-                  <td>Humidity</td>
-                  <td>{{ calculateAverage(devices, 'humidity') }} %</td>
-                </tr>
-                <tr>
-                  <td>Pressure</td>
-                  <td>{{ calculateAverage(devices, 'pressure') }} hPa</td>
-                </tr>
-                <tr>
-                  <td>CO2</td>
-                  <td>{{ calculateAverage(devices, 'co2') }} ppm</td>
-                </tr>
-              </tbody>
-            </table>
-            <button @click="navigateTo('/iaq-devices')" class="btn btn-primary mt-3 w-100">View Details</button>
+          <div v-else>
+            <p>Status: {{ currentFireAlarm.status }}
+              <span :class="{'status-dot': true, 'status-online': currentFireAlarm.status === 'Online', 'status-offline': currentFireAlarm.status === 'Offline'}"></span>
+            </p>
+            <p>Last Updated: {{ currentFireAlarm.lastUpdated }}</p>
+          </div>
+          <div class="card-footer">
+            <div class="card-pagination">
+              <button @click="prevFireAlarm" :disabled="currentFireAlarmIndex === 0">&lt;</button>
+              <p>{{ currentFireAlarmIndex + 1 }}/7</p>
+              <button @click="nextFireAlarm" :disabled="currentFireAlarmIndex === fireAlarms.length - 1">&gt;</button>
+            </div>
+            <router-link to="/fire-alarm-system" class="see-more">View Details</router-link>
           </div>
         </div>
-      </div>
-
-      <!-- Power Meter -->
-      <div class="col-lg-5 col-md-6 col-sm-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header bg-primary text-white">
-            Power Meter
+        <div class="subsystem-card">
+          <h4>{{ currentIAQDevice.name }}</h4>
+          <div v-if="currentIAQDeviceIndex === 0" class="semi-circle-progress">
+            <SemiCircleProgressBar :percentage="currentIAQDevice.operational" />
           </div>
-          <div class="card-body">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Average Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>kWh</td>
-                  <td>{{ calculateAverage(powerDevices, 'kwh') }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <button @click="navigateTo('/power-meter')" class="btn btn-primary mt-3 w-100">View Details</button>
+          <div v-else>
+            <p>Status: {{ currentIAQDevice.status }}
+              <span :class="{'status-dot': true, 'status-online': currentIAQDevice.status === 'Online', 'status-offline': currentIAQDevice.status === 'Offline'}"></span>
+            </p>
+            <p>Average Temp: {{ currentIAQDevice.avgTemp }}°C</p>
+            <p>Average Humidity: {{ currentIAQDevice.avgHumidity }}%</p>
+            <p>Average Pressure: {{ currentIAQDevice.avgPressure }} hPa</p>
+            <p>Average CO2: {{ currentIAQDevice.avgCO2 }} ppm</p>
+          </div>
+          <div class="card-footer">
+            <div class="card-pagination">
+              <button @click="prevIAQDevice" :disabled="currentIAQDeviceIndex === 0">&lt;</button>
+              <p>{{ currentIAQDeviceIndex + 1 }}/{{ iaqDevices.length }}</p>
+              <button @click="nextIAQDevice" :disabled="currentIAQDeviceIndex === iaqDevices.length - 1">&gt;</button>
+            </div>
+            <router-link to="/iaq-devices-reading" class="see-more">View Details</router-link>
           </div>
         </div>
-      </div>
-
-      <!-- Water Meter -->
-      <div class="col-lg-7 col-md-6 col-sm-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header bg-primary text-white">
-            Water Meter
+        <div class="subsystem-card">
+          <h4>{{ currentPowerMeter.name }}</h4>
+          <div v-if="currentPowerMeterIndex === 0" class="semi-circle-progress">
+            <SemiCircleProgressBar :percentage="currentPowerMeter.operational" />
           </div>
-          <div class="card-body">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Average Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Flow Rate</td>
-                  <td>{{ calculateAverage(waterReadings, 'flowRate') }} L/min</td>
-                </tr>
-                <tr>
-                  <td>Usage</td>
-                  <td>{{ calculateAverage(waterReadings, 'usage') }} L</td>
-                </tr>
-                <tr>
-                  <td>Pressure</td>
-                  <td>{{ calculateAverage(waterReadings, 'pressure') }} kPa</td>
-                </tr>
-                <tr>
-                  <td>Temperature</td>
-                  <td>{{ calculateAverage(waterReadings, 'temperature') }} °C</td>
-                </tr>
-              </tbody>
-            </table>
-            <button @click="navigateTo('/water-meter')" class="btn btn-primary mt-3 w-100">View Details</button>
+          <div v-else>
+            <p>Status: {{ currentPowerMeter.status }}
+              <span :class="{'status-dot': true, 'status-online': currentPowerMeter.status === 'Online', 'status-offline': currentPowerMeter.status === 'Offline'}"></span>
+            </p>
+            <p>Average kWh: {{ currentPowerMeter.avgKwh }} kWh</p>
+            <p>Total kWh: {{ currentPowerMeter.totalKwh }} kWh</p>
+          </div>
+          <div class="card-footer">
+            <div class="card-pagination">
+              <button @click="prevPowerMeter" :disabled="currentPowerMeterIndex === 0">&lt;</button>
+              <p>{{ currentPowerMeterIndex + 1 }}/{{ powerMeters.length }}</p>
+              <button @click="nextPowerMeter" :disabled="currentPowerMeterIndex === powerMeters.length - 1">&gt;</button>
+            </div>
+            <router-link to="/power-meter-reading" class="see-more">View Details</router-link>
+          </div>
+        </div>
+        <div class="subsystem-card">
+          <h4>{{ currentWaterMeter.name }}</h4>
+          <div v-if="currentWaterMeterIndex === 0" class="semi-circle-progress">
+            <SemiCircleProgressBar :percentage="currentWaterMeter.operational" />
+          </div>
+          <div v-else>
+            <p>Status: {{ currentWaterMeter.status }}
+              <span :class="{'status-dot': true, 'status-online': currentWaterMeter.status === 'Online', 'status-offline': currentWaterMeter.status === 'Offline'}"></span>
+            </p>
+            <p>Average Flow Rate: {{ currentWaterMeter.avgFlowRate }} L/min</p>
+            <p>Average Usage: {{ currentWaterMeter.avgUsage }} L</p>
+            <p>Average Pressure: {{ currentWaterMeter.avgPressure }} kPa</p>
+            <p>Average Temperature: {{ currentWaterMeter.avgTemperature }}°C</p>
+          </div>
+          <div class="card-footer">
+            <div class="card-pagination">
+              <button @click="prevWaterMeter" :disabled="currentWaterMeterIndex === 0">&lt;</button>
+              <p>{{ currentWaterMeterIndex + 1 }}/{{ waterMeters.length }}</p>
+              <button @click="nextWaterMeter" :disabled="currentWaterMeterIndex === waterMeters.length - 1">&gt;</button>
+            </div>
+            <router-link to="/water-meter-reading" class="see-more">View Details</router-link>
           </div>
         </div>
       </div>
@@ -146,112 +112,287 @@
 </template>
 
 <script>
+import SemiCircleProgressBar from '@/components/SemiCircleProgressBar.vue';
+import CircularProgressBar from '@/components/CircularProgressBar.vue';
+
 export default {
+  name: 'OverviewPage',
+  components: {
+    SemiCircleProgressBar,
+    CircularProgressBar,
+  },
   data() {
     return {
-      alarms: [
-        { id: 1, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 2, isActive: false, isOnline: true, lastUpdated: '2024-05-29 14:20:00' },
-        { id: 3, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:25:00' },
-        { id: 4, isActive: false, isOnline: false, lastUpdated: '2024-05-29 14:15:00' },
-        { id: 5, isActive: true, isOnline: false, lastUpdated: '2024-05-29 14:35:00' },
-        { id: 6, isActive: false, isOnline: true, lastUpdated: '2024-05-29 14:10:00' },
+      selectedArea: null,
+      totalGroups: 0,
+      totalItems: 0,
+      itemsWithConnectionIssues: 0,
+      progressData: [
+        { label: 'Energy Efficiency', value: 100 },
+        { label: 'Water Usage', value: 100 },
+        { label: 'Temperature Control', value: 100 },
+        { label: 'Air Quality', value: 100 },
+        { label: 'System Performance', value: 100 },
       ],
-      devices: [
-        { id: 1, name: 'Device 1', temperature: 22, humidity: 45, pressure: 1013, co2: 400 },
-        { id: 2, name: 'Device 2', temperature: 23, humidity: 50, pressure: 1012, co2: 420 },
-        { id: 3, name: 'Device 3', temperature: 21, humidity: 55, pressure: 1011, co2: 410 },
-        { id: 4, name: 'Device 4', temperature: 20, humidity: 60, pressure: 1010, co2: 430 },
-        { id: 5, name: 'Device 5', temperature: 19, humidity: 65, pressure: 1009, co2: 440 },
-        { id: 6, name: 'Device 6', temperature: 24, humidity: 70, pressure: 1008, co2: 450 },
-        { id: 7, name: 'Device 7', temperature: 25, humidity: 75, pressure: 1007, co2: 460 },
-        { id: 8, name: 'Device 8', temperature: 26, humidity: 80, pressure: 1006, co2: 470 },
-        { id: 9, name: 'Device 9', temperature: 27, humidity: 85, pressure: 1005, co2: 480 },
+      fireAlarms: [
+        { name: 'Fire Alarm System Overview', operational: 100 },
+        { name: 'SAP-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'SAP-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'SAP-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'SAP-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
+        { name: 'SAP-5', status: 'Online', lastUpdated: '2024-05-29 14:35:00' },
+        { name: 'SAP-6', status: 'Online', lastUpdated: '2024-05-29 14:10:00' },
       ],
-      powerDevices: [
-        { id: 1, name: 'Device 1', kwh: 123.45 },
-        { id: 2, name: 'Device 2', kwh: 67.89 },
-        { id: 3, name: 'Device 3', kwh: 45.67 },
-        { id: 4, name: 'Device 4', kwh: 89.12 },
-        { id: 5, name: 'Device 5', kwh: 23.45 },
-        { id: 6, name: 'Device 6', kwh: 78.90 },
-        { id: 7, name: 'Device 7', kwh: 56.78 },
-        { id: 8, name: 'Device 8', kwh: 34.56 },
-        { id: 9, name: 'Device 9', kwh: 12.34 },
+      iaqDevices: [
+        { name: 'IAQ Devices Overview', operational: 100 },
+        { name: 'Device 1', status: 'Online', avgTemp: 23.0, avgHumidity: 65.0, avgPressure: 1009.0, avgCO2: 440.0 },
+        { name: 'Device 2', status: 'Online', avgTemp: 24.0, avgHumidity: 64.0, avgPressure: 1008.0, avgCO2: 450.0 },
       ],
-      waterReadings: [
-        {
-          device: 'Water Meter 1',
-          flowRate: 12.5,
-          usage: 450,
-          pressure: 101,
-          temperature: 20.5,
-        },
-        {
-          device: 'Water Meter 2',
-          flowRate: 10.3,
-          usage: 300,
-          pressure: 99,
-          temperature: 21.0,
-        },
-        {
-          device: 'Water Meter 3',
-          flowRate: 14.8,
-          usage: 520,
-          pressure: 102,
-          temperature: 19.8,
-        },
-        {
-          device: 'Water Meter 4',
-          flowRate: 11.1,
-          usage: 410,
-          pressure: 100,
-          temperature: 20.0,
-        },
+      powerMeters: [
+        { name: 'Power Meter Overview', operational: 100 },
+        { name: 'Power Meter 1', status: 'Online', avgKwh: 59.13, totalKwh: 531.67 },
+        { name: 'Power Meter 2', status: 'Online', avgKwh: 60.00, totalKwh: 600.00 },
       ],
+      waterMeters: [
+        { name: 'Water Meter Overview', operational: 100 },
+        { name: 'Water Meter 1', status: 'Online', avgFlowRate: 12.18, avgUsage: 420.0, avgPressure: 100.5, avgTemperature: 20.32 },
+        { name: 'Water Meter 2', status: 'Online', avgFlowRate: 13.00, avgUsage: 430.0, avgPressure: 101.0, avgTemperature: 21.00 },
+      ],
+      currentFireAlarmIndex: 0,
+      currentIAQDeviceIndex: 0,
+      currentPowerMeterIndex: 0,
+      currentWaterMeterIndex: 0,
     };
   },
+  computed: {
+    currentFireAlarm() {
+      return this.fireAlarms[this.currentFireAlarmIndex];
+    },
+    currentIAQDevice() {
+      return this.iaqDevices[this.currentIAQDeviceIndex];
+    },
+    currentPowerMeter() {
+      return this.powerMeters[this.currentPowerMeterIndex];
+    },
+    currentWaterMeter() {
+      return this.waterMeters[this.currentWaterMeterIndex];
+    },
+  },
   methods: {
-    calculateAverage(data, key) {
-      const total = data.reduce((sum, item) => sum + item[key], 0);
-      return (total / data.length).toFixed(2);
+    selectArea(area) {
+      this.selectedArea = area;
     },
-    navigateTo(page) {
-      this.$router.push(page);
+    async fetchSummaryData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/east/bms/groups');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        let textData = await response.text();
+        textData = textData.replace(/ObjectId\("([^"]+)"\)/g, '"$1"');
+        const groupsData = JSON.parse(textData);
+
+        const dataResponse = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/all/east/latest/data');
+        if (!dataResponse.ok) {
+          throw new Error('Network response was not ok');
+        }
+        let latestTextData = await dataResponse.text();
+        latestTextData = latestTextData.replace(/ObjectId\("([^"]+)"\)/g, '"$1"');
+        latestTextData = latestTextData.replace(/ISODate\("([^"]+)"\)/g, '"$1"');
+        const latestData = JSON.parse(latestTextData);
+
+        this.totalGroups = groupsData.length;
+        this.totalItems = groupsData.reduce((total, group) => total + group.group.length, 0);
+        this.itemsWithConnectionIssues = latestData.filter(item => item.Status !== 'OK').length;
+
+      } catch (error) {
+        console.error('Error fetching summary data:', error);
+      }
     },
+    nextFireAlarm() {
+      if (this.currentFireAlarmIndex < this.fireAlarms.length - 1) {
+        this.currentFireAlarmIndex++;
+      }
+    },
+    prevFireAlarm() {
+      if (this.currentFireAlarmIndex > 0) {
+        this.currentFireAlarmIndex--;
+      }
+    },
+    nextIAQDevice() {
+      if (this.currentIAQDeviceIndex < this.iaqDevices.length - 1) {
+        this.currentIAQDeviceIndex++;
+      }
+    },
+    prevIAQDevice() {
+      if (this.currentIAQDeviceIndex > 0) {
+        this.currentIAQDeviceIndex--;
+      }
+    },
+    nextPowerMeter() {
+      if (this.currentPowerMeterIndex < this.powerMeters.length - 1) {
+        this.currentPowerMeterIndex++;
+      }
+    },
+    prevPowerMeter() {
+      if (this.currentPowerMeterIndex > 0) {
+        this.currentPowerMeterIndex--;
+      }
+    },
+    nextWaterMeter() {
+      if (this.currentWaterMeterIndex < this.waterMeters.length - 1) {
+        this.currentWaterMeterIndex++;
+      }
+    },
+    prevWaterMeter() {
+      if (this.currentWaterMeterIndex > 0) {
+        this.currentWaterMeterIndex--;
+      }
+    },
+  },
+  async created() {
+    await this.fetchSummaryData();
   },
 };
 </script>
 
 <style scoped>
-.container-fluid {
-  max-width: 1200px;
+.overview-container {
+  display: grid;
+  grid-template-areas:
+    "summary-be map-hierarchy"
+    "summary-subsystems map-hierarchy";
+  grid-gap: 20px;
+  padding: 20px;
 }
-.card {
-  border: none;
+
+.summary-be {
+  grid-area: summary-be;
+  background: #f8f9fa;
+  padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-.card-header {
-  font-size: 1.2rem;
+
+.progress-bars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
 }
-.card-body {
-  padding: 15px;
+
+.progress-bar-container {
+  flex: 1;
+  min-width: 100px;
 }
-.table {
-  margin-bottom: 0;
+
+.map-hierarchy {
+  grid-area: map-hierarchy;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-.badge {
-  font-size: 0.9rem;
+
+.summary-subsystems {
+  grid-area: summary-subsystems;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-.badge.bg-danger {
-  background-color: #dc3545;
+
+.summary-content,
+.map-content,
+.subsystems-content {
+  display: flex;
+  flex-direction: column;
 }
-.badge.bg-success {
-  background-color: #28a745;
+
+.subsystems-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
-.btn {
-  font-size: 1rem;
-  font-weight: bold;
+
+.subsystem-card {
+  background: #1c1e29;
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.subsystem-card h4 {
+  color: #ffffff;
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.card-pagination button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.card-pagination p {
+  margin: 0 5px;
+}
+
+.semi-circle-progress {
+  margin: 20px 0;
+}
+
+.status-dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.status-online {
+  background-color: green;
+}
+
+.status-offline {
+  background-color: red;
+}
+
+.see-more {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.fixed-size {
+  width: 100%;
+  height: 400px; /* Adjust height as needed */
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import OverviewPage from '@/views/OverviewPage.vue';
-import PowerMeterReadingPage from '@/views/PowerMeterReadingPage.vue';
 import WaterMeterReadingPage from '@/views/WaterMeterReadingPage.vue';
 import IAQDevicesReadingPage from '@/views/IAQDevicesReadingPage.vue';
 import BMSReadingPage from '@/views/BMSReadingPage.vue';
 import FireAlarmSystem from '@/views/FireAlarmSystem.vue';
+import PowerMeterReadingPage from '@/views/PowerMeterReadingPage.vue';
+import PowerDeviceDetailPage from '@/views/PowerDeviceDetailPage.vue';
 
 const routes = [
   {
@@ -14,8 +15,14 @@ const routes = [
   },
   {
     path: '/power-meter-reading',
-    name: 'PowerMeterReadingPage',
+    name: 'PowerMeterReading',
     component: PowerMeterReadingPage,
+  },
+  {
+    path: '/power-meter-reading/:id',
+    name: 'PowerDeviceDetail',
+    component: PowerDeviceDetailPage,
+    props: true,
   },
   {
     path: '/water-meter-reading',
