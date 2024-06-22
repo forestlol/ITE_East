@@ -1,7 +1,7 @@
 <template>
   <div class="overview-container">
     <div class="summary-be">
-      <h3>Summary of BE</h3>
+      <h3>Summary of BE IMBS</h3>
       <div class="summary-content">
         <div class="progress-bars">
           <div v-for="(progress, index) in progressData" :key="index" class="progress-bar-container">
@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class="summary-subsystems">
-      <h3>Summary of Sub-Systems</h3>
+      <h3>Summary of Different Sub-Systems</h3>
       <div class="subsystems-content">
         <div class="subsystem-card">
           <h4>{{ currentFireAlarm.name }}</h4>
@@ -26,7 +26,8 @@
           </div>
           <div v-else>
             <p>Status: {{ currentFireAlarm.status }}
-              <span :class="{'status-dot': true, 'status-online': currentFireAlarm.status === 'Online', 'status-offline': currentFireAlarm.status === 'Offline'}"></span>
+              <span
+                :class="{ 'status-dot': true, 'status-online': currentFireAlarm.status === 'Online', 'status-offline': currentFireAlarm.status === 'Offline' }"></span>
             </p>
             <p>Last Updated: {{ currentFireAlarm.lastUpdated }}</p>
           </div>
@@ -45,9 +46,6 @@
             <SemiCircleProgressBar :percentage="currentIAQDevice.operational" />
           </div>
           <div v-else>
-            <p>Status: {{ currentIAQDevice.status }}
-              <span :class="{'status-dot': true, 'status-online': currentIAQDevice.status === 'Online', 'status-offline': currentIAQDevice.status === 'Offline'}"></span>
-            </p>
             <p>Average Temp: {{ currentIAQDevice.avgTemp }}°C</p>
             <p>Average Humidity: {{ currentIAQDevice.avgHumidity }}%</p>
             <p>Average Pressure: {{ currentIAQDevice.avgPressure }} hPa</p>
@@ -68,9 +66,6 @@
             <SemiCircleProgressBar :percentage="currentPowerMeter.operational" />
           </div>
           <div v-else>
-            <p>Status: {{ currentPowerMeter.status }}
-              <span :class="{'status-dot': true, 'status-online': currentPowerMeter.status === 'Online', 'status-offline': currentPowerMeter.status === 'Offline'}"></span>
-            </p>
             <p>Average kWh: {{ currentPowerMeter.avgKwh }} kWh</p>
             <p>Total kWh: {{ currentPowerMeter.totalKwh }} kWh</p>
           </div>
@@ -78,7 +73,8 @@
             <div class="card-pagination">
               <button @click="prevPowerMeter" :disabled="currentPowerMeterIndex === 0">&lt;</button>
               <p>{{ currentPowerMeterIndex + 1 }}/{{ powerMeters.length }}</p>
-              <button @click="nextPowerMeter" :disabled="currentPowerMeterIndex === powerMeters.length - 1">&gt;</button>
+              <button @click="nextPowerMeter"
+                :disabled="currentPowerMeterIndex === powerMeters.length - 1">&gt;</button>
             </div>
             <router-link to="/power-meter-reading" class="see-more">View Details</router-link>
           </div>
@@ -89,9 +85,6 @@
             <SemiCircleProgressBar :percentage="currentWaterMeter.operational" />
           </div>
           <div v-else>
-            <p>Status: {{ currentWaterMeter.status }}
-              <span :class="{'status-dot': true, 'status-online': currentWaterMeter.status === 'Online', 'status-offline': currentWaterMeter.status === 'Offline'}"></span>
-            </p>
             <p>Average Flow Rate: {{ currentWaterMeter.avgFlowRate }} L/min</p>
             <p>Average Usage: {{ currentWaterMeter.avgUsage }} L</p>
             <p>Average Pressure: {{ currentWaterMeter.avgPressure }} kPa</p>
@@ -101,10 +94,32 @@
             <div class="card-pagination">
               <button @click="prevWaterMeter" :disabled="currentWaterMeterIndex === 0">&lt;</button>
               <p>{{ currentWaterMeterIndex + 1 }}/{{ waterMeters.length }}</p>
-              <button @click="nextWaterMeter" :disabled="currentWaterMeterIndex === waterMeters.length - 1">&gt;</button>
+              <button @click="nextWaterMeter"
+                :disabled="currentWaterMeterIndex === waterMeters.length - 1">&gt;</button>
             </div>
             <router-link to="/water-meter-reading" class="see-more">View Details</router-link>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="additional-cards">
+      <div class="additional-card auto-scroll-feed">
+        <h4>Feed</h4>
+        <div class="feed-wrapper">
+          <div class="feed-content">
+            <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
+              <p>{{ feed.message }}</p>
+              <small>{{ feed.time }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="additional-card quick-links">
+        <h4>Quick Links</h4>
+        <div class="links-content">
+          <button v-for="(link, index) in quickLinks" :key="index" class="quick-link-button">
+            {{ link.label }}
+          </button>
         </div>
       </div>
     </div>
@@ -162,6 +177,20 @@ export default {
       currentIAQDeviceIndex: 0,
       currentPowerMeterIndex: 0,
       currentWaterMeterIndex: 0,
+      feedData: [
+        { message: 'Fire Alarm SAP-2 is offline.', time: '2024-06-22 14:30:00' },
+        { message: 'AHU-1 temperature record high: 28°C.', time: '2024-06-22 13:45:00' },
+        { message: 'IAQ Device 1 CO2 level high: 800 ppm.', time: '2024-06-22 12:00:00' },
+        { message: 'Water Meter 1 usage high: 500 L.', time: '2024-06-22 11:15:00' },
+        { message: 'Power Meter 2 voltage low: 210V.', time: '2024-06-22 10:30:00' },
+      ],
+      quickLinks: [
+        { label: 'Fire Alarm System' },
+        { label: 'IAQ Devices' },
+        { label: 'Power Meter' },
+        { label: 'Water Meter' },
+        { label: 'System Overview' },
+      ],
     };
   },
   computed: {
@@ -257,11 +286,59 @@ export default {
 </script>
 
 <style scoped>
+.additional-card.quick-links {
+  flex: 1;
+  background: #1c1e29;
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.links-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px; /* Adjust the gap between buttons as needed */
+  margin-top: 10px; /* Add margin to separate the title and content */
+}
+
+.quick-link-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 150px; /* Ensures buttons have a consistent width */
+  text-align: center;
+}
+
+.quick-link-button:hover {
+  background: #0056b3;
+}
+
+.quick-link-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+.quick-link-button:last-child {
+  margin-bottom: 0;
+}
+
 .overview-container {
   display: grid;
+  grid-template-columns: 3fr 3fr;
+  /* Makes the left column wider */
   grid-template-areas:
     "summary-be map-hierarchy"
-    "summary-subsystems map-hierarchy";
+    "summary-subsystems map-hierarchy"
+    "summary-subsystems additional-cards";
   grid-gap: 20px;
   padding: 20px;
 }
@@ -292,6 +369,92 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.additional-cards {
+  grid-area: additional-cards;
+  display: flex;
+  justify-content: flex-end; /* Aligns items to the right */
+  gap: 20px;
+}
+
+.additional-card {
+  background: #1c1e29;
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.additional-card.auto-scroll-feed {
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Ensures content stays within the card */
+  flex: 1; /* Takes up remaining space */
+  width: 100%; /* Ensure it fills the available width */
+}
+
+.feed-wrapper {
+  position: relative;
+  height: 100%;
+  overflow: hidden; /* Ensures content stays within the card */
+  margin-top: 10px; /* Add margin to separate the title and content */
+  width: 100%; /* Ensure it fills the available width */
+}
+
+.feed-content {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  animation: scroll 20s linear infinite;
+  width: 100%; /* Ensure it fills the available width */
+}
+
+.feed-item {
+  background: #2c2e39;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  width: 100%; /* Ensure it fills the available width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+
+@keyframes scroll {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(calc(-100% - 10px)); /* Adjust this value to ensure correct scrolling distance */
+  }
+}
+
+.quick-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-link-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.quick-link-button:last-child {
+  margin-bottom: 0;
 }
 
 .summary-subsystems {
@@ -333,12 +496,6 @@ export default {
 }
 
 .card-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -388,11 +545,7 @@ export default {
   text-decoration: none;
 }
 
-.fixed-size {
-  width: 100%;
-  height: 400px; /* Adjust height as needed */
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.see-more:hover {
+  text-decoration: underline;
 }
 </style>

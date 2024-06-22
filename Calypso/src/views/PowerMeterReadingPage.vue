@@ -1,17 +1,38 @@
 <template>
   <div class="container mt-5">
-    <h2>Power Meter Reading</h2>
+    <h2 class="text-center mb-4">Power Meter Reading</h2>
     <div class="row">
-      <div class="col-md-4 mb-4" v-for="device in devices" :key="device.id">
-        <div class="card custom-card h-100">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ device.name }}</h5>
-            <p class="card-text">kWh: {{ device.kwh }}</p>
-            <p class="card-text">Voltage: {{ device.voltage }}</p>
-            <p class="card-text">Current: {{ device.current }}</p>
-            <p class="card-text">Power Factor: {{ device.powerFactor }}</p>
+      <div class="col-md-3">
+        <h4 class="section-title">Power Meters</h4>
+        <div class="device-list">
+          <div
+            v-for="device in devices"
+            :key="device.id"
+            :class="['device-item', { 'highlight': hoveredDevice === device.id }]"
+            @mouseenter="hoveredDevice = device.id"
+            @mouseleave="hoveredDevice = null"
+          >
+            <h5>{{ device.name }}</h5>
+            <p>kWh: {{ device.kwh }}</p>
+            <p>Voltage: {{ device.voltage }}</p>
+            <p>Current: {{ device.current }}</p>
+            <p>Power Factor: {{ device.powerFactor }}</p>
             <button @click="viewDetails(device.id)" class="btn btn-primary mt-auto">View Details</button>
           </div>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="view-switcher">
+          <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
+          <button @click="toggleView('floorplan')" :class="{'active': currentView === 'floorplan'}">Floorplan</button>
+        </div>
+        <div class="view-container" v-if="currentView === 'relation'">
+          <p>Relation view content goes here.</p>
+          <!-- Replace the p tag above with the actual image tag when you have the image -->
+        </div>
+        <div class="view-container" v-if="currentView === 'floorplan'">
+          <p>Floorplan view content goes here.</p>
+          <!-- Replace the p tag above with the actual image tag when you have the image -->
         </div>
       </div>
     </div>
@@ -23,6 +44,8 @@ export default {
   name: 'PowerMeterReadingPage',
   data() {
     return {
+      currentView: 'relation',
+      hoveredDevice: null,
       devices: [
         { id: 1, name: 'Device 1', kwh: 123.45, voltage: 220, current: 10, powerFactor: 0.95 },
         { id: 2, name: 'Device 2', kwh: 67.89, voltage: 220, current: 8, powerFactor: 0.9 },
@@ -40,27 +63,89 @@ export default {
     viewDetails(deviceId) {
       this.$router.push({ name: 'PowerDeviceDetail', params: { id: deviceId } });
     },
+    toggleView(view) {
+      this.currentView = view;
+    },
   },
 };
 </script>
 
 <style scoped>
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
 }
-.custom-card {
-  border: none;
-  border-radius: 10px;
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.device-list::-webkit-scrollbar {
+  width: 8px;
+}
+.device-list::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+.device-list::-webkit-scrollbar-thumb {
+  background-color: #007bff;
+  border-radius: 5px;
+  border: 2px solid #f8f9fa;
+}
+.device-item {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-.card-title {
+.device-item:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+.device-item h5 {
+  margin-bottom: 10px;
   font-size: 1.25rem;
   font-weight: bold;
+  color: #007bff;
 }
-.card-text {
+.view-switcher {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.view-switcher button {
+  background-color: #f8f9fa;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
   font-size: 1rem;
+  transition: background-color 0.3s;
 }
-.btn {
-  margin-top: auto;
+.view-switcher button.active {
+  background-color: #007bff;
+  color: white;
+}
+.view-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px; /* Adjust as needed */
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+.highlight {
+  border: 2px solid #00BCD4;
+  border-radius: 5px;
 }
 </style>
