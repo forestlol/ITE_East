@@ -708,6 +708,7 @@ export default {
   gap: 20px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  padding-left: 5%;
 }
 
 .subsystem-card {
@@ -722,8 +723,8 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   border: 2px solid #d3d3d3; /* Updated border color */
-  width: 350px; /* Fixed width */
-  height: 300px; /* Fixed height */
+  width: 93%; /* Fixed width */
+  height: 96%; /* Fixed height */
   box-sizing: border-box; /* Ensures padding and border are included in the width and height */
 }
 
@@ -737,7 +738,7 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  padding: 0 10px; /* Add padding to the left and right */
+  padding: 0 0px; /* Add padding to the left and right */
 }
 
 .scroll-button.left {
