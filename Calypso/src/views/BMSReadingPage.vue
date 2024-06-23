@@ -50,9 +50,6 @@
             </div>
           </div>
         </div>
-        <div class="link-button">
-          <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
-        </div>
       </div>
     </div>
   </div>
