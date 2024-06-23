@@ -33,11 +33,13 @@
           <p>Floorplan view content goes here.</p>
           <!-- Replace the p tag above with the actual image tag when you have the image -->
         </div>
+        <div class="link-button">
+          <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: 'WaterMeterReading',
@@ -81,10 +83,12 @@ export default {
     toggleView(view) {
       this.currentView = view;
     },
+    navigateTo3DLandscape() {
+      window.location.href = "https://your-3d-landscape-url.com";
+    },
   },
 };
 </script>
-
 <style scoped>
 .container {
   max-width: 1200px;
@@ -110,7 +114,7 @@ export default {
   border-radius: 5px;
 }
 .device-list::-webkit-scrollbar-thumb {
-  background-color: #007bff;
+  background-color: lightgrey;
   border-radius: 5px;
   border: 2px solid #f8f9fa;
 }
@@ -158,6 +162,12 @@ export default {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
+}
+.link-button {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
 }
 .highlight {
   border: 2px solid #00BCD4;

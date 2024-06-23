@@ -1,21 +1,38 @@
 <template>
   <div id="app">
-    <NavBar />
-    <router-view />
+    <Sidebar @update:expanded="isSidebarExpanded = $event" />
+    <div :class="['main-content', { 'sidebar-expanded': isSidebarExpanded }]">
+      <router-view />
+    </div>
   </div>
 </template>
 
 <script>
-import NavBar from './components/NavBar.vue';
+import Sidebar from './components/Sidebar.vue';
 
 export default {
-  name: 'App',
   components: {
-    NavBar,
+    Sidebar,
+  },
+  data() {
+    return {
+      isSidebarExpanded: false,
+    };
   },
 };
 </script>
 
 <style>
-/* Add any global styles here */
+
+.main-content {
+  background-color: #d6ecfa;
+  flex: 1;
+  transition: margin-left 0.3s;
+  padding: 20px;
+  margin-left: 60px; /* Default sidebar width */
+}
+
+.main-content.sidebar-expanded {
+  margin-left: 200px; /* Expanded sidebar width */
+}
 </style>

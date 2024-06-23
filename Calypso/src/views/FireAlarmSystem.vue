@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-5">
+  <div class="container mt-5 bordered-container">
     <h2 class="text-center mb-4">Fire Alarm System</h2>
     <div class="row">
       <div class="col-md-3">
@@ -47,6 +47,9 @@
             <span :class="{'online': alarm.isOnline, 'offline': !alarm.isOnline}"></span>
           </div>
         </div>
+        <div class="link-button">
+          <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
+        </div>
       </div>
     </div>
   </div>
@@ -62,24 +65,28 @@ export default {
       alarms: [
         { id: 1, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         { id: 2, isActive: false, isOnline: false, lastUpdated: '2024-05-29 14:20:00' },
+       
         { id: 3, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:25:00' },
         { id: 4, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:15:00' },
         { id: 5, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:35:00' },
         { id: 6, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:10:00' },
       ],
       alarmPositions: [
-        { top: '41%', left: '84.2%' },
-        { top: '41%', left: '63.3%' },
-        { top: '41%', left: '42.3%' },
-        { top: '88%', left: '84.2%' },
-        { top: '88%', left: '63.3%' },
-        { top: '88%', left: '42.3%' },
+        { top: '41.5%', left: '83.5%' },
+        { top: '41.5%', left: '63%' },
+        { top: '41.5%', left: '42.3%' },
+        { top: '86.4%', left: '83.5%' },
+        { top: '86.4%', left: '63.1%' },
+        { top: '86.4%', left: '42.4%' },
       ],
     };
   },
   methods: {
     toggleView(view) {
       this.currentView = view;
+    },
+    navigateTo3DLandscape() {
+      window.location.href = "https://your-3d-landscape-url.com";
     },
   },
 };
@@ -119,6 +126,7 @@ export default {
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid lightgrey; /* Add a light grey border to each overview item */
   transition: transform 0.3s, box-shadow 0.3s;
 }
 .overview-item:hover {
@@ -153,6 +161,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  border: 1px solid lightgrey; /* Add a border to the map container */
+  border-radius: 5px; /* Optional: Add rounded corners to the map container */
+  padding: 10px; /* Optional: Add padding inside the map container */
 }
 .map-image {
   width: 100%;
@@ -162,6 +174,7 @@ export default {
   position: absolute;
   width: 20px;
   height: 20px;
+  border: 1px solid black; /* Adding black border */
 }
 .alarm-status span {
   display: block;
@@ -171,10 +184,12 @@ export default {
 .online {
   background-color: green;
   border-radius: 2px;
+  border: 1px solid black; /* Adding black border */
 }
 .offline {
   background-color: red;
   border-radius: 2px;
+  border: 1px solid black; /* Adding black border */
 }
 .text-danger {
   color: #dc3545 !important;
@@ -185,5 +200,11 @@ export default {
 .highlight {
   border: 2px solid #00BCD4;
   border-radius: 2px;
+}
+.link-button {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="overview-container">
     <div class="summary-be">
-      <h3>Summary of BE IMBS</h3>
+      <h3>Summary of BE</h3>
       <div class="summary-content">
         <div class="progress-bars">
           <div v-for="(progress, index) in progressData" :key="index" class="progress-bar-container">
@@ -18,93 +18,134 @@
     </div>
     <div class="summary-subsystems">
       <h3>Summary of Different Sub-Systems</h3>
-      <div class="subsystems-content">
-        <div class="subsystem-card">
-          <h4>{{ currentFireAlarm.name }}</h4>
-          <div v-if="currentFireAlarmIndex === 0" class="semi-circle-progress">
-            <SemiCircleProgressBar :percentage="currentFireAlarm.operational" />
-          </div>
-          <div v-else>
-            <p>Status: {{ currentFireAlarm.status }}
-              <span
-                :class="{ 'status-dot': true, 'status-online': currentFireAlarm.status === 'Online', 'status-offline': currentFireAlarm.status === 'Offline' }"></span>
-            </p>
-            <p>Last Updated: {{ currentFireAlarm.lastUpdated }}</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-pagination">
-              <button @click="prevFireAlarm" :disabled="currentFireAlarmIndex === 0">&lt;</button>
-              <p>{{ currentFireAlarmIndex + 1 }}/7</p>
-              <button @click="nextFireAlarm" :disabled="currentFireAlarmIndex === fireAlarms.length - 1">&gt;</button>
+      <div class="subsystems-container">
+        <button class="scroll-button left" @click="scrollLeft">&lt;</button>
+        <div class="subsystems-content">
+          <div class="subsystem-card" v-for="(subsystem, index) in displayedSubsystems" :key="index">
+            <h4 v-if="subsystem.name === 'Fire Alarm System Overview'">
+              {{ currentFireAlarmIndex === 0 ? subsystem.name : fireAlarms[currentFireAlarmIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Air Quality System Overview'">
+              {{ currentIAQDeviceIndex === 0 ? subsystem.name : iaqDevices[currentIAQDeviceIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Energy Management System Overview'">
+              {{ currentPowerMeterIndex === 0 ? subsystem.name : powerMeters[currentPowerMeterIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Asset Tagging System Overview'">
+              {{ currentWaterMeterIndex === 0 ? subsystem.name : waterMeters[currentWaterMeterIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Landscape Overview'">
+              {{ currentSmartLandscapeIndex === 0 ? subsystem.name : smartLandscape[currentSmartLandscapeIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Washroom System Overview'">
+              {{ currentSmartToiletIndex === 0 ? subsystem.name : smartToilet[currentSmartToiletIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Building Management System (JCS) Overview'">
+              {{ currentBMSIndex === 0 ? subsystem.name : bms[currentBMSIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Pest Control System Overview'">
+              {{ currentSmartPestControlIndex === 0 ? subsystem.name : smartPestControl[currentSmartPestControlIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Security System Overview'">
+              {{ currentSmartSecurityIndex === 0 ? subsystem.name : smartSecurity[currentSmartSecurityIndex].name }}
+            </h4>
+            <div v-if="subsystem.name === 'Fire Alarm System Overview'">
+              <SemiCircleProgressBar v-if="currentFireAlarmIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ fireAlarms[currentFireAlarmIndex].status }} 
+                  <span :class="['status-dot', {'status-online': fireAlarms[currentFireAlarmIndex].status === 'Online', 'status-offline': fireAlarms[currentFireAlarmIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ fireAlarms[currentFireAlarmIndex].lastUpdated }}</p>
+              </div>
             </div>
-            <router-link to="/fire-alarm-system" class="see-more">View Details</router-link>
+            <div v-if="subsystem.name === 'Smart Air Quality System Overview'">
+              <SemiCircleProgressBar v-if="currentIAQDeviceIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Avg Temp: {{ iaqDevices[currentIAQDeviceIndex].avgTemp }}°C</p>
+                <p>Avg Humidity: {{ iaqDevices[currentIAQDeviceIndex].avgHumidity }}%</p>
+                <p>Avg Pressure: {{ iaqDevices[currentIAQDeviceIndex].avgPressure }} hPa</p>
+                <p>Avg CO2: {{ iaqDevices[currentIAQDeviceIndex].avgCO2 }} ppm</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Smart Energy Management System Overview'">
+              <SemiCircleProgressBar v-if="currentPowerMeterIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Avg kWh: {{ powerMeters[currentPowerMeterIndex].avgKwh }}</p>
+                <p>Total kWh: {{ powerMeters[currentPowerMeterIndex].totalKwh }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Asset Tagging System Overview'">
+              <SemiCircleProgressBar v-if="currentWaterMeterIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Avg Flow Rate: {{ waterMeters[currentWaterMeterIndex].avgFlowRate }} L/min</p>
+                <p>Avg Usage: {{ waterMeters[currentWaterMeterIndex].avgUsage }} L</p>
+                <p>Avg Pressure: {{ waterMeters[currentWaterMeterIndex].avgPressure }} kPa</p>
+                <p>Avg Temperature: {{ waterMeters[currentWaterMeterIndex].avgTemperature }}°C</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Smart Landscape Overview'">
+              <SemiCircleProgressBar v-if="currentSmartLandscapeIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ smartLandscape[currentSmartLandscapeIndex].status }}
+                  <span :class="['status-dot', {'status-online': smartLandscape[currentSmartLandscapeIndex].status === 'Online', 'status-offline': smartLandscape[currentSmartLandscapeIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ smartLandscape[currentSmartLandscapeIndex].lastUpdated }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Smart Washroom System Overview'">
+              <SemiCircleProgressBar v-if="currentSmartToiletIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ smartToilet[currentSmartToiletIndex].status }}
+                  <span :class="['status-dot', {'status-online': smartToilet[currentSmartToiletIndex].status === 'Online', 'status-offline': smartToilet[currentSmartToiletIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ smartToilet[currentSmartToiletIndex].lastUpdated }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Building Management System (JCS) Overview'">
+              <SemiCircleProgressBar v-if="currentBMSIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Connection: {{ bms[currentBMSIndex].connection }}</p>
+                <p>Value: {{ bms[currentBMSIndex].value }}</p>
+                <p>Date: {{ bms[currentBMSIndex].date }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Smart Pest Control System Overview'">
+              <SemiCircleProgressBar v-if="currentSmartPestControlIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ smartPestControl[currentSmartPestControlIndex].status }}
+                  <span :class="['status-dot', {'status-online': smartPestControl[currentSmartPestControlIndex].status === 'Online', 'status-offline': smartPestControl[currentSmartPestControlIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ smartPestControl[currentSmartPestControlIndex].lastUpdated }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Smart Security System Overview'">
+              <SemiCircleProgressBar v-if="currentSmartSecurityIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ smartSecurity[currentSmartSecurityIndex].status }}
+                  <span :class="['status-dot', {'status-online': smartSecurity[currentSmartSecurityIndex].status === 'Online', 'status-offline': smartSecurity[currentSmartSecurityIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ smartSecurity[currentSmartSecurityIndex].lastUpdated }}</p>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="card-pagination">
+                <button @click="prevItem(subsystem.name)" :disabled="!canPrevItem(subsystem.name)">&lt;</button>
+                <p>{{ getCurrentIndex(subsystem.name) + 1 }}/{{ getTotalPages(subsystem.name) }}</p>
+                <button @click="nextItem(subsystem.name)" :disabled="!canNextItem(subsystem.name)">&gt;</button>
+              </div>
+              <router-link :to="subsystem.link" class="see-more">View Details</router-link>
+            </div>
           </div>
         </div>
-        <div class="subsystem-card">
-          <h4>{{ currentIAQDevice.name }}</h4>
-          <div v-if="currentIAQDeviceIndex === 0" class="semi-circle-progress">
-            <SemiCircleProgressBar :percentage="currentIAQDevice.operational" />
-          </div>
-          <div v-else>
-            <p>Average Temp: {{ currentIAQDevice.avgTemp }}°C</p>
-            <p>Average Humidity: {{ currentIAQDevice.avgHumidity }}%</p>
-            <p>Average Pressure: {{ currentIAQDevice.avgPressure }} hPa</p>
-            <p>Average CO2: {{ currentIAQDevice.avgCO2 }} ppm</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-pagination">
-              <button @click="prevIAQDevice" :disabled="currentIAQDeviceIndex === 0">&lt;</button>
-              <p>{{ currentIAQDeviceIndex + 1 }}/{{ iaqDevices.length }}</p>
-              <button @click="nextIAQDevice" :disabled="currentIAQDeviceIndex === iaqDevices.length - 1">&gt;</button>
-            </div>
-            <router-link to="/iaq-devices-reading" class="see-more">View Details</router-link>
-          </div>
-        </div>
-        <div class="subsystem-card">
-          <h4>{{ currentPowerMeter.name }}</h4>
-          <div v-if="currentPowerMeterIndex === 0" class="semi-circle-progress">
-            <SemiCircleProgressBar :percentage="currentPowerMeter.operational" />
-          </div>
-          <div v-else>
-            <p>Average kWh: {{ currentPowerMeter.avgKwh }} kWh</p>
-            <p>Total kWh: {{ currentPowerMeter.totalKwh }} kWh</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-pagination">
-              <button @click="prevPowerMeter" :disabled="currentPowerMeterIndex === 0">&lt;</button>
-              <p>{{ currentPowerMeterIndex + 1 }}/{{ powerMeters.length }}</p>
-              <button @click="nextPowerMeter"
-                :disabled="currentPowerMeterIndex === powerMeters.length - 1">&gt;</button>
-            </div>
-            <router-link to="/power-meter-reading" class="see-more">View Details</router-link>
-          </div>
-        </div>
-        <div class="subsystem-card">
-          <h4>{{ currentWaterMeter.name }}</h4>
-          <div v-if="currentWaterMeterIndex === 0" class="semi-circle-progress">
-            <SemiCircleProgressBar :percentage="currentWaterMeter.operational" />
-          </div>
-          <div v-else>
-            <p>Average Flow Rate: {{ currentWaterMeter.avgFlowRate }} L/min</p>
-            <p>Average Usage: {{ currentWaterMeter.avgUsage }} L</p>
-            <p>Average Pressure: {{ currentWaterMeter.avgPressure }} kPa</p>
-            <p>Average Temperature: {{ currentWaterMeter.avgTemperature }}°C</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-pagination">
-              <button @click="prevWaterMeter" :disabled="currentWaterMeterIndex === 0">&lt;</button>
-              <p>{{ currentWaterMeterIndex + 1 }}/{{ waterMeters.length }}</p>
-              <button @click="nextWaterMeter"
-                :disabled="currentWaterMeterIndex === waterMeters.length - 1">&gt;</button>
-            </div>
-            <router-link to="/water-meter-reading" class="see-more">View Details</router-link>
-          </div>
-        </div>
+        <button class="scroll-button right" @click="scrollRight">&gt;</button>
+      </div>
+      <div class="page-indicators">
+        <span v-for="page in totalPages" :key="page" :class="{ 'active': page === currentPage + 1 }">•</span>
       </div>
     </div>
     <div class="additional-cards">
       <div class="additional-card auto-scroll-feed">
-        <h4>Feed</h4>
+        <h4>Live feed</h4>
         <div class="feed-wrapper">
           <div class="feed-content">
             <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
@@ -139,15 +180,33 @@ export default {
   data() {
     return {
       selectedArea: null,
-      totalGroups: 0,
-      totalItems: 0,
-      itemsWithConnectionIssues: 0,
+      currentPage: 0, // Index for the current page of sub-systems
+      currentFireAlarmIndex: 0,
+      currentIAQDeviceIndex: 0,
+      currentPowerMeterIndex: 0,
+      currentWaterMeterIndex: 0,
+      currentSmartLandscapeIndex: 0,
+      currentSmartToiletIndex: 0,
+      currentBMSIndex: 0,
+      currentSmartPestControlIndex: 0,
+      currentSmartSecurityIndex: 0,
       progressData: [
         { label: 'Energy Efficiency', value: 100 },
         { label: 'Water Usage', value: 100 },
         { label: 'Temperature Control', value: 100 },
         { label: 'Air Quality', value: 100 },
         { label: 'System Performance', value: 100 },
+      ],
+      subsystemData: [
+        { name: 'Fire Alarm System Overview', type: 'semi-circle', operational: 100, link: '/fire-alarm-system' },
+        { name: 'Smart Landscape Overview', type: 'semi-circle', operational: 100, link: '/smart-landscape-system' },
+        { name: 'Building Management System (JCS) Overview', type: 'semi-circle', operational: 100, link: '/bms-reading' },
+        { name: 'Smart Washroom System Overview', type: 'semi-circle', operational: 100, link: '/smart-toilet-system' },
+        { name: 'Smart Energy Management System Overview', type: 'semi-circle', operational: 100, link: '/power-meter-reading' },
+        { name: 'Smart Pest Control System Overview', type: 'semi-circle', operational: 100, link: '/smart-pest-control-system' },
+        { name: 'Smart Security System Overview', type: 'semi-circle', operational: 100, link: '/smart-security-system' },
+        { name: 'Smart Air Quality System Overview', type: 'semi-circle', operational: 100, link: '/smart-air-quality-system' },
+        { name: 'Asset Tagging System Overview', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
       ],
       fireAlarms: [
         { name: 'Fire Alarm System Overview', operational: 100 },
@@ -159,24 +218,58 @@ export default {
         { name: 'SAP-6', status: 'Online', lastUpdated: '2024-05-29 14:10:00' },
       ],
       iaqDevices: [
-        { name: 'IAQ Devices Overview', operational: 100 },
+        { name: 'Smart Air Quality System Overview', operational: 100 },
         { name: 'Device 1', status: 'Online', avgTemp: 23.0, avgHumidity: 65.0, avgPressure: 1009.0, avgCO2: 440.0 },
         { name: 'Device 2', status: 'Online', avgTemp: 24.0, avgHumidity: 64.0, avgPressure: 1008.0, avgCO2: 450.0 },
       ],
       powerMeters: [
-        { name: 'Power Meter Overview', operational: 100 },
+        { name: 'Smart Energy Management System Overview', operational: 100 },
         { name: 'Power Meter 1', status: 'Online', avgKwh: 59.13, totalKwh: 531.67 },
         { name: 'Power Meter 2', status: 'Online', avgKwh: 60.00, totalKwh: 600.00 },
       ],
       waterMeters: [
-        { name: 'Water Meter Overview', operational: 100 },
+        { name: 'Asset Tagging System Overview', operational: 100 },
         { name: 'Water Meter 1', status: 'Online', avgFlowRate: 12.18, avgUsage: 420.0, avgPressure: 100.5, avgTemperature: 20.32 },
         { name: 'Water Meter 2', status: 'Online', avgFlowRate: 13.00, avgUsage: 430.0, avgPressure: 101.0, avgTemperature: 21.00 },
       ],
-      currentFireAlarmIndex: 0,
-      currentIAQDeviceIndex: 0,
-      currentPowerMeterIndex: 0,
-      currentWaterMeterIndex: 0,
+      smartLandscape: [
+        { name: 'Smart Landscape Overview', operational: 100 },
+        { name: 'Landscape-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'Landscape-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'Landscape-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'Landscape-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
+      ],
+      smartToilet: [
+        { name: 'Smart Washroom System Overview', operational: 100 },
+        { name: 'Toilet-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'Toilet-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'Toilet-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'Toilet-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
+      ],
+      bms: [
+        { name: 'Building Management System (JCS) Overview', operational: 100 },
+        { name: 'BMS-1', connection: 'OK', value: '27.03 °C', date: '06/23/2024 5:06:39 PM' },
+        { name: 'BMS-2', connection: 'N/A', value: 'N/A', date: '06/23/2024 5:06:39 PM' },
+        { name: 'BMS-3', connection: 'OK', value: '27.77 °C', date: '06/23/2024 5:06:39 PM' },
+      ],
+      smartPestControl: [
+        { name: 'Smart Pest Control System Overview', operational: 100 },
+        { name: 'Pest-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'Pest-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'Pest-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'Pest-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
+        { name: 'Pest-5', status: 'Online', lastUpdated: '2024-05-29 14:35:00' },
+        { name: 'Pest-6', status: 'Online', lastUpdated: '2024-05-29 14:10:00' },
+      ],
+      smartSecurity: [
+        { name: 'Smart Security System Overview', operational: 100 },
+        { name: 'Security-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'Security-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'Security-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'Security-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
+        { name: 'Security-5', status: 'Online', lastUpdated: '2024-05-29 14:35:00' },
+        { name: 'Security-6', status: 'Online', lastUpdated: '2024-05-29 14:10:00' },
+      ],
       feedData: [
         { message: 'Fire Alarm SAP-2 is offline.', time: '2024-06-22 14:30:00' },
         { message: 'AHU-1 temperature record high: 28°C.', time: '2024-06-22 13:45:00' },
@@ -185,107 +278,231 @@ export default {
         { message: 'Power Meter 2 voltage low: 210V.', time: '2024-06-22 10:30:00' },
       ],
       quickLinks: [
-        { label: 'Fire Alarm System' },
-        { label: 'IAQ Devices' },
-        { label: 'Power Meter' },
-        { label: 'Water Meter' },
-        { label: 'System Overview' },
+        { label: '3D System Page' }
       ],
     };
   },
   computed: {
-    currentFireAlarm() {
-      return this.fireAlarms[this.currentFireAlarmIndex];
+    displayedSubsystems() {
+      // Show 4 subsystems per page
+      const start = this.currentPage * 4;
+      return this.subsystemData.slice(start, start + 4);
     },
-    currentIAQDevice() {
-      return this.iaqDevices[this.currentIAQDeviceIndex];
-    },
-    currentPowerMeter() {
-      return this.powerMeters[this.currentPowerMeterIndex];
-    },
-    currentWaterMeter() {
-      return this.waterMeters[this.currentWaterMeterIndex];
-    },
+    totalPages() {
+      return Math.ceil(this.subsystemData.length / 4);
+    }
   },
   methods: {
-    selectArea(area) {
-      this.selectedArea = area;
-    },
-    async fetchSummaryData() {
-      try {
-        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/east/bms/groups');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        let textData = await response.text();
-        textData = textData.replace(/ObjectId\("([^"]+)"\)/g, '"$1"');
-        const groupsData = JSON.parse(textData);
-
-        const dataResponse = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/all/east/latest/data');
-        if (!dataResponse.ok) {
-          throw new Error('Network response was not ok');
-        }
-        let latestTextData = await dataResponse.text();
-        latestTextData = latestTextData.replace(/ObjectId\("([^"]+)"\)/g, '"$1"');
-        latestTextData = latestTextData.replace(/ISODate\("([^"]+)"\)/g, '"$1"');
-        const latestData = JSON.parse(latestTextData);
-
-        this.totalGroups = groupsData.length;
-        this.totalItems = groupsData.reduce((total, group) => total + group.group.length, 0);
-        this.itemsWithConnectionIssues = latestData.filter(item => item.Status !== 'OK').length;
-
-      } catch (error) {
-        console.error('Error fetching summary data:', error);
+    scrollLeft() {
+      if (this.currentPage > 0) {
+        this.currentPage--;
       }
     },
-    nextFireAlarm() {
-      if (this.currentFireAlarmIndex < this.fireAlarms.length - 1) {
-        this.currentFireAlarmIndex++;
+    scrollRight() {
+      if (this.currentPage < this.totalPages - 1) {
+        this.currentPage++;
       }
     },
-    prevFireAlarm() {
-      if (this.currentFireAlarmIndex > 0) {
-        this.currentFireAlarmIndex--;
+    prevItem(subsystemName) {
+      switch (subsystemName) {
+        case 'Fire Alarm System Overview':
+          if (this.currentFireAlarmIndex > 0) {
+            this.currentFireAlarmIndex--;
+          }
+          break;
+        case 'Smart Air Quality System Overview':
+          if (this.currentIAQDeviceIndex > 0) {
+            this.currentIAQDeviceIndex--;
+          }
+          break;
+        case 'Smart Energy Management System Overview':
+          if (this.currentPowerMeterIndex > 0) {
+            this.currentPowerMeterIndex--;
+          }
+          break;
+        case 'Asset Tagging System Overview':
+          if (this.currentWaterMeterIndex > 0) {
+            this.currentWaterMeterIndex--;
+          }
+          break;
+        case 'Smart Landscape Overview':
+          if (this.currentSmartLandscapeIndex > 0) {
+            this.currentSmartLandscapeIndex--;
+          }
+          break;
+        case 'Smart Washroom System Overview':
+          if (this.currentSmartToiletIndex > 0) {
+            this.currentSmartToiletIndex--;
+          }
+          break;
+        case 'Building Management System (JCS) Overview':
+          if (this.currentBMSIndex > 0) {
+            this.currentBMSIndex--;
+          }
+          break;
+        case 'Smart Pest Control System Overview':
+          if (this.currentSmartPestControlIndex > 0) {
+            this.currentSmartPestControlIndex--;
+          }
+          break;
+        case 'Smart Security System Overview':
+          if (this.currentSmartSecurityIndex > 0) {
+            this.currentSmartSecurityIndex--;
+          }
+          break;
       }
     },
-    nextIAQDevice() {
-      if (this.currentIAQDeviceIndex < this.iaqDevices.length - 1) {
-        this.currentIAQDeviceIndex++;
+    nextItem(subsystemName) {
+      switch (subsystemName) {
+        case 'Fire Alarm System Overview':
+          if (this.currentFireAlarmIndex < this.fireAlarms.length - 1) {
+            this.currentFireAlarmIndex++;
+          }
+          break;
+        case 'Smart Air Quality System Overview':
+          if (this.currentIAQDeviceIndex < this.iaqDevices.length - 1) {
+            this.currentIAQDeviceIndex++;
+          }
+          break;
+        case 'Smart Energy Management System Overview':
+          if (this.currentPowerMeterIndex < this.powerMeters.length - 1) {
+            this.currentPowerMeterIndex++;
+          }
+          break;
+        case 'Asset Tagging System Overview':
+          if (this.currentWaterMeterIndex < this.waterMeters.length - 1) {
+            this.currentWaterMeterIndex++;
+          }
+          break;
+        case 'Smart Landscape Overview':
+          if (this.currentSmartLandscapeIndex < this.smartLandscape.length - 1) {
+            this.currentSmartLandscapeIndex++;
+          }
+          break;
+        case 'Smart Washroom System Overview':
+          if (this.currentSmartToiletIndex < this.smartToilet.length - 1) {
+            this.currentSmartToiletIndex++;
+          }
+          break;
+        case 'Building Management System (JCS) Overview':
+          if (this.currentBMSIndex < this.bms.length - 1) {
+            this.currentBMSIndex++;
+          }
+          break;
+        case 'Smart Pest Control System Overview':
+          if (this.currentSmartPestControlIndex < this.smartPestControl.length - 1) {
+            this.currentSmartPestControlIndex++;
+          }
+          break;
+        case 'Smart Security System Overview':
+          if (this.currentSmartSecurityIndex < this.smartSecurity.length - 1) {
+            this.currentSmartSecurityIndex++;
+          }
+          break;
       }
     },
-    prevIAQDevice() {
-      if (this.currentIAQDeviceIndex > 0) {
-        this.currentIAQDeviceIndex--;
+    canPrevItem(subsystemName) {
+      switch (subsystemName) {
+        case 'Fire Alarm System Overview':
+          return this.currentFireAlarmIndex > 0;
+        case 'Smart Air Quality System Overview':
+          return this.currentIAQDeviceIndex > 0;
+        case 'Smart Energy Management System Overview':
+          return this.currentPowerMeterIndex > 0;
+        case 'Asset Tagging System Overview':
+          return this.currentWaterMeterIndex > 0;
+        case 'Smart Landscape Overview':
+          return this.currentSmartLandscapeIndex > 0;
+        case 'Smart Washroom System Overview':
+          return this.currentSmartToiletIndex > 0;
+        case 'Building Management System (JCS) Overview':
+          return this.currentBMSIndex > 0;
+        case 'Smart Pest Control System Overview':
+          return this.currentSmartPestControlIndex > 0;
+        case 'Smart Security System Overview':
+          return this.currentSmartSecurityIndex > 0;
+        default:
+          return false;
       }
     },
-    nextPowerMeter() {
-      if (this.currentPowerMeterIndex < this.powerMeters.length - 1) {
-        this.currentPowerMeterIndex++;
+    canNextItem(subsystemName) {
+      switch (subsystemName) {
+        case 'Fire Alarm System Overview':
+          return this.currentFireAlarmIndex < this.fireAlarms.length - 1;
+        case 'Smart Air Quality System Overview':
+          return this.currentIAQDeviceIndex < this.iaqDevices.length - 1;
+        case 'Smart Energy Management System Overview':
+          return this.currentPowerMeterIndex < this.powerMeters.length - 1;
+        case 'Asset Tagging System Overview':
+          return this.currentWaterMeterIndex < this.waterMeters.length - 1;
+        case 'Smart Landscape Overview':
+          return this.currentSmartLandscapeIndex < this.smartLandscape.length - 1;
+        case 'Smart Washroom System Overview':
+          return this.currentSmartToiletIndex < this.smartToilet.length - 1;
+        case 'Building Management System (JCS) Overview':
+          return this.currentBMSIndex < this.bms.length - 1;
+        case 'Smart Pest Control System Overview':
+          return this.currentSmartPestControlIndex < this.smartPestControl.length - 1;
+        case 'Smart Security System Overview':
+          return this.currentSmartSecurityIndex < this.smartSecurity.length - 1;
+        default:
+          return false;
       }
     },
-    prevPowerMeter() {
-      if (this.currentPowerMeterIndex > 0) {
-        this.currentPowerMeterIndex--;
+    getCurrentIndex(subsystemName) {
+      switch (subsystemName) {
+        case 'Fire Alarm System Overview':
+          return this.currentFireAlarmIndex;
+        case 'Smart Air Quality System Overview':
+          return this.currentIAQDeviceIndex;
+        case 'Smart Energy Management System Overview':
+          return this.currentPowerMeterIndex;
+        case 'Asset Tagging System Overview':
+          return this.currentWaterMeterIndex;
+        case 'Smart Landscape Overview':
+          return this.currentSmartLandscapeIndex;
+        case 'Smart Washroom System Overview':
+          return this.currentSmartToiletIndex;
+        case 'Building Management System (JCS) Overview':
+          return this.currentBMSIndex;
+        case 'Smart Pest Control System Overview':
+          return this.currentSmartPestControlIndex;
+        case 'Smart Security System Overview':
+          return this.currentSmartSecurityIndex;
+        default:
+          return 0;
       }
     },
-    nextWaterMeter() {
-      if (this.currentWaterMeterIndex < this.waterMeters.length - 1) {
-        this.currentWaterMeterIndex++;
+    getTotalPages(subsystemName) {
+      switch (subsystemName) {
+        case 'Fire Alarm System Overview':
+          return this.fireAlarms.length;
+        case 'Smart Air Quality System Overview':
+          return this.iaqDevices.length;
+        case 'Smart Energy Management System Overview':
+          return this.powerMeters.length;
+        case 'Asset Tagging System Overview':
+          return this.waterMeters.length;
+        case 'Smart Landscape Overview':
+          return this.smartLandscape.length;
+        case 'Smart Washroom System Overview':
+          return this.smartToilet.length;
+        case 'Building Management System (JCS) Overview':
+          return this.bms.length;
+        case 'Smart Pest Control System Overview':
+          return this.smartPestControl.length;
+        case 'Smart Security System Overview':
+          return this.smartSecurity.length;
+        default:
+          return 1;
       }
     },
-    prevWaterMeter() {
-      if (this.currentWaterMeterIndex > 0) {
-        this.currentWaterMeterIndex--;
-      }
-    },
-  },
-  async created() {
-    await this.fetchSummaryData();
   },
 };
 </script>
 
 <style scoped>
+/* CSS code remains the same */
 .additional-card.quick-links {
   flex: 1;
   background: #1c1e29;
@@ -296,6 +513,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 2px solid #d3d3d3; /* Updated border color */
 }
 
 .links-content {
@@ -331,7 +549,8 @@ export default {
   margin-bottom: 0;
 }
 
-.overview-container {
+.overview-container {  
+  background-color: #d6ecfa;
   display: grid;
   grid-template-columns: 3fr 3fr;
   /* Makes the left column wider */
@@ -349,6 +568,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #d3d3d3; /* Updated border color */
 }
 
 .progress-bars {
@@ -369,6 +589,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #d3d3d3; /* Updated border color */
 }
 
 .additional-cards {
@@ -376,6 +597,7 @@ export default {
   display: flex;
   justify-content: flex-end; /* Aligns items to the right */
   gap: 20px;
+  height: 250px;
 }
 
 .additional-card {
@@ -389,10 +611,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: 2px solid #d3d3d3; /* Updated border color */
 }
 
 .additional-card.auto-scroll-feed {
-  max-height: 250px;
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Ensures content stays within the card */
@@ -425,7 +647,6 @@ export default {
   width: 100%; /* Ensure it fills the available width */
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
-
 
 @keyframes scroll {
   0% {
@@ -463,6 +684,8 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #d3d3d3; /* Updated border color */
+  position: relative; /* Make the parent div the positioning context */
 }
 
 .summary-content,
@@ -472,10 +695,19 @@ export default {
   flex-direction: column;
 }
 
+.subsystems-container {
+  display: flex;
+  justify-content: center; /* Center align the cards */
+  align-items: center;
+  position: relative;
+}
+
 .subsystems-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
 }
 
 .subsystem-card {
@@ -489,10 +721,46 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: 2px solid #d3d3d3; /* Updated border color */
+  width: 350px; /* Fixed width */
+  height: 300px; /* Fixed height */
+  box-sizing: border-box; /* Ensures padding and border are included in the width and height */
+}
+
+.scroll-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 24px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  padding: 0 10px; /* Add padding to the left and right */
+}
+
+.scroll-button.left {
+  left: 0px; /* Adjust as needed */
+}
+
+.scroll-button.right {
+  right: 0px; /* Adjust as needed */
 }
 
 .subsystem-card h4 {
   color: #ffffff;
+  text-align: center;
+  line-height: 1.3; /* Adjust line height for better spacing */
+  height: 3em; /* Ensures the title takes up enough space for two lines */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .card-info {
@@ -501,14 +769,20 @@ export default {
   align-items: center;
 }
 
-.card-pagination {
+.card-footer {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 10px;
 }
 
-.card-pagination button {
+.card-footer .card-pagination {
+  display: flex;
+  align-items: center;
+}
+
+.card-footer .card-pagination button {
   background: none;
   border: none;
   color: #007bff;
@@ -516,7 +790,7 @@ export default {
   font-size: 18px;
 }
 
-.card-pagination p {
+.card-footer .card-pagination p {
   margin: 0 5px;
 }
 
@@ -547,5 +821,23 @@ export default {
 
 .see-more:hover {
   text-decoration: underline;
+}
+
+.page-indicators {
+  position: absolute;
+  bottom: -3px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.page-indicators span {
+  display: inline-block;
+  font-size: 24px;
+  color: #ccc;
+}
+
+.page-indicators span.active {
+  color: #007bff;
 }
 </style>

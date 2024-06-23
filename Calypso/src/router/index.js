@@ -6,6 +6,8 @@ import BMSReadingPage from '@/views/BMSReadingPage.vue';
 import FireAlarmSystem from '@/views/FireAlarmSystem.vue';
 import PowerMeterReadingPage from '@/views/PowerMeterReadingPage.vue';
 import PowerDeviceDetailPage from '@/views/PowerDeviceDetailPage.vue';
+import SmartLandscapeSystem from '@/views/SmartLandscapeSystem.vue';
+import SmartToiletSystem from '@/views/SmartToiletSystem.vue';
 
 const routes = [
   {
@@ -43,6 +45,16 @@ const routes = [
     path: '/fire-alarm-system',
     name: 'FireAlarmReadingPage',
     component: FireAlarmSystem,
+  },
+  {
+    path: '/smart-landscape-system',
+    name: 'SmartLandscapeSystem',
+    component: SmartLandscapeSystem
+  },
+  {
+    path: '/smart-toilet-system',
+    name: 'SmartToiletSystem',
+    component: SmartToiletSystem
   },
 ];
 
