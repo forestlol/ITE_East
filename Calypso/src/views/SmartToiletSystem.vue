@@ -26,8 +26,7 @@
             </div>
             <div class="col-md-9">
                 <div class="view-switcher">
-                    <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
-                    <button @click="toggleView('floorplan')" :class="{'active': currentView === 'floorplan'}">Floorplan</button>
+                    <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Floorplan</button>
                 </div>
                 <div class="view-container" v-if="currentView === 'relation'">
                     <div class="map-container">
