@@ -72,12 +72,12 @@ export default {
         { id: 6, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:10:00' },
       ],
       alarmPositions: [
-        { top: '41.5%', left: '83.5%' },
-        { top: '41.5%', left: '63%' },
-        { top: '41.5%', left: '42.3%' },
-        { top: '86.4%', left: '83.5%' },
-        { top: '86.4%', left: '63.1%' },
-        { top: '86.4%', left: '42.4%' },
+        { top: '41.2%', left: '84.2%' },
+        { top: '41.2%', left: '63.3%' },
+        { top: '41.2%', left: '42.3%' },
+        { top: '87.8%', left: '84.2%' },
+        { top: '87.8%', left: '63.3%' },
+        { top: '87.8%', left: '42.3%' },
       ],
     };
   },
@@ -164,7 +164,6 @@ export default {
   flex-direction: column;
   border: 1px solid lightgrey; /* Add a border to the map container */
   border-radius: 5px; /* Optional: Add rounded corners to the map container */
-  padding: 10px; /* Optional: Add padding inside the map container */
 }
 .map-image {
   width: 100%;
