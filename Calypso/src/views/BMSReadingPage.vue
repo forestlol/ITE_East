@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <h2 class="text-center mb-4">Building Management System (JCS) Reading</h2>
+    <h2 class="text-center mb-4">Building Management System</h2>
     <div class="row">
       <div class="col-md-3">
         <h4 class="section-title">Building Management System Groups</h4>
@@ -306,7 +306,7 @@ input:checked + .switch-label .switch-switch {
 .sensor-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 5px;
 }
 .sensor-item {
   border: 1px solid lightgrey;

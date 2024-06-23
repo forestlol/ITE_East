@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <h2 class="text-center mb-4">Power Meter Reading</h2>
+    <h2 class="text-center mb-4">Smart Energy Management System</h2>
     <div class="row">
       <div class="col-md-3">
         <h4 class="section-title">Power Meters</h4>

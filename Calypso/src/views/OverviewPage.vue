@@ -145,7 +145,7 @@
     </div>
     <div class="additional-cards">
       <div class="additional-card auto-scroll-feed">
-        <h4>Live feed</h4>
+        <h4>Alarm & Notification</h4>
         <div class="feed-wrapper">
           <div class="feed-content">
             <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
