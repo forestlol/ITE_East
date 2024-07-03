@@ -1,53 +1,42 @@
 <template>
-  <div class="container mt-5">
+  <div class="container">
     <h2 class="text-center mb-4">Building Management System</h2>
-    <div class="row">
-      <div class="col-md-3">
-        <h4 class="section-title">Building Management System Groups</h4>
-        <div class="overview-list">
-          <div
-            v-for="(group, index) in groups"
-            :key="index"
-            :class="['overview-item', { 'highlight': hoveredGroup === index }]"
-            @mouseenter="hoveredGroup = index"
-            @mouseleave="hoveredGroup = null"
-          >
-            <h5>{{ group.name }}</h5>
-            <div class="toggle-switch">
-              <input type="checkbox" :id="'switch' + index" @change="toggleGroupCommand(group, $event)" />
-              <label :for="'switch' + index" class="switch-label">
-                <span class="switch-inner"></span>
-                <span class="switch-switch"></span>
-              </label>
-            </div>
+    <div class="view-switcher">
+      <button @click="toggleView('groupings')" :class="{ 'active': currentView === 'groupings' }">Groupings</button>
+      <button @click="toggleView('bms-groups')" :class="{ 'active': currentView === 'bms-groups' }">BMS Groups</button>
+    </div>
+    <div v-if="currentView === 'groupings'" class="group-sensors">
+      <div v-for="(group) in filteredGroups" :key="group._id" class="mb-4">
+        <h3>{{ group.name }}</h3>
+        <div class="sensor-list">
+          <div v-for="(id, index) in group.group" :key="id" class="sensor-item">
+            <h5>{{ group.item_name[index] || 'Data Unavailable' }}</h5>
+            <p>
+              <span :class="['status-label', getStatusClass(findLatestDataById(id).Status)]">
+                Connection: {{ findLatestDataById(id).Status || 'N/A' }}
+              </span>
+            </p>
+            <p>
+              <span v-if="shouldShowStatus(findLatestDataById(id).Name || '')" :class="['status-label', getActiveClass(id)]">
+                Status: {{ getActiveValue(id) || 'N/A' }}
+              </span>
+            </p>
+            <p>Value: {{ getPresentValue(id) }} {{ group.units[index] || '' }}</p>
+            <p>Date: {{ findLatestDataById(id).dateTime || 'N/A' }}</p>
           </div>
         </div>
       </div>
-      <div class="col-md-9">
-        <div class="view-switcher">
-          <button @click="toggleView('groupings')" :class="{ 'active': currentView === 'groupings' }">Groupings</button>
-          <!-- Add other view buttons here if needed -->
-        </div>
-        <div v-if="currentView === 'groupings'" class="group-sensors">
-          <div v-for="(group) in filteredGroups" :key="group._id" class="mb-4">
-            <h3>{{ group.name }}</h3>
-            <div class="sensor-list">
-              <div v-for="(id, index) in group.group" :key="id" class="sensor-item">
-                <h5>{{ group.item_name[index] || 'Data Unavailable' }}</h5>
-                <p>
-                  <span :class="['status-label', getStatusClass(findLatestDataById(id).Status)]">
-                    Connection: {{ findLatestDataById(id).Status || 'N/A' }}
-                  </span>
-                </p>
-                <p>
-                  <span v-if="shouldShowStatus(findLatestDataById(id).Name || '')" :class="['status-label', getActiveClass(id)]">
-                    Status: {{ getActiveValue(id) || 'N/A' }}
-                  </span>
-                </p>
-                <p>Value: {{ getPresentValue(id) }} {{ group.units[index] || '' }}</p>
-                <p>Date: {{ findLatestDataById(id).dateTime || 'N/A' }}</p>
-              </div>
-            </div>
+    </div>
+    <div v-if="currentView === 'bms-groups'" class="bms-groups">
+      <div class="grid-container">
+        <div v-for="(group, index) in groups" :key="index" class="grid-item">
+          <h5>{{ group.name }}</h5>
+          <div class="toggle-switch">
+            <input type="checkbox" :id="'switch' + index" @change="toggleGroupCommand(group, $event)" />
+            <label :for="'switch' + index" class="switch-label">
+              <span class="switch-inner"></span>
+              <span class="switch-switch"></span>
+            </label>
           </div>
         </div>
       </div>
@@ -62,7 +51,6 @@ export default {
   data() {
     return {
       currentView: 'groupings',
-      hoveredGroup: null,
       groups: [],
       loading: true,
       error: null,
@@ -94,8 +82,8 @@ export default {
     },
   },
   methods: {
-    navigateTo3DLandscape() {
-      window.location.href = 'https://your-3d-landscape-url.com';
+    toggleView(view) {
+      this.currentView = view;
     },
     setRefreshInterval() {
       this.refreshInterval = setInterval(() => {
@@ -184,6 +172,10 @@ export default {
 <style scoped>
 .container {
   max-width: 1200px;
+  min-height: 100vh; /* Ensure the container covers the full viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .section-title {
   font-size: 1.5rem;
@@ -351,5 +343,19 @@ input:checked + .switch-label .switch-switch {
 .view-switcher button.active {
   background-color: #007bff;
   color: white;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+.grid-item {
+  border: 1px solid lightgrey;
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 </style>

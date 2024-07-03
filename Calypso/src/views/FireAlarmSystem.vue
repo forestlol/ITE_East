@@ -1,52 +1,46 @@
 <template>
   <div class="container mt-5 bordered-container">
     <h2 class="text-center mb-4">Fire Alarm System</h2>
-    <div class="row">
-      <div class="col-md-3">
-        <h4 class="section-title">Fire Alarm Sensors</h4>
-        <div class="overview-list">
-          <div
-            v-for="(alarm, index) in alarms"
-            :key="index"
-            :class="['overview-item', { 'highlight': hoveredAlarm === index }]"
-            @mouseenter="hoveredAlarm = index"
-            @mouseleave="hoveredAlarm = null"
-          >
-            <h5>SAP-{{ alarm.id }}</h5>
-            <p>
-              Status:
-              <span :class="{'text-success': alarm.isOnline, 'text-danger': !alarm.isOnline}">
-                {{ alarm.isOnline ? 'Online' : 'Offline' }}
-              </span>
-            </p>
-            <p>
-              Fire Alarm:
-              <span :class="{'text-danger': alarm.isActive, 'text-success': !alarm.isActive}">
-                {{ alarm.isActive ? 'On' : 'Off' }}
-              </span>
-            </p>
-            <p>Last Updated: {{ alarm.lastUpdated }}</p>
-          </div>
-        </div>
+    <div class="view-switcher">
+      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
+      <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Devices</button>
+    </div>
+    <div v-if="currentView === 'relation'" class="map-container">
+      <img src="@/assets/ite_firealarm_relation.png" alt="Floor Plan" class="map-image">
+      <div
+        v-for="(alarm, index) in alarms"
+        :key="index"
+        class="alarm-status"
+        :style="alarmPositions[index]"
+        @mouseenter="hoveredAlarm = index"
+        @mouseleave="hoveredAlarm = null"
+        :class="{ 'highlight': hoveredAlarm === index }"
+      >
+        <span :class="{'online': alarm.isOnline, 'offline': !alarm.isOnline}"></span>
       </div>
-      <div class="col-md-9">
-        <div class="view-switcher">
-          <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
-        </div>
-        <div class="map-container" v-if="currentView === 'relation'">
-          <img src="@/assets/ite_firealarm_relation.png" alt="Floor Plan" class="map-image">
-          <div
-            v-for="(alarm, index) in alarms"
-            :key="index"
-            class="alarm-status"
-            :style="alarmPositions[index]"
-            @mouseenter="hoveredAlarm = index"
-            @mouseleave="hoveredAlarm = null"
-            :class="{ 'highlight': hoveredAlarm === index }"
-          >
-            <span :class="{'online': alarm.isOnline, 'offline': !alarm.isOnline}"></span>
-          </div>
-        </div>
+    </div>
+    <div v-if="currentView === 'devices'" class="devices-grid">
+      <div
+        v-for="(alarm, index) in alarms"
+        :key="index"
+        :class="['device-item', { 'highlight': hoveredAlarm === index }]"
+        @mouseenter="hoveredAlarm = index"
+        @mouseleave="hoveredAlarm = null"
+      >
+        <h5>SAP-{{ alarm.id }}</h5>
+        <p>
+          Status:
+          <span :class="{'text-success': alarm.isOnline, 'text-danger': !alarm.isOnline}">
+            {{ alarm.isOnline ? 'Online' : 'Offline' }}
+          </span>
+        </p>
+        <p>
+          Fire Alarm:
+          <span :class="{'text-danger': alarm.isActive, 'text-success': !alarm.isActive}">
+            {{ alarm.isActive ? 'On' : 'Off' }}
+          </span>
+        </p>
+        <p>Last Updated: {{ alarm.lastUpdated }}</p>
       </div>
     </div>
   </div>
@@ -62,7 +56,6 @@ export default {
       alarms: [
         { id: 1, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         { id: 2, isActive: false, isOnline: false, lastUpdated: '2024-05-29 14:20:00' },
-       
         { id: 3, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:25:00' },
         { id: 4, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:15:00' },
         { id: 5, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:35:00' },
@@ -72,18 +65,15 @@ export default {
         { top: '41.2%', left: '84.2%' },
         { top: '41.2%', left: '63.3%' },
         { top: '41.2%', left: '42.3%' },
-        { top: '87.8%', left: '84.2%' },
-        { top: '87.8%', left: '63.3%' },
-        { top: '87.8%', left: '42.3%' },
+        { top: '87.9%', left: '84.2%' },
+        { top: '87.9%', left: '63.3%' },
+        { top: '87.9%', left: '42.3%' },
       ],
     };
   },
   methods: {
     toggleView(view) {
       this.currentView = view;
-    },
-    navigateTo3DLandscape() {
-      window.location.href = "https://your-3d-landscape-url.com";
     },
   },
 };
@@ -92,6 +82,10 @@ export default {
 <style scoped>
 .container {
   max-width: 1200px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .section-title {
   font-size: 1.5rem;
@@ -123,7 +117,7 @@ export default {
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid lightgrey; /* Add a light grey border to each overview item */
+  border: 1px solid lightgrey;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 .overview-item:hover {
@@ -159,8 +153,8 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  border: 1px solid lightgrey; /* Add a border to the map container */
-  border-radius: 5px; /* Optional: Add rounded corners to the map container */
+  border: 1px solid lightgrey;
+  border-radius: 5px;
 }
 .map-image {
   width: 100%;
@@ -168,9 +162,9 @@ export default {
 }
 .alarm-status {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 1px solid black; /* Adding black border */
+  width: 28px;
+  height: 28px;
+  border: 1px solid black;
 }
 .alarm-status span {
   display: block;
@@ -180,12 +174,12 @@ export default {
 .online {
   background-color: green;
   border-radius: 2px;
-  border: 1px solid black; /* Adding black border */
+  border: 1px solid black;
 }
 .offline {
   background-color: red;
   border-radius: 2px;
-  border: 1px solid black; /* Adding black border */
+  border: 1px solid black;
 }
 .text-danger {
   color: #dc3545 !important;
@@ -197,10 +191,26 @@ export default {
   border: 2px solid #00BCD4;
   border-radius: 2px;
 }
-.link-button {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  margin-top: 10px;
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.device-item {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid lightgrey;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.device-item:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+.device-item h5 {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #007bff;
 }
 </style>

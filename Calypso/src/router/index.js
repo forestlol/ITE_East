@@ -8,6 +8,10 @@ import PowerMeterReadingPage from '@/views/PowerMeterReadingPage.vue';
 import PowerDeviceDetailPage from '@/views/PowerDeviceDetailPage.vue';
 import SmartLandscapeSystem from '@/views/SmartLandscapeSystem.vue';
 import SmartToiletSystem from '@/views/SmartToiletSystem.vue';
+import SmartPestControlSystem from '@/views/SmartPestControlSystem.vue';
+import SmartSecuritySystem from '@/views/SmartSecuritySystem.vue';
+import SmartAirQualitySystem from '@/views/SmartAirQualitySystem.vue';
+import AssetTaggingSystem from '@/views/AssetTaggingSystem.vue';
 
 const routes = [
   {
@@ -55,6 +59,26 @@ const routes = [
     path: '/smart-toilet-system',
     name: 'SmartToiletSystem',
     component: SmartToiletSystem
+  },
+  {
+    path: '/smart-pest-control-system',
+    name: 'SmartPestControlSystem',
+    component: SmartPestControlSystem
+  },
+  {
+    path: '/smart-security-system',
+    name: 'SmartSecuritySystem',
+    component: SmartSecuritySystem
+  },
+  {
+    path: '/smart-air-quality-system',
+    name: 'SmartAirQualitySystem',
+    component: SmartAirQualitySystem
+  },
+  {
+    path: '/asset-tagging-system',
+    name: 'AssetTaggingSystem',
+    component: AssetTaggingSystem
   },
 ];
 

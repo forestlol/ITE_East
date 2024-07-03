@@ -69,14 +69,14 @@ svg {
 
 .percentage {
   fill: #007bff;
-  font-size: 0.4em; /* Adjust the size as needed */
+  font-size: 0.5em; /* Adjust the size as needed */
   text-anchor: middle;
 }
 
 .label {
   margin-top: 10px;
   text-align: center;
-  font-size: 0.8em; /* Adjust the size as needed */
+  font-size: 1em; /* Adjust the size as needed */
   white-space: nowrap; /* Ensure the text doesn't wrap */
 }
 </style>

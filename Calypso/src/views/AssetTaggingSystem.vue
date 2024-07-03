@@ -1,6 +1,6 @@
 <template>
     <div class="container mt-5">
-      <h2 class="text-center mb-4">Smart Washroom System</h2>
+      <h2 class="text-center mb-4">Asset Tagging System</h2>
       <div class="row">
         <div class="col-md-12">
           <div class="view-switcher">
@@ -47,22 +47,20 @@
   
   <script>
   export default {
-    name: 'SmartWashroomSystem',
+    name: 'AssetTaggingSystem',
     data() {
       return {
         currentView: 'relation',
         devices: [
-          { id: 1, name: 'People Counting Sensor 1', type: 'People Counting Sensor', typeClass: 'people-counting', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 2, name: 'People Counting Sensor 2', type: 'People Counting Sensor', typeClass: 'people-counting', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 3, name: 'Occupancy Sensor 1', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 4, name: 'Occupancy Sensor 2', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 5, name: 'Occupancy Sensor 3', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 6, name: 'Occupancy Sensor 4', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 7, name: 'Occupancy Sensor 5', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 8, name: 'Occupancy Sensor 6', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 13, name: 'Odor Sensor 1', type: 'Odor Sensor', typeClass: 'odor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 14, name: 'Odor Sensor 2', type: 'Odor Sensor', typeClass: 'odor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 15, name: 'Gateway 1', type: 'LoRaWAN Gateway', typeClass: 'gateway', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 1, name: 'Asset Tag 1', type: 'Asset Tag', typeClass: 'asset-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 2, name: 'Asset Tag 2', type: 'Asset Tag', typeClass: 'asset-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 3, name: 'Temperature Tag 1', type: 'Temperature Tag', typeClass: 'temperature-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 4, name: 'Temperature Tag 2', type: 'Temperature Tag', typeClass: 'temperature-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 5, name: 'Humidity Tag 1', type: 'Humidity Tag', typeClass: 'humidity-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 6, name: 'Humidity Tag 2', type: 'Humidity Tag', typeClass: 'humidity-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 7, name: 'Location Tag 1', type: 'Location Tag', typeClass: 'location-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 8, name: 'Location Tag 2', type: 'Location Tag', typeClass: 'location-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 9, name: 'Gateway 1', type: 'LoRaWAN Gateway', typeClass: 'gateway', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         ],
       };
     },
@@ -83,7 +81,7 @@
         this.currentView = view;
       },
       navigateTo3DLandscape() {
-        window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=92';
+        window.location.href = 'https://your-3d-landscape-url.com';
       },
     },
   };
@@ -108,6 +106,7 @@
   .category-title {
     font-size: 1.25rem;
     font-weight: bold;
+    padding-left: 15px;
   }
   
   .device-grid {
@@ -179,18 +178,25 @@
     border: 1px solid black;
   }
   
-  .people-counting {
+  .asset-tag {
     background-color: red;
     border: 1px solid black;
   }
   
-  .occupancy {
+  .temperature-tag {
     background-color: #92d050;
     border: 1px solid black;
   }
   
-  .odor {
+  .humidity-tag {
     background-color: #ffd966;
+    width: 15px;
+    height: 15px;
+    border: 1px solid black;
+  }
+  
+  .location-tag {
+    background-color: #00b0f0;
     width: 15px;
     height: 15px;
     border: 1px solid black;
@@ -219,4 +225,3 @@
     margin-top: 10px;
   }
   </style>
-  

@@ -1,10 +1,24 @@
 <template>
-  <div class="container mt-5">
+  <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Smart Energy Management System</h2>
+    <div class="view-switcher">
+      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
+      <button @click="toggleView('floorplan')" :class="{'active': currentView === 'floorplan'}">Floorplan</button>
+      <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Devices</button>
+    </div>
     <div class="row">
-      <div class="col-md-3">
-        <h4 class="section-title">Power Meters</h4>
-        <div class="device-list">
+      <div class="col-md-12">
+        <div class="view-container" v-if="currentView === 'relation'">
+          <p>Relation view content goes here.</p>
+          <!-- Replace the p tag above with the actual image tag when you have the image -->
+        </div>
+        
+        <div class="view-container" v-if="currentView === 'floorplan'">
+          <p>Floorplan view content goes here.</p>
+          <!-- Replace the p tag above with the actual image tag when you have the image -->
+        </div>
+        
+        <div class="devices-grid" v-if="currentView === 'devices'">
           <div
             v-for="device in devices"
             :key="device.id"
@@ -20,27 +34,15 @@
             <button @click="viewDetails(device.id)" class="btn btn-primary mt-auto">View Details</button>
           </div>
         </div>
-      </div>
-      <div class="col-md-9">
-        <div class="view-switcher">
-          <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
-          <button @click="toggleView('floorplan')" :class="{'active': currentView === 'floorplan'}">Floorplan</button>
-        </div>
-        <div class="view-container" v-if="currentView === 'relation'">
-          <p>Relation view content goes here.</p>
-          <!-- Replace the p tag above with the actual image tag when you have the image -->
-        </div>
-        <div class="view-container" v-if="currentView === 'floorplan'">
-          <p>Floorplan view content goes here.</p>
-          <!-- Replace the p tag above with the actual image tag when you have the image -->
-        </div>
-        <div class="link-button">
+        
+        <div class="link-button" v-if="currentView !== 'devices'">
           <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'PowerMeterReadingPage',
@@ -69,14 +71,16 @@ export default {
       this.currentView = view;
     },
     navigateTo3DLandscape() {
-      window.location.href = "https://your-3d-landscape-url.com";
+      window.location.href = "https://visualizer-lite-html.vercel.app/?site=23&levels=94";
     },
   },
 };
 </script>
+
 <style scoped>
-.container {
+.container-fluid {
   max-width: 1200px;
+  min-height: 100vh; /* Ensures the container covers the full viewport height */
 }
 .section-title {
   font-size: 1.5rem;
@@ -140,6 +144,7 @@ export default {
 .view-container {
   position: relative;
   display: flex;
+  flex-direction: column; /* Ensures the content stacks vertically */
   justify-content: center;
   align-items: center;
   height: 500px; /* Adjust as needed */
@@ -157,5 +162,10 @@ export default {
 .highlight {
   border: 2px solid #00BCD4;
   border-radius: 5px;
+}
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 </style>

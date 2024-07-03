@@ -41,14 +41,14 @@ export default {
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, startAngle, endAngle);
             ctx.lineWidth = lineWidth;
-            ctx.strokeStyle = "#e6e6e6";
+            ctx.strokeStyle = "#007bff";
             ctx.stroke();
 
             // Progress arc
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, startAngle, startAngle + (this.percentage / 100) * Math.PI);
             ctx.lineWidth = lineWidth;
-            ctx.strokeStyle = "#32CD32";
+            ctx.strokeStyle = "#007bff";
             ctx.stroke();
         }
     },
@@ -77,7 +77,7 @@ export default {
     transform: translate(-50%, -50%);
     font-size: 18px;
     font-weight: bold;
-    color: white;
+    color: black;
     text-align: center;
 }
 

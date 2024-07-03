@@ -1,6 +1,6 @@
 <template>
     <div class="container mt-5">
-      <h2 class="text-center mb-4">Smart Washroom System</h2>
+      <h2 class="text-center mb-4">Smart Pest Control System</h2>
       <div class="row">
         <div class="col-md-12">
           <div class="view-switcher">
@@ -10,10 +10,10 @@
           </div>
           <div class="view-container" v-if="currentView === 'relation'">
             <div class="map-container">
-              <img src="@/assets/Toilet Device Reference.png" alt="Relation View" class="map-image">
+              <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="Relation View" class="map-image">
             </div>
             <div class="map-container">
-              <img src="@/assets/Toilet Device Reference.png" alt="Relation View" class="map-image">
+              <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="Relation View" class="map-image">
             </div>
             <div class="link-button">
               <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
@@ -21,7 +21,7 @@
           </div>
           <div class="view-container" v-if="currentView === 'floorplan'">
             <div class="map-container">
-              <img src="@/assets/Toilet Floorplan.png" alt="Floorplan View" class="map-image">
+              <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="Floorplan View" class="map-image">
             </div>
             <div class="link-button">
               <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
@@ -47,22 +47,22 @@
   
   <script>
   export default {
-    name: 'SmartWashroomSystem',
+    name: 'SmartPestControlSystem',
     data() {
       return {
         currentView: 'relation',
         devices: [
-          { id: 1, name: 'People Counting Sensor 1', type: 'People Counting Sensor', typeClass: 'people-counting', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 2, name: 'People Counting Sensor 2', type: 'People Counting Sensor', typeClass: 'people-counting', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 3, name: 'Occupancy Sensor 1', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 4, name: 'Occupancy Sensor 2', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 5, name: 'Occupancy Sensor 3', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 6, name: 'Occupancy Sensor 4', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 7, name: 'Occupancy Sensor 5', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 8, name: 'Occupancy Sensor 6', type: 'Occupancy Sensor', typeClass: 'occupancy', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 13, name: 'Odor Sensor 1', type: 'Odor Sensor', typeClass: 'odor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 14, name: 'Odor Sensor 2', type: 'Odor Sensor', typeClass: 'odor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 15, name: 'Gateway 1', type: 'LoRaWAN Gateway', typeClass: 'gateway', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 1, name: 'Rodent Trap Sensor 1', type: 'Rodent Trap Sensor', typeClass: 'rodent-trap', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 2, name: 'Rodent Trap Sensor 2', type: 'Rodent Trap Sensor', typeClass: 'rodent-trap', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 3, name: 'Insect Trap Sensor 1', type: 'Insect Trap Sensor', typeClass: 'insect-trap', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 4, name: 'Insect Trap Sensor 2', type: 'Insect Trap Sensor', typeClass: 'insect-trap', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 5, name: 'Insect Trap Sensor 3', type: 'Insect Trap Sensor', typeClass: 'insect-trap', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 6, name: 'Insect Trap Sensor 4', type: 'Insect Trap Sensor', typeClass: 'insect-trap', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 7, name: 'Bait Station Sensor 1', type: 'Bait Station Sensor', typeClass: 'bait-station', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 8, name: 'Bait Station Sensor 2', type: 'Bait Station Sensor', typeClass: 'bait-station', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 9, name: 'Bait Station Sensor 3', type: 'Bait Station Sensor', typeClass: 'bait-station', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 10, name: 'Bait Station Sensor 4', type: 'Bait Station Sensor', typeClass: 'bait-station', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+          { id: 11, name: 'Gateway 1', type: 'LoRaWAN Gateway', typeClass: 'gateway', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         ],
       };
     },
@@ -83,7 +83,7 @@
         this.currentView = view;
       },
       navigateTo3DLandscape() {
-        window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=92';
+        window.location.href = 'https://your-3d-landscape-url.com';
       },
     },
   };
@@ -108,6 +108,7 @@
   .category-title {
     font-size: 1.25rem;
     font-weight: bold;
+    padding-left: 15px;
   }
   
   .device-grid {
@@ -179,17 +180,17 @@
     border: 1px solid black;
   }
   
-  .people-counting {
+  .rodent-trap {
     background-color: red;
     border: 1px solid black;
   }
   
-  .occupancy {
+  .insect-trap {
     background-color: #92d050;
     border: 1px solid black;
   }
   
-  .odor {
+  .bait-station {
     background-color: #ffd966;
     width: 15px;
     height: 15px;

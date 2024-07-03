@@ -158,7 +158,7 @@
       <div class="additional-card quick-links">
         <h4>Quick Links</h4>
         <div class="links-content">
-          <button v-for="(link, index) in quickLinks" :key="index" class="quick-link-button">
+          <button v-for="(link, index) in quickLinks" :key="index" class="quick-link-button" @click="navigateToLink(link.url)">
             {{ link.label }}
           </button>
         </div>
@@ -278,7 +278,7 @@ export default {
         { message: 'Power Meter 2 voltage low: 210V.', time: '2024-06-22 10:30:00' },
       ],
       quickLinks: [
-        { label: '3D System Page' }
+        { label: '3D System Page', url: 'https://visualizer-lite-html.vercel.app/?site=23&buildings=19' }
       ],
     };
   },
@@ -497,6 +497,9 @@ export default {
           return 1;
       }
     },
+    navigateToLink(url) {
+      window.open(url, '_blank');
+    }
   },
 };
 </script>
@@ -712,7 +715,6 @@ export default {
 }
 
 .subsystem-card {
-  background: #1c1e29;
   color: #fff;
   padding: 20px;
   border-radius: 10px;
@@ -750,7 +752,7 @@ export default {
 }
 
 .subsystem-card h4 {
-  color: #ffffff;
+  color: black;
   text-align: center;
   line-height: 1.3; /* Adjust line height for better spacing */
   height: 3em; /* Ensures the title takes up enough space for two lines */
@@ -771,6 +773,7 @@ export default {
 }
 
 .card-footer {
+  color: black;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -816,7 +819,7 @@ export default {
 }
 
 .see-more {
-  color: #007bff;
+  color: black;
   text-decoration: none;
 }
 

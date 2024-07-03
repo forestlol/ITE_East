@@ -36,34 +36,34 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">
-            <i :class="['fas', 'fa-bug']"></i>
+          <router-link class="nav-link" to="/smart-pest-control-system">
+            <i :class="['fas', 'fa-bug', { 'active-icon': $route.path === '/smart-pest-control-system' }]"></i>
             <span class="nav-text">Smart Pest Control System</span>
-          </a>
+          </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">
-            <i :class="['fas', 'fa-shield-alt']"></i>
+          <router-link class="nav-link" to="/smart-security-system">
+            <i :class="['fas', 'fa-shield-alt', { 'active-icon': $route.path === '/smart-security-system' }]"></i>
             <span class="nav-text">Smart Security System</span>
-          </a>
+          </router-link>
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/power-meter-reading">
-            <i :class="['fas', 'fa-lightbulb']"></i>
+            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/power-meter-reading' }]"></i>
             <span class="nav-text">Smart Energy Management System</span>
           </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">
-            <i :class="['fas', 'fa-cloud']"></i>
+          <router-link class="nav-link" to="/smart-air-quality-system">
+            <i :class="['fas', 'fa-cloud', { 'active-icon': $route.path === '/smart-air-quality-system' }]"></i>
             <span class="nav-text">Smart Air Quality System</span>
-          </a>
+          </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">
-            <i :class="['fas', 'fa-tags']"></i>
+          <router-link class="nav-link" to="/asset-tagging-system">
+            <i :class="['fas', 'fa-tags', { 'active-icon': $route.path === '/asset-tagging-system' }]"></i>
             <span class="nav-text">Asset Tagging System</span>
-          </a>
+          </router-link>
         </li>
       </ul>
     </div>
