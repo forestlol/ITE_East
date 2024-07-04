@@ -85,7 +85,6 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 .section-title {
   font-size: 1.5rem;

@@ -4,22 +4,20 @@
     <div class="row">
       <div class="col-md-12">
         <div class="view-switcher">
-          <button @click="toggleView('relation')" :class="{ active: currentView === 'relation' }">
-            Relation
-          </button>
-          <button @click="toggleView('floorplan')" :class="{ active: currentView === 'floorplan' }">
-            Floorplan
-          </button>
-          <button @click="toggleView('devices')" :class="{ active: currentView === 'devices' }">
-            Devices
-          </button>
+          <button @click="toggleView('relation')" :class="{ active: currentView === 'relation' }">Relation</button>
+          <button @click="toggleView('floorplan')" :class="{ active: currentView === 'floorplan' }">Floorplan</button>
+          <button @click="toggleView('devices')" :class="{ active: currentView === 'devices' }">Devices</button>
         </div>
         <div class="view-container" v-if="currentView === 'relation'">
           <div class="map-container">
             <img src="@/assets/Smart Landscape relation.jpg" alt="Relation View" class="map-image" />
           </div>
           <div class="additional-algo">
-            <img src="@/assets/Smart Landscape relation.jpg" alt="Additional Algorithm" class="map-image" />
+            <div class="slideshow-container">
+              <img :src="additionalAlgoImages[currentImageIndex]" alt="Additional Algorithm" class="map-image" />
+              <button class="prev" @click="prevImage">&#10094;</button>
+              <button class="next" @click="nextImage">&#10095;</button>
+            </div>
           </div>
           <div class="link-button">
             <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
@@ -73,6 +71,11 @@ export default {
   data() {
     return {
       currentView: 'relation',
+      currentImageIndex: 0,
+      additionalAlgoImages: [
+        require('@/assets/Smart Landscape Algo.png'),
+        require('@/assets/Smart Landscape Algo 2.png'),
+      ],
       devices: [
         { id: 1, name: 'Soil Sensor 1', type: '7 in 1 Soil Nutrient Sensor', typeClass: 'soil-sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00', position: { top: '28.6%', left: '15.1%' } },
         { id: 2, name: 'Soil Sensor 2', type: '7 in 1 Soil Nutrient Sensor', typeClass: 'soil-sensor', isOnline: false, lastUpdated: '2024-05-29 14:20:00', position: { top: '35%', left: '15.4%' } },
@@ -130,11 +133,17 @@ export default {
         name: group.name,
         devices: this.devices.filter(device => device.typeClass === group.typeClass)
       }));
-    }
+    },
   },
   methods: {
     toggleView(view) {
       this.currentView = view;
+    },
+    prevImage() {
+      this.currentImageIndex = (this.currentImageIndex === 0) ? this.additionalAlgoImages.length - 1 : this.currentImageIndex - 1;
+    },
+    nextImage() {
+      this.currentImageIndex = (this.currentImageIndex === this.additionalAlgoImages.length - 1) ? 0 : this.currentImageIndex + 1;
     },
     navigateTo3DLandscape() {
       window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=91';
@@ -250,6 +259,7 @@ export default {
   width: 100%;
   border: 1px solid lightgrey;
   margin-top: 20px; /* Add margin to separate sections */
+  position: relative;
 }
 
 .group-status,
@@ -355,5 +365,42 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  margin: auto;
+}
+
+.prev,
+.next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -22px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  user-select: none;
+  background-color: darkgrey;
+}
+
+.prev {
+  left: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.next {
+  right: 0;
+  border-radius: 0 3px 3px 0;
+}
+
+.prev:hover,
+.next:hover {
+  background-color: rgba(0, 0, 0, 0.8);
 }
 </style>

@@ -13,7 +13,7 @@
               <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="Relation View" class="map-image">
             </div>
             <div class="map-container">
-              <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="Relation View" class="map-image">
+              <img src="@/assets/Smart Pest Control Algo.png" alt="Relation View" class="map-image">
             </div>
             <div class="link-button">
               <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
