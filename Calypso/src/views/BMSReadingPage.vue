@@ -12,7 +12,7 @@
     <div v-if="currentView === 'bms'" class="tab-content">
       <div class="image-container">
         <img src="@/assets/BMS.jpg" alt="Chiller Plant Room" class="background-image">
-        <div v-for="(position, sensorName) in sensorPositions" :key="sensorName" class="sensor-value" :style="position">
+        <div v-for="(position, sensorName) in sensorPositions" :key="sensorName" class="sensor-value" :style="position" :class="{ slantedNegative: isSlantedNegative(sensorName), slantedPositive: isSlantedPositive(sensorName) }">
           {{ getValue(sensorName) }}
         </div>
       </div>
@@ -34,7 +34,6 @@
               </span>
             </p>
             <p>Value: {{ formatValue(getPresentValue(id)) }} {{ group.units[index] || '' }}</p>
-            <p>Date: {{ findLatestDataById(id).dateTime || 'N/A' }}</p>
           </div>
         </div>
       </div>
@@ -55,65 +54,65 @@ export default {
       latestData: [],
       refreshInterval: null,
       search: '',
-      sensorPositions: {
-        'Cooling Tower Supply Temperature': { top: '50px', left: '200px' },
-        'Outdoor Temperature': { top: '80px', left: '400px' },
-        'Outdoor Humidity': { top: '110px', left: '400px' },
-        'Cond Water Return Temperature': { top: '150px', left: '250px' },
-        'Cond Water Supply Temperature': { top: '180px', left: '350px' },
-        'Cond Water Flow Meter': { top: '210px', left: '300px' },
-        'Chilled Water Flow Meter': { top: '240px', left: '450px' },
-        'Chilled Water Supply Temperature': { top: '270px', left: '550px' },
-        'Chilled Water Return Temperature': { top: '300px', left: '600px' },
-        'Supply Air Temperature': { top: '330px', left: '650px' },
-        'AHU Status': { top: '50px', left: '700px' },
-        'AHU Command': { top: '80px', left: '700px' },
-        'AHU Valve': { top: '110px', left: '700px' },
-        'AHU Flow Rate': { top: '140px', left: '700px' },
-        'Chilled Water Pump Status': { top: '170px', left: '700px' },
-        'Chilled Water Pump Command': { top: '200px', left: '700px' },
-        'Chiller Status': { top: '260px', left: '700px' },
-        'Chiller Command': { top: '290px', left: '700px' },
-        'System Efficiency': { top: '320px', left: '700px' },
-        'Total Power Consumption': { top: '350px', left: '700px' },
-        'Total Cooling Load': { top: '380px', left: '700px' },
-        'Heat Balance': { top: '410px', left: '700px' },
-        'Cond Water Pump Status': { top: '440px', left: '700px' },
-        'Cond Water Pump Command': { top: '470px', left: '700px' },
-        'Cooling Tower Status': { top: '530px', left: '700px' },
-        'Cooling Tower Command': { top: '560px', left: '700px' },
-        'Cond Water Return Temperature 2': { top: '590px', left: '700px' },
-        'Cond Water Supply Temperature 2': { top: '620px', left: '700px' },
-        'System Failure Alarm': { top: '650px', left: '700px' },
-        'System Command': { top: '680px', left: '700px' },
-      },
       sensors: {
-        'Cooling Tower Supply Temperature': { value: 30.0, unit: '°C', dateTime: '07/04/2024 8:24:37 PM' },
-        'Outdoor Temperature': { value: 30.5, unit: '°C', dateTime: '07/04/2024 8:24:52 PM' },
-        'Outdoor Humidity': { value: 49.1, unit: '%RH', dateTime: '07/04/2024 8:24:58 PM' },
-        'Cond Water Return Temperature': { value: 26.7, unit: '°C', dateTime: '07/04/2024 8:24:58 PM' },
-        'Cond Water Supply Temperature': { value: 26.5, unit: '°C', dateTime: '07/04/2024 8:24:58 PM' },
-        'Cond Water Flow Meter': { value: 0.0, unit: 'L/s', dateTime: '07/04/2024 8:24:56 PM' },
-        'Chilled Water Flow Meter': { value: 0.0, unit: 'L/s', dateTime: '07/04/2024 8:25:01 PM' },
-        'Chilled Water Supply Temperature': { value: 25.3, unit: '°C', dateTime: '07/04/2024 8:24:59 PM' },
-        'Chilled Water Return Temperature': { value: 25.0, unit: '°C', dateTime: '07/04/2024 8:24:56 PM' },
-        'Supply Air Temperature': { value: 27.1, unit: '°C', dateTime: '07/04/2024 8:24:52 PM' },
-        'AHU Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:52 PM' },
-        'AHU Command': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:52 PM' },
-        'AHU Valve': { value: 0.0, unit: '%', dateTime: '07/04/2024 8:24:49 PM' },
-        'AHU Flow Rate': { value: -0.0, unit: 'L/s', dateTime: '07/04/2024 8:24:51 PM' },
-        'Chilled Water Pump Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:54 PM' },
-        'Chilled Water Pump Command': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:56 PM' },
-        'Chiller Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:56 PM' },
-        'Chiller Command': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:56 PM' },
-        'System Efficiency': { value: 0.0, unit: 'KW/TON', dateTime: '07/04/2024 8:24:57 PM' },
-        'Total Power Consumption': { value: 0.3, unit: 'KW', dateTime: '07/04/2024 8:24:56 PM' },
-        'Total Cooling Load': { value: 0.0, unit: 'KW', dateTime: '07/04/2024 8:24:56 PM' },
-        'Heat Balance': { value: 0.0, unit: '%', dateTime: '07/04/2024 8:24:58 PM' },
-        'Cond Water Pump Status': { value: 'N/A', unit: '', dateTime: 'N/A' },
-        'Cond Water Pump Command': { value: 'N/A', unit: '', dateTime: 'N/A' },
-        'Cooling Tower Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:58 PM' },
-        'Cooling Tower Command': { value: 'N/A', unit: '', dateTime: 'N/A' },
+        'Chilled Water Flow Meter': { value: 0.0, unit: 'L/s' },
+        'Chilled Water Return Temperature': { value: 25.0, unit: '°C' },
+        'Chilled Water Supply Temperature': { value: 25.3, unit: '°C' },
+        'Cond Water Flow Meter': { value: 0.0, unit: 'L/s' },
+        'Cond Water Return Temperature': { value: 26.7, unit: '°C' },
+        'Cooling Tower Supply Temperature': { value: 30.0, unit: '°C' },
+        'Outdoor Temperature': { value: 30.5, unit: '°C' },
+        'Outdoor Humidity': { value: 49.1, unit: '%RH' },
+        'Cond Water Supply Temperature': { value: 26.5, unit: '°C' },
+        'AHU Flow Rate': { value: -0.0, unit: 'L/s' },
+        'AHU Valve': { value: 0.0, unit: '%' },
+        'Supply Air Temperature': { value: 27.1, unit: '°C' },
+        'Total Cooling Load': { value: 0.0, unit: '' },
+        'Total Power Consumption': { value: 0.3, unit: '' },
+        'System Efficiency': { value: 0.0, unit: '' },
+        'Heat Balance': { value: 0.0, unit: '' },
+        'STOP 1': { value: 'STOP' },
+        'STOP 2': { value: 'STOP' },
+        'STOP 3': { value: 'STOP' },
+        'STOP 4': { value: 'STOP' },
+        'STOP 5': { value: 'STOP' },
+        'STOP 6': { value: 'STOP' },
+        'OFF 1': { value: 'OFF' },
+        'OFF 2': { value: 'OFF' },
+        'OFF 3': { value: 'OFF' },
+        'OFF 4': { value: 'OFF' },
+        'OFF 5': { value: 'OFF' },
+        'ALARM': { value: 'ALARM' }
+      },
+      sensorPositions: {
+        'Chilled Water Flow Meter': { top: '512px', left: '183px' },
+        'Chilled Water Return Temperature': { top: '525px', left: '375px' },
+        'Chilled Water Supply Temperature': { top: '499px', left: '399px' },
+        'Cond Water Flow Meter': { top: '260px', left: '514px' },
+        'Cond Water Return Temperature': { top: '227px', left: '485px' },
+        'Cooling Tower Supply Temperature': { top: '148px', left: '461px' },
+        'Outdoor Temperature': { top: '67px', left: '557px' },
+        'Outdoor Humidity': { top: '95px', left: '547px' },
+        'Cond Water Supply Temperature': { top: '230px', left: '633px' },
+        'AHU Flow Rate': { top: '458px', left: '681px' },
+        'AHU Valve': { top: '403px', left: '785px' },
+        'Supply Air Temperature': { top: '338px', left: '1008px' },
+        'Total Cooling Load': { top: '135px', left: '794px' },
+        'Total Power Consumption': { top: '135px', left: '892px' },
+        'System Efficiency': { top: '135px', left: '999px' },
+        'Heat Balance': { top: '135px', left: '1100px' },
+        'STOP 1': { top: '345px', left: '567px' },
+        'STOP 2': { top: '388px', left: '1017px' },
+        'STOP 3': { top: '555px', left: '973px' },
+        'STOP 4': { top: '325px', left: '307px' },
+        'STOP 5': { top: '147px', left: '183px' },
+        'STOP 6': { top: '576px', left: '76px' },
+        'OFF 1': { top: '412px', left: '1022px' },
+        'OFF 2': { top: '373px', left: '572px' },
+        'OFF 3': { top: '352px', left: '313px' },
+        'OFF 4': { top: '171px', left: '186px' },
+        'OFF 5': { top: '601px', left: '81px' },
+        'ALARM': { top: '600px', left: '931px' }
       },
     };
   },
@@ -229,8 +228,14 @@ export default {
     },
     getValue(sensorName) {
       const sensor = this.sensors[sensorName];
-      return sensor ? `${sensor.value} ${sensor.unit}` : 'N/A';
+      return sensor ? `${sensor.value} ${sensor.unit || ''}` : 'N/A';
     },
+    isSlantedNegative(sensorName) {
+      return ['Chilled Water Flow Meter'].includes(sensorName);
+    },
+    isSlantedPositive(sensorName) {
+      return ['Chilled Water Supply Temperature', 'Chilled Water Return Temperature'].includes(sensorName);
+    }
   },
 };
 </script>
@@ -249,110 +254,48 @@ export default {
   margin-bottom: 20px;
   text-align: center;
 }
-.overview-list {
+.nav-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 80vh;
-  overflow-y: auto;
+  justify-content: center;
+  margin-bottom: 20px;
 }
-.overview-list::-webkit-scrollbar {
-  width: 8px;
+.nav-tabs .nav-item {
+  margin-right: 5px;
 }
-.overview-list::-webkit-scrollbar-track {
-  background: #f8f9fa;
-  border-radius: 5px;
-}
-.overview-list::-webkit-scrollbar-thumb {
-  background-color: lightgrey;
-  border-radius: 5px;
-  border: 2px solid #f8f9fa;
-}
-.overview-item {
-  border: 1px solid lightgrey;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.overview-item:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-.overview-item h5 {
-  margin-bottom: 10px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #007bff;
-}
-.toggle-switch {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 34px;
-}
-.toggle-switch input {
-  display: none;
-}
-.switch-label {
-  display: block;
-  overflow: hidden;
+.nav-tabs .nav-link {
+  padding: 10px 20px;
   cursor: pointer;
-  border: 2px solid transparent;
-  border-radius: 20px;
+  transition: background-color 0.3s;
 }
-.switch-label .switch-inner {
-  display: block;
-  width: 200%;
-  margin-left: -100%;
-  transition: margin 0.3s ease-in 0s;
-  background-color: #ccc;
-}
-.switch-label .switch-inner::before, .switch-label .switch-inner::after {
-  display: block;
-  float: left;
-  width: 50%;
-  height: 34px;
-  padding: 0;
-  line-height: 34px;
-  font-size: 14px;
-  color: white;
-  font-weight: bold;
-  box-sizing: border-box;
-}
-.switch-label .switch-inner::before {
-  content: "OFF";
-  padding-left: 10px;
-  background-color: #dc3545;
+.nav-tabs .nav-link.active {
+  background-color: #007bff;
   color: white;
 }
-.switch-label .switch-inner::after {
-  content: "ON";
-  padding-right: 10px;
-  background-color: #28a745;
-  color: white;
-  text-align: right;
+.image-container {
+  position: relative;
 }
-.switch-label .switch-switch {
-  display: block;
-  width: 26px;
-  height: 26px;
-  margin: 4px;
-  background: white;
+
+.background-image {
+  width: 100%;
+  height: auto;
+}
+
+.sensor-value {
   position: absolute;
-  top: 2px;
-  bottom: 0;
-  right: 44px;
-  border: 2px solid transparent;
-  border-radius: 20px;
-  transition: all 0.3s ease-in 0s;
+  padding: 5px;
+  border-radius: 3px;
+  font-weight: bold;
+  /* Adjust styles as needed */
 }
-input:checked + .switch-label .switch-inner {
-  margin-left: 0;
+
+.slantedNegative {
+  transform: rotate(-20deg);
 }
-input:checked + .switch-label .switch-switch {
-  right: 4px;
+
+.slantedPositive {
+  transform: rotate(20deg);
 }
+
 .group-sensors {
   display: flex;
   flex-direction: column;
@@ -423,22 +366,5 @@ input:checked + .switch-label .switch-switch {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-}
-.image-container {
-  position: relative;
-}
-
-.background-image {
-  width: 100%;
-  height: auto;
-}
-
-.sensor-value {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 5px;
-  border-radius: 3px;
-  font-weight: bold;
-  /* Adjust styles as needed */
 }
 </style>

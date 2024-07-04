@@ -22,7 +22,7 @@
             @wheel="onWheel"
           >
             <img 
-              src="@/assets/Landscape Device Reference.png" 
+              src="@/assets/Landscape Floorplan.png" 
               alt="Map View" 
               class="map-image"
               :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"

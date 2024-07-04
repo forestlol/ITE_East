@@ -49,6 +49,12 @@
             <h4 v-else-if="subsystem.name === 'Smart Security System Overview'">
               {{ currentSmartSecurityIndex === 0 ? subsystem.name : smartSecurity[currentSmartSecurityIndex].name }}
             </h4>
+            <h4 v-else-if="subsystem.name === 'Smart Lighting System Overview'">
+              {{ currentSmartLightingIndex === 0 ? subsystem.name : smartLighting[currentSmartLightingIndex].name }}
+            </h4>
+            <h4 v-else-if="subsystem.name === 'Hybrid Air System Overview'">
+              {{ currentHybridAirIndex === 0 ? subsystem.name : hybridAir[currentHybridAirIndex].name }}
+            </h4>
             <div v-if="subsystem.name === 'Fire Alarm System Overview'">
               <SemiCircleProgressBar v-if="currentFireAlarmIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
@@ -106,7 +112,6 @@
               <div v-else>
                 <p>Connection: {{ bms[currentBMSIndex].connection }}</p>
                 <p>Value: {{ bms[currentBMSIndex].value }}</p>
-                <p>Date: {{ bms[currentBMSIndex].date }}</p>
               </div>
             </div>
             <div v-if="subsystem.name === 'Smart Pest Control System Overview'">
@@ -125,6 +130,24 @@
                   <span :class="['status-dot', {'status-online': smartSecurity[currentSmartSecurityIndex].status === 'Online', 'status-offline': smartSecurity[currentSmartSecurityIndex].status === 'Offline'}]"></span>
                 </p>
                 <p>Last Updated: {{ smartSecurity[currentSmartSecurityIndex].lastUpdated }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Smart Lighting System Overview'">
+              <SemiCircleProgressBar v-if="currentSmartLightingIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ smartLighting[currentSmartLightingIndex].status }}
+                  <span :class="['status-dot', {'status-online': smartLighting[currentSmartLightingIndex].status === 'Online', 'status-offline': smartLighting[currentSmartLightingIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ smartLighting[currentSmartLightingIndex].lastUpdated }}</p>
+              </div>
+            </div>
+            <div v-if="subsystem.name === 'Hybrid Air System Overview'">
+              <SemiCircleProgressBar v-if="currentHybridAirIndex === 0" :percentage="subsystem.operational" />
+              <div v-else>
+                <p>Status: {{ hybridAir[currentHybridAirIndex].status }}
+                  <span :class="['status-dot', {'status-online': hybridAir[currentHybridAirIndex].status === 'Online', 'status-offline': hybridAir[currentHybridAirIndex].status === 'Offline'}]"></span>
+                </p>
+                <p>Last Updated: {{ hybridAir[currentHybridAirIndex].lastUpdated }}</p>
               </div>
             </div>
             <div class="card-footer">
@@ -166,7 +189,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import SemiCircleProgressBar from '@/components/SemiCircleProgressBar.vue';
 import CircularProgressBar from '@/components/CircularProgressBar.vue';
@@ -190,6 +212,8 @@ export default {
       currentBMSIndex: 0,
       currentSmartPestControlIndex: 0,
       currentSmartSecurityIndex: 0,
+      currentSmartLightingIndex: 0,
+      currentHybridAirIndex: 0,
       progressData: [
         { label: 'Energy Efficiency', value: 100 },
         { label: 'Water Usage', value: 100 },
@@ -207,6 +231,8 @@ export default {
         { name: 'Smart Security System Overview', type: 'semi-circle', operational: 100, link: '/smart-security-system' },
         { name: 'Smart Air Quality System Overview', type: 'semi-circle', operational: 100, link: '/smart-air-quality-system' },
         { name: 'Asset Tagging System Overview', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
+        { name: 'Smart Lighting System Overview', type: 'semi-circle', operational: 100, link: '/smart-lighting-system' },
+        { name: 'Hybrid Air System Overview', type: 'semi-circle', operational: 100, link: '/hybrid-aircon-system' },
       ],
       fireAlarms: [
         { name: 'Fire Alarm System Overview', operational: 100 },
@@ -269,6 +295,20 @@ export default {
         { name: 'Security-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
         { name: 'Security-5', status: 'Online', lastUpdated: '2024-05-29 14:35:00' },
         { name: 'Security-6', status: 'Online', lastUpdated: '2024-05-29 14:10:00' },
+      ],
+      smartLighting: [
+        { name: 'Smart Lighting System Overview', operational: 100 },
+        { name: 'Lighting-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'Lighting-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'Lighting-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'Lighting-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
+      ],
+      hybridAir: [
+        { name: 'Hybrid Air System Overview', operational: 100 },
+        { name: 'Air-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
+        { name: 'Air-2', status: 'Offline', lastUpdated: '2024-05-29 14:20:00' },
+        { name: 'Air-3', status: 'Online', lastUpdated: '2024-05-29 14:25:00' },
+        { name: 'Air-4', status: 'Online', lastUpdated: '2024-05-29 14:15:00' },
       ],
       feedData: [
         { message: 'Fire Alarm SAP-2 is offline.', time: '2024-06-22 14:30:00' },
@@ -350,6 +390,16 @@ export default {
             this.currentSmartSecurityIndex--;
           }
           break;
+        case 'Smart Lighting System Overview':
+          if (this.currentSmartLightingIndex > 0) {
+            this.currentSmartLightingIndex--;
+          }
+          break;
+        case 'Hybrid Air System Overview':
+          if (this.currentHybridAirIndex > 0) {
+            this.currentHybridAirIndex--;
+          }
+          break;
       }
     },
     nextItem(subsystemName) {
@@ -399,6 +449,16 @@ export default {
             this.currentSmartSecurityIndex++;
           }
           break;
+        case 'Smart Lighting System Overview':
+          if (this.currentSmartLightingIndex < this.smartLighting.length - 1) {
+            this.currentSmartLightingIndex++;
+          }
+          break;
+        case 'Hybrid Air System Overview':
+          if (this.currentHybridAirIndex < this.hybridAir.length - 1) {
+            this.currentHybridAirIndex++;
+          }
+          break;
       }
     },
     canPrevItem(subsystemName) {
@@ -421,6 +481,10 @@ export default {
           return this.currentSmartPestControlIndex > 0;
         case 'Smart Security System Overview':
           return this.currentSmartSecurityIndex > 0;
+        case 'Smart Lighting System Overview':
+          return this.currentSmartLightingIndex > 0;
+        case 'Hybrid Air System Overview':
+          return this.currentHybridAirIndex > 0;
         default:
           return false;
       }
@@ -445,6 +509,10 @@ export default {
           return this.currentSmartPestControlIndex < this.smartPestControl.length - 1;
         case 'Smart Security System Overview':
           return this.currentSmartSecurityIndex < this.smartSecurity.length - 1;
+        case 'Smart Lighting System Overview':
+          return this.currentSmartLightingIndex < this.smartLighting.length - 1;
+        case 'Hybrid Air System Overview':
+          return this.currentHybridAirIndex < this.hybridAir.length - 1;
         default:
           return false;
       }
@@ -469,6 +537,10 @@ export default {
           return this.currentSmartPestControlIndex;
         case 'Smart Security System Overview':
           return this.currentSmartSecurityIndex;
+        case 'Smart Lighting System Overview':
+          return this.currentSmartLightingIndex;
+        case 'Hybrid Air System Overview':
+          return this.currentHybridAirIndex;
         default:
           return 0;
       }
@@ -493,6 +565,10 @@ export default {
           return this.smartPestControl.length;
         case 'Smart Security System Overview':
           return this.smartSecurity.length;
+        case 'Smart Lighting System Overview':
+          return this.smartLighting.length;
+        case 'Hybrid Air System Overview':
+          return this.hybridAir.length;
         default:
           return 1;
       }
@@ -503,7 +579,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 /* CSS code remains the same */
 .additional-card.quick-links {
@@ -715,7 +790,7 @@ export default {
 }
 
 .subsystem-card {
-  color: #fff;
+  color: black;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

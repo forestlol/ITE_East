@@ -12,9 +12,6 @@
             <div class="map-container">
               <img src="@/assets/Untitled.png" alt="Relation View" class="map-image">
             </div>
-            <div class="map-container">
-              <img src="@/assets/Untitled.png" alt="Relation View" class="map-image">
-            </div>
             <div class="link-button">
               <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
             </div>
