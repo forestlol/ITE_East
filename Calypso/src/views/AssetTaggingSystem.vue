@@ -1,227 +1,226 @@
 <template>
-    <div class="container mt-5">
-      <h2 class="text-center mb-4">Asset Tagging System</h2>
-      <div class="row">
-        <div class="col-md-12">
-          <div class="view-switcher">
-            <button @click="toggleView('relation')" :class="{ active: currentView === 'relation' }">Relation</button>
-            <button @click="toggleView('floorplan')" :class="{ active: currentView === 'floorplan' }">Floorplan</button>
-            <button @click="toggleView('devices')" :class="{ active: currentView === 'devices' }">Devices</button>
+  <div class="container-fluid mt-5">
+    <h2 class="text-center mb-4">Asset Tagging System</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="relation-section">
+          <h4>Sensor Detection</h4>
+          <div class="sensor-detection-diagram">
+            <img src="@/assets/Asset Tagging Algo.png" alt="Relation View" class="relation-image">
           </div>
-          <div class="view-container" v-if="currentView === 'relation'">
-            <div class="map-container">
-              <img src="@/assets/Toilet Device Reference.png" alt="Relation View" class="map-image">
-            </div>
-            <div class="map-container">
-              <img src="@/assets/Toilet Device Reference.png" alt="Relation View" class="map-image">
-            </div>
-            <div class="link-button">
-              <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
-            </div>
-          </div>
-          <div class="view-container" v-if="currentView === 'floorplan'">
-            <div class="map-container">
-              <img src="@/assets/Toilet Floorplan.png" alt="Floorplan View" class="map-image">
-            </div>
-            <div class="link-button">
-              <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
-            </div>
-          </div>
-          <div class="view-container" v-if="currentView === 'devices'">
-            <div class="device-category" v-for="(devices, category) in groupedDevices" :key="category">
-              <h4 class="category-title">{{ category }}</h4>
-              <div class="device-grid">
-                <div v-for="device in devices" :key="device.id" class="device-item">
-                  <h5>{{ device.name }}</h5>
-                  <p>Status: <span :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">{{ device.isOnline ? 'Online' : 'Offline' }}</span></p>
-                  <p>Type: {{ device.type }}</p>
-                  <p>Last Updated: {{ device.lastUpdated }}</p>
-                </div>
-              </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="map-section">
+          <h4>Floorplan</h4>
+          <div 
+            class="map-container"
+            @mousedown="startPan"
+            @mousemove="pan"
+            @mouseup="endPan"
+            @mouseleave="endPan"
+            @wheel="onWheel"
+          >
+            <img 
+              src="@/assets/Untitled.png" 
+              alt="Map View" 
+              class="map-image"
+              :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"
+            >
+            <div class="zoom-controls">
+              <button class="btn btn-secondary" @click="zoomIn">+</button>
+              <button class="btn btn-secondary" @click="zoomOut">-</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'AssetTaggingSystem',
-    data() {
-      return {
-        currentView: 'relation',
-        devices: [
-          { id: 1, name: 'Asset Tag 1', type: 'Asset Tag', typeClass: 'asset-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 2, name: 'Asset Tag 2', type: 'Asset Tag', typeClass: 'asset-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 3, name: 'Temperature Tag 1', type: 'Temperature Tag', typeClass: 'temperature-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 4, name: 'Temperature Tag 2', type: 'Temperature Tag', typeClass: 'temperature-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 5, name: 'Humidity Tag 1', type: 'Humidity Tag', typeClass: 'humidity-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 6, name: 'Humidity Tag 2', type: 'Humidity Tag', typeClass: 'humidity-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 7, name: 'Location Tag 1', type: 'Location Tag', typeClass: 'location-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 8, name: 'Location Tag 2', type: 'Location Tag', typeClass: 'location-tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-          { id: 9, name: 'Gateway 1', type: 'LoRaWAN Gateway', typeClass: 'gateway', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        ],
-      };
+    <div class="row mt-4">
+      <div class="col-md-3" v-for="device in devices" :key="device.id">
+        <div class="device-status-card">
+          <h5>{{ device.name }}</h5>
+          <p class="status" :class="{'text-success': device.isOnline, 'text-danger': !device.isOnline}">
+            {{ device.isOnline ? 'Online' : 'Offline' }}
+          </p>
+          <p>Type: {{ device.type }}</p>
+          <p>Last Updated: {{ device.lastUpdated }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="condition mt-4 text-center">
+      <p>If BLE Beacon 1 and Beacon 2 on, BLE Tags able to detect within range.</p>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'AssetTaggingSystem',
+  data() {
+    return {
+      devices: [
+        { id: 1, name: 'BLE Beacon 1', type: 'Asset Tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 4, name: 'BLE Beacon 2', type: 'Temperature Tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 5, name: 'BLE Tags', type: 'Humidity Tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+      ],
+      zoomLevel: 1,
+      translateX: 0,
+      translateY: 0,
+      isPanning: false,
+      startX: 0,
+      startY: 0,
+      lastX: 0,
+      lastY: 0,
+      animationFrame: null,
+    };
+  },
+  methods: {
+    zoomIn() {
+      this.zoomLevel = Math.min(this.zoomLevel + 0.1, 2);
     },
-    computed: {
-      groupedDevices() {
-        return this.devices.reduce((acc, device) => {
-          const category = device.type + 's';
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(device);
-          return acc;
-        }, {});
-      },
+    zoomOut() {
+      this.zoomLevel = Math.max(this.zoomLevel - 0.1, 1);
     },
-    methods: {
-      toggleView(view) {
-        this.currentView = view;
-      },
-      navigateTo3DLandscape() {
-        window.location.href = 'https://your-3d-landscape-url.com';
-      },
+    onWheel(event) {
+      event.preventDefault();
+      const delta = Math.sign(event.deltaY) * -0.1;
+      this.zoomLevel = Math.min(Math.max(this.zoomLevel + delta, 1), 2);
     },
-  };
-  </script>
-  
-  <style scoped>
-  .container {
-    max-width: 1200px;
-  }
-  
-  .section-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .device-category {
-    margin-bottom: 20px;
-  }
-  
-  .category-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    padding-left: 15px;
-  }
-  
-  .device-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  
-  .device-item {
-    border: 1px solid lightgrey;
-    background-color: #f8f9fa;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .device-item h5 {
-    margin-bottom: 10px;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #007bff;
-  }
-  
-  .view-switcher {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  
-  .view-switcher button {
-    background-color: #f8f9fa;
-    border: none;
-    padding: 10px 20px;
-    margin: 0 5px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  .view-switcher button.active {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .view-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    flex: 1;
-  }
-  
-  .map-container {
-    border: 1px solid lightgrey;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .map-image {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-  }
-  
-  .device-status {
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    border: 1px solid black;
-  }
-  
-  .asset-tag {
-    background-color: red;
-    border: 1px solid black;
-  }
-  
-  .temperature-tag {
-    background-color: #92d050;
-    border: 1px solid black;
-  }
-  
-  .humidity-tag {
-    background-color: #ffd966;
-    width: 15px;
-    height: 15px;
-    border: 1px solid black;
-  }
-  
-  .location-tag {
-    background-color: #00b0f0;
-    width: 15px;
-    height: 15px;
-    border: 1px solid black;
-  }
-  
-  .gateway {
-    background-color: #4472c4;
-    width: 21px;
-    height: 15px;
-    border-radius: 0;
-    border: 1px solid black;
-  }
-  
-  .text-danger {
-    color: #dc3545 !important;
-  }
-  
-  .text-success {
-    color: #28a745 !important;
-  }
-  
-  .link-button {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    margin-top: 10px;
-  }
-  </style>
+    startPan(event) {
+      this.isPanning = true;
+      this.startX = event.clientX - this.translateX;
+      this.startY = event.clientY - this.translateY;
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+    },
+    pan(event) {
+      if (!this.isPanning) return;
+
+      const dx = event.clientX - this.lastX;
+      const dy = event.clientY - this.lastY;
+
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+
+      this.translateX += dx / this.zoomLevel;
+      this.translateY += dy / this.zoomLevel;
+
+      if (!this.animationFrame) {
+        this.animationFrame = requestAnimationFrame(this.updatePan);
+      }
+    },
+    updatePan() {
+      this.$forceUpdate();
+      this.animationFrame = null;
+    },
+    endPan() {
+      this.isPanning = false;
+      if (this.animationFrame) {
+        cancelAnimationFrame(this.animationFrame);
+        this.animationFrame = null;
+      }
+    },
+    navigateTo3DLandscape() {
+      window.location.href = 'https://your-3d-landscape-url.com';
+    },
+  },
+};
+</script>
+
+<style scoped>
+.container-fluid {
+  width: 100%;
+  padding: 2rem;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.relation-section, .map-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  height: 100%;
+}
+
+.relation-image, .map-image {
+  width: 100%;
+  height: auto;
+  transition: transform 0.1s ease-out;
+}
+
+.map-container {
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  cursor: grab;
+}
+
+.map-container:active {
+  cursor: grabbing;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.zoom-controls .btn {
+  margin: 2px 0;
+}
+
+.device-status-card {
+  background-color: #e9f7fd;
+  padding: 15px;
+  text-align: center;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.device-status-card h5 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.device-status-card .status {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.link-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.link-button .btn {
+  padding: 10px 20px;
+  font-size: 1.25rem;
+}
+
+.condition p {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+</style>

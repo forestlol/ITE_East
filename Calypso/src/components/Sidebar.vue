@@ -65,6 +65,18 @@
             <span class="nav-text">Asset Tagging System</span>
           </router-link>
         </li>
+        <li class="nav-item">
+          <router-link class="nav-link" to="/smart-lighting-system">
+            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/smart-lighting-system' }]"></i>
+            <span class="nav-text">Smart Lighting System</span>
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" to="/hybrid-aircon-system">
+            <i :class="['fas', 'fa-fan', { 'active-icon': $route.path === '/hybrid-aircon-system' }]"></i>
+            <span class="nav-text">Hybrid Aircon System</span>
+          </router-link>
+        </li>
       </ul>
     </div>
     <div class="navbar">
@@ -246,8 +258,12 @@ export default {
 }
 
 .content {
-  margin-top: 20px;
-  /* Add enough margin to prevent overlapping with the navbar */
+  /* Adjust this to ensure content does not overlap with the navbar */
   padding: 20px;
+  transition: margin-left 0.3s;
+}
+
+.sidebar.expanded + .content {
+  margin-left: 200px;
 }
 </style>

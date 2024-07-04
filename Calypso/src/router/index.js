@@ -12,6 +12,8 @@ import SmartPestControlSystem from '@/views/SmartPestControlSystem.vue';
 import SmartSecuritySystem from '@/views/SmartSecuritySystem.vue';
 import SmartAirQualitySystem from '@/views/SmartAirQualitySystem.vue';
 import AssetTaggingSystem from '@/views/AssetTaggingSystem.vue';
+import SmartLightingSystem from '@/views/SmartLightingSystem.vue';
+import HybridAirconSystem from '@/views/HybridAirconSystem.vue';
 
 const routes = [
   {
@@ -79,6 +81,16 @@ const routes = [
     path: '/asset-tagging-system',
     name: 'AssetTaggingSystem',
     component: AssetTaggingSystem
+  },
+  {
+    path: '/Smart-lighting-system',
+    name: 'SmartLightingSystem',
+    component: SmartLightingSystem
+  },
+  {
+    path: '/hybrid-aircon-system',
+    name: 'HybridAirconSystem',
+    component: HybridAirconSystem
   },
 ];
 

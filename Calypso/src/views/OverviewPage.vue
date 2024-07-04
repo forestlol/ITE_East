@@ -508,8 +508,8 @@ export default {
 /* CSS code remains the same */
 .additional-card.quick-links {
   flex: 1;
-  background: #1c1e29;
-  color: #fff;
+  background: white;
+  color: black;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -604,8 +604,8 @@ export default {
 }
 
 .additional-card {
-  background: #1c1e29;
-  color: #fff;
+  background: white;
+  color: black;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -643,7 +643,7 @@ export default {
 }
 
 .feed-item {
-  background: #2c2e39;
+  background: rgb(231, 231, 231);
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;

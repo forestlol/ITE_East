@@ -1,9 +1,21 @@
 <template>
   <div class="container">
     <h2 class="text-center mb-4">Building Management System</h2>
-    <div class="view-switcher">
-      <button @click="toggleView('groupings')" :class="{ 'active': currentView === 'groupings' }">Groupings</button>
-      <button @click="toggleView('bms-groups')" :class="{ 'active': currentView === 'bms-groups' }">BMS Groups</button>
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: currentView === 'bms' }" @click="toggleView('bms')">BMS</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: currentView === 'groupings' }" @click="toggleView('groupings')">Groupings</a>
+      </li>
+    </ul>
+    <div v-if="currentView === 'bms'" class="tab-content">
+      <div class="image-container">
+        <img src="@/assets/BMS.jpg" alt="Chiller Plant Room" class="background-image">
+        <div v-for="(position, sensorName) in sensorPositions" :key="sensorName" class="sensor-value" :style="position">
+          {{ getValue(sensorName) }}
+        </div>
+      </div>
     </div>
     <div v-if="currentView === 'groupings'" class="group-sensors">
       <div v-for="(group) in filteredGroups" :key="group._id" class="mb-4">
@@ -21,22 +33,8 @@
                 Status: {{ getActiveValue(id) || 'N/A' }}
               </span>
             </p>
-            <p>Value: {{ getPresentValue(id) }} {{ group.units[index] || '' }}</p>
+            <p>Value: {{ formatValue(getPresentValue(id)) }} {{ group.units[index] || '' }}</p>
             <p>Date: {{ findLatestDataById(id).dateTime || 'N/A' }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-if="currentView === 'bms-groups'" class="bms-groups">
-      <div class="grid-container">
-        <div v-for="(group, index) in groups" :key="index" class="grid-item">
-          <h5>{{ group.name }}</h5>
-          <div class="toggle-switch">
-            <input type="checkbox" :id="'switch' + index" @change="toggleGroupCommand(group, $event)" />
-            <label :for="'switch' + index" class="switch-label">
-              <span class="switch-inner"></span>
-              <span class="switch-switch"></span>
-            </label>
           </div>
         </div>
       </div>
@@ -50,13 +48,73 @@ import * as CacheManager from '@/CacheManager.js';
 export default {
   data() {
     return {
-      currentView: 'groupings',
+      currentView: 'bms',
       groups: [],
       loading: true,
       error: null,
       latestData: [],
-      refreshInternal: null,
+      refreshInterval: null,
       search: '',
+      sensorPositions: {
+        'Cooling Tower Supply Temperature': { top: '50px', left: '200px' },
+        'Outdoor Temperature': { top: '80px', left: '400px' },
+        'Outdoor Humidity': { top: '110px', left: '400px' },
+        'Cond Water Return Temperature': { top: '150px', left: '250px' },
+        'Cond Water Supply Temperature': { top: '180px', left: '350px' },
+        'Cond Water Flow Meter': { top: '210px', left: '300px' },
+        'Chilled Water Flow Meter': { top: '240px', left: '450px' },
+        'Chilled Water Supply Temperature': { top: '270px', left: '550px' },
+        'Chilled Water Return Temperature': { top: '300px', left: '600px' },
+        'Supply Air Temperature': { top: '330px', left: '650px' },
+        'AHU Status': { top: '50px', left: '700px' },
+        'AHU Command': { top: '80px', left: '700px' },
+        'AHU Valve': { top: '110px', left: '700px' },
+        'AHU Flow Rate': { top: '140px', left: '700px' },
+        'Chilled Water Pump Status': { top: '170px', left: '700px' },
+        'Chilled Water Pump Command': { top: '200px', left: '700px' },
+        'Chiller Status': { top: '260px', left: '700px' },
+        'Chiller Command': { top: '290px', left: '700px' },
+        'System Efficiency': { top: '320px', left: '700px' },
+        'Total Power Consumption': { top: '350px', left: '700px' },
+        'Total Cooling Load': { top: '380px', left: '700px' },
+        'Heat Balance': { top: '410px', left: '700px' },
+        'Cond Water Pump Status': { top: '440px', left: '700px' },
+        'Cond Water Pump Command': { top: '470px', left: '700px' },
+        'Cooling Tower Status': { top: '530px', left: '700px' },
+        'Cooling Tower Command': { top: '560px', left: '700px' },
+        'Cond Water Return Temperature 2': { top: '590px', left: '700px' },
+        'Cond Water Supply Temperature 2': { top: '620px', left: '700px' },
+        'System Failure Alarm': { top: '650px', left: '700px' },
+        'System Command': { top: '680px', left: '700px' },
+      },
+      sensors: {
+        'Cooling Tower Supply Temperature': { value: 30.0, unit: '°C', dateTime: '07/04/2024 8:24:37 PM' },
+        'Outdoor Temperature': { value: 30.5, unit: '°C', dateTime: '07/04/2024 8:24:52 PM' },
+        'Outdoor Humidity': { value: 49.1, unit: '%RH', dateTime: '07/04/2024 8:24:58 PM' },
+        'Cond Water Return Temperature': { value: 26.7, unit: '°C', dateTime: '07/04/2024 8:24:58 PM' },
+        'Cond Water Supply Temperature': { value: 26.5, unit: '°C', dateTime: '07/04/2024 8:24:58 PM' },
+        'Cond Water Flow Meter': { value: 0.0, unit: 'L/s', dateTime: '07/04/2024 8:24:56 PM' },
+        'Chilled Water Flow Meter': { value: 0.0, unit: 'L/s', dateTime: '07/04/2024 8:25:01 PM' },
+        'Chilled Water Supply Temperature': { value: 25.3, unit: '°C', dateTime: '07/04/2024 8:24:59 PM' },
+        'Chilled Water Return Temperature': { value: 25.0, unit: '°C', dateTime: '07/04/2024 8:24:56 PM' },
+        'Supply Air Temperature': { value: 27.1, unit: '°C', dateTime: '07/04/2024 8:24:52 PM' },
+        'AHU Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:52 PM' },
+        'AHU Command': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:52 PM' },
+        'AHU Valve': { value: 0.0, unit: '%', dateTime: '07/04/2024 8:24:49 PM' },
+        'AHU Flow Rate': { value: -0.0, unit: 'L/s', dateTime: '07/04/2024 8:24:51 PM' },
+        'Chilled Water Pump Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:54 PM' },
+        'Chilled Water Pump Command': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:56 PM' },
+        'Chiller Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:56 PM' },
+        'Chiller Command': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:56 PM' },
+        'System Efficiency': { value: 0.0, unit: 'KW/TON', dateTime: '07/04/2024 8:24:57 PM' },
+        'Total Power Consumption': { value: 0.3, unit: 'KW', dateTime: '07/04/2024 8:24:56 PM' },
+        'Total Cooling Load': { value: 0.0, unit: 'KW', dateTime: '07/04/2024 8:24:56 PM' },
+        'Heat Balance': { value: 0.0, unit: '%', dateTime: '07/04/2024 8:24:58 PM' },
+        'Cond Water Pump Status': { value: 'N/A', unit: '', dateTime: 'N/A' },
+        'Cond Water Pump Command': { value: 'N/A', unit: '', dateTime: 'N/A' },
+        'Cooling Tower Status': { value: 0.0, unit: '', dateTime: '07/04/2024 8:24:58 PM' },
+        'Cooling Tower Command': { value: 'N/A', unit: '', dateTime: 'N/A' },
+      },
     };
   },
   async created() {
@@ -165,6 +223,14 @@ export default {
       const activeValue = this.getActiveValue(id);
       return activeValue === 'On' || activeValue === 'Open' ? 'ok' : 'not-ok';
     },
+    formatValue(value) {
+      const numValue = Number(value);
+      return isNaN(numValue) ? 'N/A' : numValue.toFixed(1);
+    },
+    getValue(sensorName) {
+      const sensor = this.sensors[sensorName];
+      return sensor ? `${sensor.value} ${sensor.unit}` : 'N/A';
+    },
   },
 };
 </script>
@@ -172,7 +238,7 @@ export default {
 <style scoped>
 .container {
   max-width: 1200px;
-  min-height: 100vh; /* Ensure the container covers the full viewport height */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -314,17 +380,17 @@ input:checked + .switch-label .switch-switch {
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  border-radius: 0.375rem; /* Rounded corners */
+  border-radius: 0.375rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .ok {
   color: #fff;
-  background-color: #28a745; /* Green background for 'OK' status */
+  background-color: #28a745;
 }
 .not-ok {
   color: #fff;
-  background-color: #dc3545; /* Red background for non-'OK' statuses */
+  background-color: #dc3545;
 }
 .view-switcher {
   display: flex;
@@ -357,5 +423,22 @@ input:checked + .switch-label .switch-switch {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+.image-container {
+  position: relative;
+}
+
+.background-image {
+  width: 100%;
+  height: auto;
+}
+
+.sensor-value {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 5px;
+  border-radius: 3px;
+  font-weight: bold;
+  /* Adjust styles as needed */
 }
 </style>

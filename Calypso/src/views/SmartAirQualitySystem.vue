@@ -10,10 +10,10 @@
           </div>
           <div class="view-container" v-if="currentView === 'relation'">
             <div class="map-container">
-              <img src="@/assets/AirQuality_Relation.png" alt="Relation View" class="map-image">
+              <img src="@/assets/Untitled.png" alt="Relation View" class="map-image">
             </div>
             <div class="map-container">
-              <img src="@/assets/AirQuality_Relation.png" alt="Relation View" class="map-image">
+              <img src="@/assets/Untitled.png" alt="Relation View" class="map-image">
             </div>
             <div class="link-button">
               <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
@@ -225,4 +225,3 @@
     margin-top: 10px;
   }
   </style>
-  
