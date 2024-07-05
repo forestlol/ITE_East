@@ -9,7 +9,9 @@
     <div class="row">
       <div class="col-md-12">
         <div class="view-container" v-if="currentView === 'relation'">
-          <img src="@/assets/IAQ.jpg" alt="IAQ Overview" class="img-fluid">
+          <button @click="prevImage" class="arrow left-arrow">&lt;</button>
+          <img :src="currentImage" alt="Smart Energy Overview" class="img-fluid">
+          <button @click="nextImage" class="arrow right-arrow">&gt;</button>
         </div>
         
         <div class="devices-grid" v-if="currentView === 'devices'">
@@ -43,6 +45,7 @@ export default {
   data() {
     return {
       currentView: 'relation',
+      currentImageIndex: 0,
       hoveredDevice: null,
       devices: [
         { id: 1, name: 'Device 1', kwh: 123.45, voltage: 220, current: 10, powerFactor: 0.95 },
@@ -55,7 +58,16 @@ export default {
         { id: 8, name: 'Device 8', kwh: 34.56, voltage: 220, current: 6, powerFactor: 0.86 },
         { id: 9, name: 'Device 9', kwh: 12.34, voltage: 220, current: 3, powerFactor: 0.89 },
       ],
+      images: [
+        require('@/assets/Smart energy.jpeg'),
+        require('@/assets/Smart energy 2.jpeg')
+      ]
     };
+  },
+  computed: {
+    currentImage() {
+      return this.images[this.currentImageIndex];
+    }
   },
   methods: {
     viewDetails(deviceId) {
@@ -67,7 +79,38 @@ export default {
     navigateTo3DLandscape() {
       window.location.href = "https://visualizer-lite-html.vercel.app/?site=23&levels=94";
     },
+    startSlideshow() {
+      this.interval = setInterval(() => {
+        this.currentImageIndex = (this.currentImageIndex + 0) % this.images.length;
+      }, 0);
+    },
+    stopSlideshow() {
+      clearInterval(this.interval);
+    },
+    prevImage() {
+      this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
+    },
+    nextImage() {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+    }
   },
+  mounted() {
+    if (this.currentView === 'relation') {
+      this.startSlideshow();
+    }
+  },
+  watch: {
+    currentView(newView) {
+      if (newView === 'relation') {
+        this.startSlideshow();
+      } else {
+        this.stopSlideshow();
+      }
+    }
+  },
+  beforeUnmount() {
+    this.stopSlideshow();
+  }
 };
 </script>
 
@@ -165,5 +208,21 @@ export default {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+.arrow {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007bff;
+}
+.left-arrow {
+  left: 10px;
+}
+.right-arrow {
+  right: 10px;
 }
 </style>
