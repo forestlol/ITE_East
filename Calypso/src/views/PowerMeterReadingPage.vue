@@ -2,20 +2,14 @@
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Smart Energy Management System</h2>
     <div class="view-switcher">
-      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
+      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Overview</button>
       <button @click="toggleView('floorplan')" :class="{'active': currentView === 'floorplan'}">Floorplan</button>
       <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Devices</button>
     </div>
     <div class="row">
       <div class="col-md-12">
         <div class="view-container" v-if="currentView === 'relation'">
-          <p>Relation view content goes here.</p>
-          <!-- Replace the p tag above with the actual image tag when you have the image -->
-        </div>
-        
-        <div class="view-container" v-if="currentView === 'floorplan'">
-          <p>Floorplan view content goes here.</p>
-          <!-- Replace the p tag above with the actual image tag when you have the image -->
+          <img src="@/assets/IAQ.jpg" alt="IAQ Overview" class="img-fluid">
         </div>
         
         <div class="devices-grid" v-if="currentView === 'devices'">
@@ -152,6 +146,10 @@ export default {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
+}
+.view-container img {
+  max-width: 75%;
+  height: auto;
 }
 .link-button {
   display: flex;
