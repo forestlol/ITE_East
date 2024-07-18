@@ -5,8 +5,9 @@
       <div class="col-md-6">
         <div class="relation-section">
           <h4 class="text-center mb-4">Sensor Detection</h4>
-          <div class="sensor-detection-diagram">
+          <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Asset Tagging Algo.png" alt="Relation View" class="relation-image">
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust Condition</button>
           </div>
         </div>
       </div>
@@ -37,6 +38,37 @@
     <div class="condition mt-4 text-center">
       <p>If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.</p>
     </div>
+    <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
+    <div v-if="showModal" class="modal d-block">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Adjust Conditions</h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="condition-input">
+              <label>BLE Beacon 1</label>
+              <select v-model="bleBeacon1Status" class="form-control">
+                <option value="On">On</option>
+                <option value="Off">Off</option>
+              </select>
+            </div>
+            <div class="condition-input">
+              <label>BLE Beacon 2</label>
+              <select v-model="bleBeacon2Status" class="form-control">
+                <option value="On">On</option>
+                <option value="Off">Off</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+            <button type="button" class="btn btn-primary" @click="saveConditions">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -53,9 +85,25 @@ export default {
       outOfRangeTags: [
         { id: 6, name: 'BLE Tag 3', type: 'Humidity Tag', lastUpdated: '2024-05-29 14:30:00' },
         { id: 7, name: 'BLE Tag 4', type: 'Temperature Tag', lastUpdated: '2024-05-29 14:30:00' },
-      ]
+      ],
+      showModal: false,
+      bleBeacon1Status: 'On',
+      bleBeacon2Status: 'On',
     };
-  }
+  },
+  methods: {
+    openModal() {
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    saveConditions() {
+      // Save the conditions
+      alert(`BLE Beacon 1: ${this.bleBeacon1Status}, BLE Beacon 2: ${this.bleBeacon2Status}`);
+      this.closeModal();
+    },
+  },
 };
 </script>
 
@@ -131,5 +179,60 @@ h2 {
 .condition p {
   font-size: 1.2rem;
   font-weight: bold;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal {
+  display: none;
+}
+
+.modal.d-block {
+  display: block;
+}
+
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  width: 500px;
+}
+
+.modal-header,
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 20px 20px;
+}
+
+.modal-footer {
+  padding-top: 10px;
+}
+
+.btn-close {
+  border: none;
+  background: none;
+}
+
+.condition-input {
+  margin-bottom: 10px;
 }
 </style>

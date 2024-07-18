@@ -20,7 +20,7 @@
                   </div>
                   <div class="sensor-row">
                     <p>PPM: {{ sensor.ppm }}</p>
-                    <p>Temp: {{ sensor.temperature }}°C</p>                    
+                    <p>Temp: {{ sensor.temperature }}°C</p>
                   </div>
                 </div>
               </div>
@@ -30,10 +30,13 @@
         <div class="col-md-6">
           <div class="map-section">
             <h4>Floorplan</h4>
-            <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
-              @wheel="onWheel">
-              <img src="@/assets/Sub System and Icons/B05 13-14/B05 13-14_IAQ_sensor.jpg" alt="Map View" class="map-image"
-                :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
+            <div class="floorplan-selection mb-3">
+              <select v-model="selectedFloorplan" class="form-control">
+                <option v-for="floorplan in floorplans" :key="floorplan.id" :value="floorplan.id">{{ floorplan.name }}</option>
+              </select>
+            </div>
+            <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan" @wheel="onWheel">
+              <img :src="getCurrentFloorplanImage(selectedFloorplan)" alt="Map View" class="map-image" :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
               <div class="zoom-controls">
                 <button class="btn btn-secondary" @click="zoomIn">+</button>
                 <button class="btn btn-secondary" @click="zoomOut">-</button>
@@ -74,11 +77,29 @@
 </template>
 
 <script>
+import Floorplan1 from '@/assets/Sub System and Icons/B05-07_Smart_IAQ_systems.jpg';
+import Floorplan2 from '@/assets/Sub System and Icons/B05-08_Smart_IAQ_system.jpg';
+import Floorplan3 from '@/assets/Sub System and Icons/B05-09_Smart_IAQ_System.jpg';
+import Floorplan4 from '@/assets/Sub System and Icons/B05 11-12_Room/B05_11-12_IAQ_sensors.jpg';
+import Floorplan5 from '@/assets/Sub System and Icons/B05 13-14/B05 13-14_IAQ_sensor.jpg';
+import Floorplan6 from '@/assets/Sub System and Icons/B05 15-16_ SmartB_IAQ_system.jpg';
+import Floorplan7 from '@/assets/Sub System and Icons/B05-18_Smart_IAQ_system.jpg';
+
 export default {
   name: 'SystemOverview',
   data() {
     return {
       currentView: 'indoorAirQuality',
+      selectedFloorplan: 1,
+      floorplans: [
+        { id: 1, name: 'B05-07', image: Floorplan1 },
+        { id: 2, name: 'B05-08', image: Floorplan2 },
+        { id: 3, name: 'B05-09', image: Floorplan3 },
+        { id: 4, name: 'B05 11-12', image: Floorplan4 },
+        { id: 5, name: 'B05 13-14', image: Floorplan5 },
+        { id: 6, name: 'B05 15-16', image: Floorplan6 },
+        { id: 7, name: 'B05-18', image: Floorplan7 }
+      ],
       sensors: [
         { id: 1, name: 'B05-11', co2: 400, temperature: 22, ppm: 800, top: '39%', left: '11.4%' },
         { id: 2, name: 'B05-12', co2: 410, temperature: 23, ppm: 810, top: '39%', left: '32%' },
@@ -152,10 +173,11 @@ export default {
         this.animationFrame = null;
       }
     },
-    navigateTo3DLandscape() {
-      window.location.href = 'https://your-3d-landscape-url.com';
-    },
-  },
+    getCurrentFloorplanImage(id) {
+      const floorplan = this.floorplans.find(fp => fp.id === id);
+      return floorplan ? floorplan.image : '';
+    }
+  }
 };
 </script>
 
@@ -271,7 +293,6 @@ h2 {
 }
 
 .hybrid-aircon-section .relation-section {
-  display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;

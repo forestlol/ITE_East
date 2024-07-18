@@ -13,7 +13,7 @@
     <div class="map-hierarchy">
       <h3>Map of Area or Sub-System Hierarchy Selection</h3>
       <div class="map-content">
-        <img src="@/assets/ITE_EAST_FLOORPLAN.jpg" alt="ITE East Floor Plan" class="img-fluid fixed-size">
+        <img src="@/assets/Sub System and Icons/B05.jpg" alt="ITE East Floor Plan" class="img-fluid fixed-size">
       </div>
     </div>
     <div class="summary-subsystems">
@@ -169,6 +169,7 @@
     <div class="additional-cards">
       <div class="additional-card auto-scroll-feed">
         <h4>Alarm & Notification</h4>
+        <router-link to="/alarms-notifications" class="view-all-link">View All</router-link>
         <div class="feed-wrapper">
           <div class="feed-content">
             <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
@@ -177,7 +178,6 @@
             </div>
           </div>
         </div>
-        <router-link to="/alarms-notifications" class="btn btn-primary mt-3">View All</router-link>
       </div>
       <div class="additional-card quick-links">
         <h4>Quick Links</h4>
@@ -190,6 +190,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import SemiCircleProgressBar from '@/components/SemiCircleProgressBar.vue';
 import CircularProgressBar from '@/components/CircularProgressBar.vue';
@@ -580,6 +581,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 /* CSS code remains the same */
 .additional-card.quick-links {
@@ -919,5 +921,18 @@ export default {
 
 .page-indicators span.active {
   color: #007bff;
+}
+
+.view-all-link {
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.view-all-link:hover {
+  color: #0056b3;
 }
 </style>

@@ -10,7 +10,7 @@
               <img src="@/assets/Smart Landscape Algo 2 empty.png" alt="Relation View" class="relation-image">
               <div v-for="(point, index) in relationPoints" :key="index"
                 :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
-                @mouseenter="showValue(index, $event)" @mouseleave="hideValue" class="relation-point">
+                @mouseenter="showValue(index, $event)" @mouseleave="hideValue" :class="{'relation-point': true, 'point-label-break': point.type === 'break'}">
                 <template v-if="point.type === 'sensor'">
                   <span class="point-number">{{ point.number }}</span>
                 </template>
@@ -176,6 +176,13 @@ export default {
         { label: 'Lux Sensor', type: 'reading', x: 24.5, y: 77, reading: '1500 lux' },
         { label: 'Water Level Sensor', type: 'reading', x: 34, y: 77, reading: '75%' },
         { label: 'Dosing Pump', type: 'status', x: 61.3, y: 21, status: 'Off' },
+        { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },
+        { label: '(Readings/ Threshold)', x: 15.5, y: 85, type: 'break' },
+        { label: '(Readings/ Threshold)', x: 24.5, y: 85, type: 'break' },
+        { label: '(Readings/ Threshold)', x: 34, y: 85, type: 'break' },
+        { label: 'ON/OFF', type: 'title', x: 48.5, y: 48 },
+        { label: 'ON/OFF, (Readings/Threshold)', type: 'title', x: 61.5, y: 11 },
+        { label: 'Solenoid Valve ON/OFF', type: 'title', x: 68, y: 37 },
       ],
       hoveredIndex: null,
       tooltipX: 0,
@@ -368,6 +375,12 @@ h2 {
   white-space: pre-line;
   /* Allows line breaks */
   text-align: center;
+}
+
+.point-label-break {
+  font-size: 0.5rem;
+  text-align: center;
+  white-space: pre-wrap;
 }
 
 .value-tooltip {

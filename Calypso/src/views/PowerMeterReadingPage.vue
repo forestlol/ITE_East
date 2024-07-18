@@ -6,13 +6,15 @@
         <div class="view-container">
           <h4 class="text-center mb-4">Overview</h4>
           <div class="image-container">
-            <button @click="prevImage" class="arrow left-arrow">&lt;</button>
-            <img :src="currentImage" alt="Smart Energy Overview" class="img-fluid">
-            <button @click="nextImage" class="arrow right-arrow">&gt;</button>
+            <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to Main</button>
+            <img :src="currentImage" alt="Smart Energy Overview" class="img-fluid" @click="handleImageClick">
             <div class="boxes-overlay">
-              <div v-for="(box, index) in boxes" :key="index" class="box" :style="{ top: box.top, left: box.left }"
-                @mouseover="showPopup(box, $event)" @mouseleave="hidePopup">
-                <p>{{ box.label || 'Empty' }}</p>
+              <div v-for="(box, index) in currentBoxes" :key="index" class="box"
+                :class="{ 'disable-hover': box.label === 'B05-11/12' }" :style="{ top: box.top, left: box.left }"
+                @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)"
+                @mouseleave="box.label !== 'B05-11/12' && hidePopup()"
+                @click="handleBoxClick(index)">
+                <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
               </div>
             </div>
           </div>
@@ -49,6 +51,8 @@
 <script>
 import axios from 'axios';
 import ChartComponent from '@/components/ChartComponent.vue';
+import OverviewImage from '@/assets/SmartEnergyMain.jpg';
+import B0511_12 from '@/assets/Smart energy.jpeg';
 
 export default {
   name: 'PowerMeterReadingPage',
@@ -59,20 +63,40 @@ export default {
     return {
       currentImageIndex: 0,
       images: [
-        require('@/assets/Smart energy.jpeg'),
-        require('@/assets/Smart energy 2.jpeg')
+        OverviewImage,
+        B0511_12
       ],
       boxes: [],
       popupVisible: false,
-      popupData: {},
+      popupData: {
+        meterSN: '',
+        meterName: '',
+        meterStatus: '',
+        ch: '',
+        ua: '',
+        ia: '',
+        p: '',
+        q: '',
+        pf: '',
+        epi: '',
+        epe: '',
+        eql: '',
+        eqc: ''
+      },
       popupX: 0,
       popupY: 0,
-      chartData: []
+      chartData: [],
+      floorSelectionBoxes: [
+        { label: 'B05-11/12', top: '168px', left: '50px' }
+      ]
     };
   },
   computed: {
     currentImage() {
       return this.images[this.currentImageIndex];
+    },
+    currentBoxes() {
+      return this.currentImageIndex === 0 ? this.floorSelectionBoxes : this.boxes;
     }
   },
   methods: {
@@ -114,10 +138,12 @@ export default {
       }
     },
     showPopup(box, event) {
-      this.popupData = box.data;
-      this.popupX = event.clientX + 15;  // Slight offset to the right of the mouse pointer
-      this.popupY = event.clientY + 15;  // Slight offset below the mouse pointer
-      this.popupVisible = true;
+      if (box.label !== 'B05-11/12') {
+        this.popupData = box.data || {};
+        this.popupX = event.clientX + 15;  // Slight offset to the right of the mouse pointer
+        this.popupY = event.clientY + 15;  // Slight offset below the mouse pointer
+        this.popupVisible = true;
+      }
     },
     hidePopup() {
       this.popupVisible = false;
@@ -133,11 +159,15 @@ export default {
     navigateTo3DLandscape() {
       window.location.href = "https://visualizer-lite-html.vercel.app/?site=23&levels=94";
     },
-    prevImage() {
-      this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
+    goToMainImage() {
+      this.currentImageIndex = 0;
     },
-    nextImage() {
-      this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+    handleBoxClick(index) {
+      // Handle navigation for B05-11/12 box
+      if (this.currentImageIndex === 0 && this.floorSelectionBoxes[index].label === 'B05-11/12') {
+        this.currentImageIndex = 1;
+        this.fetchData(); // Fetch data for the next image
+      }
     }
   },
   mounted() {
@@ -196,23 +226,15 @@ export default {
   margin-top: 20px;
 }
 
-.arrow {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
+.back-button {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #007bff;
-}
-
-.left-arrow {
-  left: 10px;
-}
-
-.right-arrow {
+  bottom: 10px;
   right: 10px;
+}
+
+.box.disable-hover {
+  cursor: pointer; /* Ensure cursor changes on hover */
+  pointer-events: auto; /* Enable click on the box */
 }
 
 .boxes-container {

@@ -5,8 +5,9 @@
       <div class="col-md-6">
         <div class="relation-section">
           <h4>Sensor Detection</h4>
-          <div class="sensor-detection-diagram">
+          <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Smart Pest Control Algo.png" alt="Sensor Detection Diagram" class="relation-image">
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust Condition</button>
           </div>
         </div>
       </div>
@@ -46,6 +47,44 @@
     <div class="condition mt-4 text-center">
       <p>If PIR sensor motion detected, then magnetic lock turn on, camera turn on</p>
     </div>
+    <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
+    <div v-if="showModal" class="modal d-block">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Adjust Conditions</h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="condition-input">
+              <label>PIR Sensor</label>
+              <select v-model="pirSensorStatus" class="form-control">
+                <option value="Detected">Detected</option>
+                <option value="Not Detected">Not Detected</option>
+              </select>
+            </div>
+            <div class="condition-input">
+              <label>Magnetic Lock</label>
+              <select v-model="magneticLockStatus" class="form-control">
+                <option value="On">On</option>
+                <option value="Off">Off</option>
+              </select>
+            </div>
+            <div class="condition-input">
+              <label>Camera</label>
+              <select v-model="cameraStatus" class="form-control">
+                <option value="On">On</option>
+                <option value="Off">Off</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+            <button type="button" class="btn btn-primary" @click="saveConditions">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -55,10 +94,10 @@ export default {
   data() {
     return {
       devices: [
-        { id: 1, name: 'Magnetic Sensor', status: 'Activated' },
+        { id: 1, name: 'Magnetic Lock', status: 'Activated' },
         { id: 2, name: 'PIR Sensor', status: 'Activated' },
-        { id: 3, name: 'Rat Trap', status: 'Not Activated' },
-        { id: 4, name: 'Visual Detection', status: 'Activated' }
+        { id: 3, name: 'Camera', status: 'Activated' },
+        { id: 4, name: 'Rat Trap', status: 'Not Activated' },
       ],
       zoomLevel: 1,
       translateX: 0,
@@ -69,6 +108,10 @@ export default {
       lastX: 0,
       lastY: 0,
       animationFrame: null,
+      showModal: false,
+      pirSensorStatus: 'Detected',
+      magneticLockStatus: 'On',
+      cameraStatus: 'On',
     };
   },
   methods: {
@@ -116,6 +159,17 @@ export default {
         cancelAnimationFrame(this.animationFrame);
         this.animationFrame = null;
       }
+    },
+    openModal() {
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    saveConditions() {
+      // Save the conditions
+      alert(`PIR Sensor: ${this.pirSensorStatus}, Magnetic Lock: ${this.magneticLockStatus}, Camera: ${this.cameraStatus}`);
+      this.closeModal();
     },
   },
 };
@@ -205,5 +259,60 @@ h2 {
 .condition p {
   font-size: 1.2rem;
   font-weight: bold;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal {
+  display: none;
+}
+
+.modal.d-block {
+  display: block;
+}
+
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  width: 500px;
+}
+
+.modal-header,
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 20px 20px;
+}
+
+.modal-footer {
+  padding-top: 10px;
+}
+
+.btn-close {
+  border: none;
+  background: none;
+}
+
+.condition-input {
+  margin-bottom: 10px;
 }
 </style>
