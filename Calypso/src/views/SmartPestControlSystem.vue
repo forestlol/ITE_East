@@ -22,7 +22,7 @@
             @wheel="onWheel"
           >
             <img 
-              src="@/assets/Smart Pest Control Floorplan.png" 
+              src="@/assets/Sub System and Icons/B05 11-12_Room/B05_11-12_Smart_pest_sensors.jpg" 
               alt="Map View" 
               class="map-image"
               :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"

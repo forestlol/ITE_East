@@ -41,24 +41,24 @@
             <span class="nav-text">Smart Pest Control System</span>
           </router-link>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <router-link class="nav-link" to="/smart-security-system">
             <i :class="['fas', 'fa-shield-alt', { 'active-icon': $route.path === '/smart-security-system' }]"></i>
             <span class="nav-text">Smart Security System</span>
           </router-link>
-        </li>
+        </li> -->
         <li class="nav-item">
           <router-link class="nav-link" to="/power-meter-reading">
             <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/power-meter-reading' }]"></i>
             <span class="nav-text">Smart Energy Management System</span>
           </router-link>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <router-link class="nav-link" to="/smart-air-quality-system">
             <i :class="['fas', 'fa-cloud', { 'active-icon': $route.path === '/smart-air-quality-system' }]"></i>
             <span class="nav-text">Smart Air Quality System</span>
           </router-link>
-        </li>
+        </li> -->
         <li class="nav-item">
           <router-link class="nav-link" to="/asset-tagging-system">
             <i :class="['fas', 'fa-tags', { 'active-icon': $route.path === '/asset-tagging-system' }]"></i>
@@ -82,7 +82,7 @@
     <div class="navbar">
       <div class="navbar-left">
         <span>{{ currentDate }}</span>
-        <span>ITE College Central</span>
+        <span>ITE College East</span>
         <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" /></span>
       </div>
       <div class="navbar-right">

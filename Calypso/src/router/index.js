@@ -14,6 +14,7 @@ import SmartAirQualitySystem from '@/views/SmartAirQualitySystem.vue';
 import AssetTaggingSystem from '@/views/AssetTaggingSystem.vue';
 import SmartLightingSystem from '@/views/SmartLightingSystem.vue';
 import HybridAirconSystem from '@/views/HybridAirconSystem.vue';
+import AlarmsNotificationsPage from '@/views/AlarmsNotificationsPage.vue';
 
 const routes = [
   {
@@ -91,6 +92,11 @@ const routes = [
     path: '/hybrid-aircon-system',
     name: 'HybridAirconSystem',
     component: HybridAirconSystem
+  },
+  {
+    path: '/alarms-notifications',
+    name: 'AlarmsNotifications',
+    component: AlarmsNotificationsPage,
   },
 ];
 

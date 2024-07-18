@@ -1,16 +1,8 @@
 <template>
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Smart Washroom System</h2>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="relation-section">
-          <h4>Sensor Detection</h4>
-          <div class="sensor-detection-diagram">
-            <img src="@/assets/Untitled.png" alt="Relation View" class="relation-image">
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
         <div class="map-section">
           <h4>Floorplan</h4>
           <div 
@@ -22,7 +14,7 @@
             @wheel="onWheel"
           >
             <img 
-              src="@/assets/Toilet Floorplan.png" 
+              src="@/assets/Sub System and Icons/smart washroom system.jpg" 
               alt="Map View" 
               class="map-image"
               :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"
@@ -164,6 +156,9 @@ h2 {
   height: 100%;
   position: relative;
   cursor: grab;
+  display: flex;
+  justify-content: center; /* Centers the image horizontally */
+  align-items: center; /* Centers the image vertically */
 }
 
 .map-container:active {

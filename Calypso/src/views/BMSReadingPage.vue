@@ -6,13 +6,15 @@
         <a class="nav-link" :class="{ active: currentView === 'bms' }" @click="toggleView('bms')">BMS</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" :class="{ active: currentView === 'groupings' }" @click="toggleView('groupings')">Groupings</a>
+        <a class="nav-link" :class="{ active: currentView === 'groupings' }"
+          @click="toggleView('groupings')">Groupings</a>
       </li>
     </ul>
     <div v-if="currentView === 'bms'" class="tab-content">
       <div class="image-container">
         <img src="@/assets/BMS.jpg" alt="Chiller Plant Room" class="background-image">
-        <div v-for="(position, sensorName) in sensorPositions" :key="sensorName" class="sensor-value" :style="position" :class="{ slantedNegative: isSlantedNegative(sensorName), slantedPositive: isSlantedPositive(sensorName) }">
+        <div v-for="(position, sensorName) in sensorPositions" :key="sensorName" class="sensor-value" :style="position"
+          :class="{ slantedNegative: isSlantedNegative(sensorName), slantedPositive: isSlantedPositive(sensorName) }">
           {{ getValue(sensorName) }}
         </div>
       </div>
@@ -24,16 +26,18 @@
           <div v-for="(id, index) in group.group" :key="id" class="sensor-item">
             <h5>{{ group.item_name[index] || 'Data Unavailable' }}</h5>
             <p>
-              <span :class="['status-label', getStatusClass(findLatestDataById(id).Status)]">
-                Connection: {{ findLatestDataById(id).Status || 'N/A' }}
+              <span :class="['status-label', getStatusClass(findLatestDataById(id).status)]">
+                Connection: {{ findLatestDataById(id).status || 'N/A' }}
               </span>
             </p>
             <p>
-              <span v-if="shouldShowStatus(findLatestDataById(id).Name || '')" :class="['status-label', getActiveClass(id)]">
+              <span v-if="shouldShowStatus(findLatestDataById(id).name || '')"
+                :class="['status-label', getActiveClass(id)]">
                 Status: {{ getActiveValue(id) || 'N/A' }}
               </span>
             </p>
             <p>Value: {{ formatValue(getPresentValue(id)) }} {{ group.units[index] || '' }}</p>
+            <p>Last Updated: {{ formatDate(findLatestDataById(id).dateTime) }}</p>
           </div>
         </div>
       </div>
@@ -54,66 +58,37 @@ export default {
       latestData: [],
       refreshInterval: null,
       search: '',
-      sensors: {
-        'Chilled Water Flow Meter': { value: 0.0, unit: 'L/s' },
-        'Chilled Water Return Temperature': { value: 25.0, unit: '°C' },
-        'Chilled Water Supply Temperature': { value: 25.3, unit: '°C' },
-        'Cond Water Flow Meter': { value: 0.0, unit: 'L/s' },
-        'Cond Water Return Temperature': { value: 26.7, unit: '°C' },
-        'Cooling Tower Supply Temperature': { value: 30.0, unit: '°C' },
-        'Outdoor Temperature': { value: 30.5, unit: '°C' },
-        'Outdoor Humidity': { value: 49.1, unit: '%RH' },
-        'Cond Water Supply Temperature': { value: 26.5, unit: '°C' },
-        'AHU Flow Rate': { value: -0.0, unit: 'L/s' },
-        'AHU Valve': { value: 0.0, unit: '%' },
-        'Supply Air Temperature': { value: 27.1, unit: '°C' },
-        'Total Cooling Load': { value: 0.0, unit: '' },
-        'Total Power Consumption': { value: 0.3, unit: '' },
-        'System Efficiency': { value: 0.0, unit: '' },
-        'Heat Balance': { value: 0.0, unit: '' },
-        'STOP 1': { value: 'STOP' },
-        'STOP 2': { value: 'STOP' },
-        'STOP 3': { value: 'STOP' },
-        'STOP 4': { value: 'STOP' },
-        'STOP 5': { value: 'STOP' },
-        'STOP 6': { value: 'STOP' },
-        'OFF 1': { value: 'OFF' },
-        'OFF 2': { value: 'OFF' },
-        'OFF 3': { value: 'OFF' },
-        'OFF 4': { value: 'OFF' },
-        'OFF 5': { value: 'OFF' },
-        'ALARM': { value: 'ALARM' }
-      },
       sensorPositions: {
-        'Chilled Water Flow Meter': { top: '512px', left: '183px' },
-        'Chilled Water Return Temperature': { top: '525px', left: '375px' },
-        'Chilled Water Supply Temperature': { top: '499px', left: '399px' },
-        'Cond Water Flow Meter': { top: '260px', left: '514px' },
-        'Cond Water Return Temperature': { top: '227px', left: '485px' },
-        'Cooling Tower Supply Temperature': { top: '148px', left: '461px' },
-        'Outdoor Temperature': { top: '67px', left: '557px' },
-        'Outdoor Humidity': { top: '95px', left: '547px' },
-        'Cond Water Supply Temperature': { top: '230px', left: '633px' },
-        'AHU Flow Rate': { top: '458px', left: '681px' },
-        'AHU Valve': { top: '403px', left: '785px' },
-        'Supply Air Temperature': { top: '338px', left: '1008px' },
-        'Total Cooling Load': { top: '135px', left: '794px' },
-        'Total Power Consumption': { top: '135px', left: '892px' },
-        'System Efficiency': { top: '135px', left: '999px' },
-        'Heat Balance': { top: '135px', left: '1100px' },
-        'STOP 1': { top: '345px', left: '567px' },
-        'STOP 2': { top: '388px', left: '1017px' },
-        'STOP 3': { top: '555px', left: '973px' },
-        'STOP 4': { top: '325px', left: '307px' },
-        'STOP 5': { top: '147px', left: '183px' },
-        'STOP 6': { top: '576px', left: '76px' },
-        'OFF 1': { top: '412px', left: '1022px' },
+        'NCE-02/Energy.DATA.CHW-FLOW-RT': { top: '517px', left: '184px' },
+        'NCE-02/Programming.AGILENT.CH-CHWR-TP': { top: '525px', left: '375px' },
+        'NCE-02/Programming.AGILENT.CH-CHWS-TP': { top: '499px', left: '399px' },
+        'NCE-02/Programming.AGILENT.CH-CWS-TP': { top: '230px', left: '642px' },
+        'NCE-02/FCB.Local Application.OA-T': { top: '67px', left: '567px' },
+        'NCE-02/FCB.Local Application.OA-H': { top: '95px', left: '567px' },
+        'NCE-02/FCB.Local Application.CT-TEMP': { top: '148px', left: '468px' },
+        'NCE-02/Energy.DATA.SYS-EFF': { top: '135px', left: '994px' },
+        'NCE-02/Energy.DATA.HEAT-BALANCE': { top: '135px', left: '1095px' },
+        'NCE-02/Energy.DATA.TOT-CLG-KW': { top: '135px', left: '788px' },
+        'NCE-02/Energy.DATA.TOT-ELEC-KW': { top: '135px', left: '892px' },
+        'NCE-02/Programming.AGILENT.CH-CWR-TP': { top: '227px', left: '494px' },
+        'NCE-02/FCB.Local Application.CDW FLOWRATE': { top: '260px', left: '518px' },
+        'NAE35-01/Field Bus MSTP1.FAC-6.VALVE': { top: '403px', left: '787px' },
+        'NAE35-01/Field Bus MSTP1.FAC-6.AHU CHW-F': { top: '458px', left: '681px' },
+        'NAE35-01/Field Bus MSTP1.FAC-6.SAT': { top: '338px', left: '1018px' },
+        'STOP 1': { top: '345px', left: '570px' },
+        'STOP 2': { top: '385px', left: '1020px' },
+        'STOP 3': { top: '555px', left: '976px' },
+        'STOP 4': { top: '325px', left: '310px' },
+        'STOP 5': { top: '147px', left: '186px' },
+        'STOP 6': { top: '576px', left: '82px' },
+        'OFF 1': { top: '412px', left: '1023px' },
         'OFF 2': { top: '373px', left: '572px' },
         'OFF 3': { top: '352px', left: '313px' },
-        'OFF 4': { top: '171px', left: '186px' },
+        'OFF 4': { top: '171px', left: '190px' },
         'OFF 5': { top: '601px', left: '81px' },
-        'ALARM': { top: '600px', left: '931px' }
+        'ALARM': { top: '600px', left: '937px' }
       },
+      lastUpdated: ''
     };
   },
   async created() {
@@ -136,7 +111,7 @@ export default {
     filteredGroups() {
       const searchTerm = this.search.toLowerCase();
       return this.groups.filter(group => group.name.toLowerCase().includes(searchTerm));
-    },
+    }
   },
   methods: {
     toggleView(view) {
@@ -178,6 +153,7 @@ export default {
         this.latestData = data;
 
         CacheManager.setItem('bms', this.latestData);
+        this.updateLastUpdatedTime();
       } catch (error) {
         this.error = error.message;
       } finally {
@@ -185,7 +161,7 @@ export default {
       }
     },
     findLatestDataById(objectId) {
-      const filteredData = this.latestData.filter(data => data.ObjectId === objectId);
+      const filteredData = this.latestData.filter(data => data.objectId === objectId);
       return filteredData.length > 0 ? filteredData[filteredData.length - 1] : {};
     },
     toggleGroupCommand(group, event) {
@@ -193,24 +169,24 @@ export default {
       group.group.forEach(id => {
         const data = this.findLatestDataById(id);
         if (data) {
-          data.Value = command;
+          data.value = command;
         }
       });
     },
     getActiveValue(id) {
       const latestData = this.findLatestDataById(id);
-      if (latestData.Name && latestData.Name.includes('Status')) {
-        return latestData.Value >= 1 ? 'On' : 'Off';
-      } else if (latestData.Name && latestData.Name.includes('_GD')) {
-        return latestData.Value >= 1 ? 'Close' : 'Open';
-      } else if (latestData.Name && latestData.Name.includes('_SD')) {
-        return latestData.Value >= 1 ? 'Close' : 'Open';
+      if (latestData.name && latestData.name.includes('Status')) {
+        return latestData.value >= 1 ? 'On' : 'Off';
+      } else if (latestData.name && latestData.name.includes('_GD')) {
+        return latestData.value >= 1 ? 'Close' : 'Open';
+      } else if (latestData.name && latestData.name.includes('_SD')) {
+        return latestData.value >= 1 ? 'Close' : 'Open';
       }
       return 'Active';
     },
     getPresentValue(id) {
       const latestData = this.findLatestDataById(id);
-      return latestData.Value;
+      return latestData.value;
     },
     shouldShowStatus(name) {
       return name && (name.includes('Status') || name.includes('_GD') || name.includes('_SD'));
@@ -226,17 +202,61 @@ export default {
       const numValue = Number(value);
       return isNaN(numValue) ? 'N/A' : numValue.toFixed(1);
     },
+    formatDate(dateTime) {
+      if (!dateTime) return 'N/A';
+      const date = new Date(dateTime);
+      return date.toISOString().replace('T', ' ').substr(0, 19);
+    },
     getValue(sensorName) {
-      const sensor = this.sensors[sensorName];
-      return sensor ? `${sensor.value} ${sensor.unit || ''}` : 'N/A';
+      // Handle hardcoded sensors
+      const hardcodedValues = {
+        'STOP 1': 'Stop',
+        'STOP 2': 'Stop',
+        'STOP 3': 'Stop',
+        'STOP 4': 'Stop',
+        'STOP 5': 'Stop',
+        'STOP 6': 'Stop',
+        'OFF 1': 'Off',
+        'OFF 2': 'Off',
+        'OFF 3': 'Off',
+        'OFF 4': 'Off',
+        'OFF 5': 'Off',
+        'ALARM': 'Alarm'
+      };
+
+      if (hardcodedValues[sensorName]) {
+        return hardcodedValues[sensorName];
+      }
+
+      const sensorData = this.latestData.find(data => data.name === sensorName);
+      if (sensorData) {
+        console.log(`Sensor ${sensorName} found with value: ${sensorData.value}`);
+        return `${this.formatValue(sensorData.value)} ${sensorData.unit || ''}`;
+      } else {
+        console.log(`Sensor ${sensorName} not found.`);
+        return 'N/A';
+      }
     },
     isSlantedNegative(sensorName) {
-      return ['Chilled Water Flow Meter'].includes(sensorName);
+      return [
+        'NCE-02/Energy.DATA.CHW-FLOW-RT',
+        'NCE-02/Programming.AGILENT.CH-CHWR-TP'
+      ].includes(sensorName);
     },
     isSlantedPositive(sensorName) {
-      return ['Chilled Water Supply Temperature', 'Chilled Water Return Temperature'].includes(sensorName);
+      return [
+        'NCE-02/Programming.AGILENT.CH-CHWR-TP',
+        'NCE-02/Programming.AGILENT.CH-CHWS-TP'
+      ].includes(sensorName);
+    },
+    updateLastUpdatedTime() {
+      if (this.latestData.length > 0) {
+        const latestTimestamp = new Date(this.latestData[0].dateTime);
+        latestTimestamp.setHours(latestTimestamp.getHours() + 8); // Add 8 hours
+        this.lastUpdated = latestTimestamp.toISOString().replace('T', ' ').substr(0, 19);
+      }
     }
-  },
+  }
 };
 </script>
 
@@ -248,29 +268,35 @@ export default {
   flex-direction: column;
   justify-content: center;
 }
+
 .section-title {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
 }
+
 .nav-tabs {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 }
+
 .nav-tabs .nav-item {
   margin-right: 5px;
 }
+
 .nav-tabs .nav-link {
   padding: 10px 20px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
 .nav-tabs .nav-link.active {
   background-color: #007bff;
   color: white;
 }
+
 .image-container {
   position: relative;
 }
@@ -301,11 +327,13 @@ export default {
   flex-direction: column;
   gap: 20px;
 }
+
 .sensor-list {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
 }
+
 .sensor-item {
   border: 1px solid lightgrey;
   background-color: #f8f9fa;
@@ -314,6 +342,7 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 18rem;
 }
+
 .status-label {
   display: inline-block;
   padding: 0.25em 0.6em;
@@ -327,19 +356,23 @@ export default {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
+
 .ok {
   color: #fff;
   background-color: #28a745;
 }
+
 .not-ok {
   color: #fff;
   background-color: #dc3545;
 }
+
 .view-switcher {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 }
+
 .view-switcher button {
   background-color: #f8f9fa;
   border: none;
@@ -349,16 +382,19 @@ export default {
   font-size: 1rem;
   transition: background-color 0.3s;
 }
+
 .view-switcher button.active {
   background-color: #007bff;
   color: white;
 }
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 20px;
 }
+
 .grid-item {
   border: 1px solid lightgrey;
   background-color: #f8f9fa;
@@ -366,5 +402,15 @@ export default {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+
+.last-updated {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 5px;
+  border-radius: 3px;
+  font-weight: bold;
 }
 </style>

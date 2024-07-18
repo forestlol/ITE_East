@@ -177,6 +177,7 @@
             </div>
           </div>
         </div>
+        <router-link to="/alarms-notifications" class="btn btn-primary mt-3">View All</router-link>
       </div>
       <div class="additional-card quick-links">
         <h4>Quick Links</h4>
@@ -228,8 +229,8 @@ export default {
         { name: 'Smart Washroom System Overview', type: 'semi-circle', operational: 100, link: '/smart-toilet-system' },
         { name: 'Smart Energy Management System Overview', type: 'semi-circle', operational: 100, link: '/power-meter-reading' },
         { name: 'Smart Pest Control System Overview', type: 'semi-circle', operational: 100, link: '/smart-pest-control-system' },
-        { name: 'Smart Security System Overview', type: 'semi-circle', operational: 100, link: '/smart-security-system' },
-        { name: 'Smart Air Quality System Overview', type: 'semi-circle', operational: 100, link: '/smart-air-quality-system' },
+        // { name: 'Smart Security System Overview', type: 'semi-circle', operational: 100, link: '/smart-security-system' },
+        // { name: 'Smart Air Quality System Overview', type: 'semi-circle', operational: 100, link: '/smart-air-quality-system' },
         { name: 'Asset Tagging System Overview', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
         { name: 'Smart Lighting System Overview', type: 'semi-circle', operational: 100, link: '/smart-lighting-system' },
         { name: 'Hybrid Air System Overview', type: 'semi-circle', operational: 100, link: '/hybrid-aircon-system' },

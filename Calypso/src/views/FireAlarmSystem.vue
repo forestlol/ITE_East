@@ -8,7 +8,7 @@
     <div v-if="currentView === 'relation'" class="map-container">
       <img src="@/assets/ite_firealarm_relation.png" alt="Floor Plan" class="map-image">
       <div
-        v-for="(alarm, index) in alarms"
+        v-for="(alarm, index) in sortedAlarms"
         :key="index"
         class="alarm-status"
         :style="alarmPositions[index]"
@@ -16,31 +16,25 @@
         @mouseleave="hoveredAlarm = null"
         :class="{ 'highlight': hoveredAlarm === index }"
       >
-        <span :class="{'online': alarm.isOnline, 'offline': !alarm.isOnline}"></span>
+        <span :class="{'online': alarm.status === 'ON', 'offline': alarm.status === 'OFF'}"></span>
       </div>
     </div>
     <div v-if="currentView === 'devices'" class="devices-grid">
       <div
-        v-for="(alarm, index) in alarms"
+        v-for="(alarm, index) in sortedAlarms"
         :key="index"
         :class="['device-item', { 'highlight': hoveredAlarm === index }]"
         @mouseenter="hoveredAlarm = index"
         @mouseleave="hoveredAlarm = null"
       >
-        <h5>SAP-{{ alarm.id }}</h5>
+        <h5>{{ alarm.name }}</h5>
         <p>
           Status:
-          <span :class="{'text-success': alarm.isOnline, 'text-danger': !alarm.isOnline}">
-            {{ alarm.isOnline ? 'Online' : 'Offline' }}
+          <span :class="{'text-success': alarm.status === 'ON', 'text-danger': alarm.status === 'OFF'}">
+            {{ alarm.status === 'ON' ? 'Online' : 'Offline' }}
           </span>
         </p>
-        <p>
-          Fire Alarm:
-          <span :class="{'text-danger': alarm.isActive, 'text-success': !alarm.isActive}">
-            {{ alarm.isActive ? 'On' : 'Off' }}
-          </span>
-        </p>
-        <p>Last Updated: {{ alarm.lastUpdated }}</p>
+        <p>Last Updated: {{ alarm.dateTimeRecorded }}</p>
       </div>
     </div>
   </div>
@@ -53,14 +47,7 @@ export default {
     return {
       currentView: 'relation',
       hoveredAlarm: null,
-      alarms: [
-        { id: 1, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 2, isActive: false, isOnline: false, lastUpdated: '2024-05-29 14:20:00' },
-        { id: 3, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:25:00' },
-        { id: 4, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:15:00' },
-        { id: 5, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:35:00' },
-        { id: 6, isActive: true, isOnline: true, lastUpdated: '2024-05-29 14:10:00' },
-      ],
+      alarms: [],
       alarmPositions: [
         { top: '41.2%', left: '84.2%' },
         { top: '41.2%', left: '63.3%' },
@@ -71,9 +58,33 @@ export default {
       ],
     };
   },
+  async created() {
+    await this.fetchAlarms();
+  },
+  computed: {
+    sortedAlarms() {
+      return this.alarms.slice().sort((a, b) => {
+        const zoneA = parseInt(a.name.split(' ')[1]);
+        const zoneB = parseInt(b.name.split(' ')[1]);
+        return zoneA - zoneB;
+      });
+    },
+  },
   methods: {
     toggleView(view) {
       this.currentView = view;
+    },
+    async fetchAlarms() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/FireAlarm/data/latest');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        this.alarms = data;
+      } catch (error) {
+        console.error('Error fetching alarms:', error);
+      }
     },
   },
 };
@@ -91,42 +102,6 @@ export default {
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-}
-.overview-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-.overview-list::-webkit-scrollbar {
-  width: 8px;
-}
-.overview-list::-webkit-scrollbar-track {
-  background: #f8f9fa;
-  border-radius: 5px;
-}
-.overview-list::-webkit-scrollbar-thumb {
-  background-color: lightgrey;
-  border-radius: 5px;
-  border: 2px solid #f8f9fa;
-}
-.overview-item {
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid lightgrey;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.overview-item:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-.overview-item h5 {
-  margin-bottom: 10px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #007bff;
 }
 .view-switcher {
   display: flex;
