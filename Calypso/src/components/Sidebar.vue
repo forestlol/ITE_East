@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="sidebar" :class="{ 'expanded': isHovered }" @mouseenter="expandSidebar" @mouseleave="collapseSidebar">
+    <div class="sidebar" :class="{ 'expanded': isExpanded }">
       <div class="sidebar-header">
         <router-link class="navbar-brand" to="/">Calypso</router-link>
       </div>
@@ -41,24 +41,12 @@
             <span class="nav-text">Smart Pest Control System</span>
           </router-link>
         </li>
-        <!-- <li class="nav-item">
-          <router-link class="nav-link" to="/smart-security-system">
-            <i :class="['fas', 'fa-shield-alt', { 'active-icon': $route.path === '/smart-security-system' }]"></i>
-            <span class="nav-text">Smart Security System</span>
-          </router-link>
-        </li> -->
         <li class="nav-item">
           <router-link class="nav-link" to="/power-meter-reading">
             <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/power-meter-reading' }]"></i>
             <span class="nav-text">Smart Energy Management System</span>
           </router-link>
         </li>
-        <!-- <li class="nav-item">
-          <router-link class="nav-link" to="/smart-air-quality-system">
-            <i :class="['fas', 'fa-cloud', { 'active-icon': $route.path === '/smart-air-quality-system' }]"></i>
-            <span class="nav-text">Smart Air Quality System</span>
-          </router-link>
-        </li> -->
         <li class="nav-item">
           <router-link class="nav-link" to="/asset-tagging-system">
             <i :class="['fas', 'fa-tags', { 'active-icon': $route.path === '/asset-tagging-system' }]"></i>
@@ -78,8 +66,11 @@
           </router-link>
         </li>
       </ul>
+      <button class="toggle-button" @click="toggleSidebar">
+        <i :class="isExpanded ? 'fas fa-angle-left' : 'fas fa-angle-right'"></i>
+      </button>
     </div>
-    <div class="navbar">
+    <div class="navbar" :class="{ 'shifted': isExpanded }">
       <div class="navbar-left">
         <span>{{ currentDate }}</span>
         <span>ITE College East</span>
@@ -90,7 +81,7 @@
         <i class="fas fa-user"></i>
       </div>
     </div>
-    <div class="content">
+    <div class="content" :class="{ 'shifted': isExpanded }">
       <slot></slot>
     </div>
   </div>
@@ -103,7 +94,7 @@ export default {
   name: 'AppSidebar',
   data() {
     return {
-      isHovered: false,
+      isExpanded: true, // Sidebar is expanded by default
       currentDate: '',
       weather: 'Fetching weather...',
       weatherIcon: null,
@@ -116,13 +107,8 @@ export default {
     setInterval(this.updateDateTime, 1000); // Update every second
   },
   methods: {
-    expandSidebar() {
-      this.isHovered = true;
-      this.$emit('update:expanded', true);
-    },
-    collapseSidebar() {
-      this.isHovered = false;
-      this.$emit('update:expanded', false);
+    toggleSidebar() {
+      this.isExpanded = !this.isExpanded;
     },
     updateDateTime() {
       const date = new Date();
@@ -147,7 +133,7 @@ export default {
 
 <style scoped>
 .sidebar {
-  width: 60px;
+  width: 200px; /* Sidebar is expanded by default */
   transition: width 0.3s;
   height: 100vh;
   background-color: #f8f9fa;
@@ -161,8 +147,8 @@ export default {
   z-index: 1000;
 }
 
-.sidebar.expanded {
-  width: 200px;
+.sidebar:not(.expanded) {
+  width: 60px; /* Width of collapsed sidebar */
 }
 
 .sidebar-header {
@@ -190,12 +176,13 @@ export default {
   color: #555;
   text-decoration: none;
   transition: background-color 0.3s, color 0.3s;
-  justify-content: center;
-}
-
-.sidebar.expanded .nav-link {
   justify-content: flex-start;
   padding-left: 20px;
+}
+
+.sidebar:not(.expanded) .nav-link {
+  justify-content: center;
+  padding-left: 0;
 }
 
 .nav-link:hover {
@@ -207,20 +194,32 @@ export default {
   margin-right: 10px;
 }
 
-.nav-text {
-  display: none;
+.sidebar:not(.expanded) .nav-link i {
+  margin-right: 0;
 }
 
-.sidebar.expanded .nav-text {
+.nav-text {
   display: inline;
+}
+
+.sidebar:not(.expanded) .nav-text {
+  display: none;
 }
 
 .active-icon {
   color: #007bff;
 }
 
+.toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: auto;
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
 .navbar {
-  width: calc(100% - 60px);
   height: 60px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #ccc;
@@ -236,8 +235,12 @@ export default {
   /* Ensure the navbar is above other content */
 }
 
-.sidebar.expanded+.navbar {
-  width: calc(100% - 200px);
+.navbar.shifted {
+  width: calc(100% - 200px); /* Adjusted for expanded sidebar width */
+}
+
+.sidebar:not(.expanded) + .navbar {
+  width: calc(100% - 60px);
 }
 
 .navbar-left {
@@ -258,12 +261,15 @@ export default {
 }
 
 .content {
-  /* Adjust this to ensure content does not overlap with the navbar */
   padding: 20px;
   transition: margin-left 0.3s;
 }
 
-.sidebar.expanded + .content {
-  margin-left: 200px;
+.content.shifted {
+  margin-left: 200px; /* Adjusted for expanded sidebar width */
+}
+
+.sidebar:not(.expanded) + .content {
+  margin-left: 60px;
 }
 </style>

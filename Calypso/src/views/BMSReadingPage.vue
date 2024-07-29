@@ -6,8 +6,7 @@
         <a class="nav-link" :class="{ active: currentView === 'bms' }" @click="toggleView('bms')">BMS</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" :class="{ active: currentView === 'groupings' }"
-          @click="toggleView('groupings')">Groupings</a>
+        <a class="nav-link" :class="{ active: currentView === 'groupings' }" @click="toggleView('groupings')">Groupings</a>
       </li>
     </ul>
     <div v-if="currentView === 'bms'" class="tab-content">
@@ -150,7 +149,10 @@ export default {
         textData = textData.replace(/ObjectId\("([^"]+)"\)/g, '"$1"');
         textData = textData.replace(/ISODate\("([^"]+)"\)/g, '"$1"');
         const data = JSON.parse(textData);
-        this.latestData = data;
+        this.latestData = data.map(item => ({
+          ...item,
+          dateTime: this.adjustTimeZone(item.dateTime)
+        }));
 
         CacheManager.setItem('bms', this.latestData);
         this.updateLastUpdatedTime();
@@ -205,7 +207,13 @@ export default {
     formatDate(dateTime) {
       if (!dateTime) return 'N/A';
       const date = new Date(dateTime);
+      date.setHours(date.getHours() + 8); // Adjust for timezone difference
       return date.toISOString().replace('T', ' ').substr(0, 19);
+    },
+    adjustTimeZone(dateTime) {
+      const date = new Date(dateTime);
+      date.setHours(date.getHours() + 8); // Adjust for timezone difference
+      return date.toISOString();
     },
     getValue(sensorName) {
       // Handle hardcoded sensors
@@ -250,11 +258,9 @@ export default {
       ].includes(sensorName);
     },
     updateLastUpdatedTime() {
-      if (this.latestData.length > 0) {
-        const latestTimestamp = new Date(this.latestData[0].dateTime);
-        latestTimestamp.setHours(latestTimestamp.getHours() + 8); // Add 8 hours
-        this.lastUpdated = latestTimestamp.toISOString().replace('T', ' ').substr(0, 19);
-      }
+      const now = new Date();
+      now.setHours(now.getHours() + 8); // Adjust for timezone difference
+      this.lastUpdated = now.toISOString().replace('T', ' ').substr(0, 19);
     }
   }
 };
