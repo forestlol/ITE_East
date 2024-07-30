@@ -114,6 +114,13 @@
         </div>
       </div>
     </div>
+    <div class="switch-buttons mt-4 text-center">
+      <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
+      <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
+      <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{'btn-success': switchStates[n-1], 'btn-secondary': !switchStates[n-1]}" class="btn">
+        SWITCH {{ n }} {{ switchStates[n-1] ? 'ON' : 'OFF' }}
+      </button>
+    </div>
   </div>
   <div class="link-button mt-4">
     <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
@@ -121,6 +128,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'SmartLandscapeSystem',
   data() {
@@ -206,6 +215,7 @@ export default {
       mainPumpStatus: 'Off',
       dosingPumpStatus: 'Off',
       solenoidValveStatus: 'Off',
+      switchStates: Array(8).fill(false) // Initialize all switches to OFF
     };
   },
   methods: {
@@ -282,8 +292,30 @@ export default {
     saveConditions() {
       // Save the conditions
       this.closeModal();
+    },
+    async sendSwitchCommand(switchStates) {
+      try {
+        const response = await axios.post('http://152.42.161.80:4000/ws558/', {
+          device_eui: '24e124756e049516',
+          switch_states: switchStates
+        });
+        console.log('Switch command sent successfully:', response.data);
+      } catch (error) {
+        console.error('Error sending switch command:', error);
+      }
+    },
+    setAllSwitches(state) {
+      this.switchStates = this.switchStates.map(() => state);
+      this.sendSwitchCommand(this.switchStates);
+      console.log('All switches:', this.switchStates);
+    },
+    toggleSwitch(index) {
+      this.switchStates[index - 1] = !this.switchStates[index - 1];
+      this.sendSwitchCommand(this.switchStates);
+      console.log(`Switch ${index} toggled to:`, this.switchStates[index - 1]);
+      console.log('Current switch states:', this.switchStates);
     }
-  },
+  }
 };
 </script>
 
@@ -521,5 +553,15 @@ h2 {
 
 .condition-input {
   margin-bottom: 10px;
+}
+
+.switch-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.switch-buttons .btn {
+  margin: 5px;
 }
 </style>

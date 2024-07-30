@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <div class="sidebar" :class="{ 'expanded': isExpanded }">
       <div class="sidebar-header">
         <router-link class="navbar-brand" to="/">Calypso</router-link>
@@ -70,19 +70,21 @@
         <i :class="isExpanded ? 'fas fa-angle-left' : 'fas fa-angle-right'"></i>
       </button>
     </div>
-    <div class="navbar" :class="{ 'shifted': isExpanded }">
-      <div class="navbar-left">
-        <span>{{ currentDate }}</span>
-        <span>ITE College East</span>
-        <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" /></span>
+    <div class="main-content" :class="{ 'shifted': isExpanded }">
+      <div class="navbar">
+        <div class="navbar-left">
+          <span>{{ currentDate }}</span>
+          <span>ITE College East</span>
+          <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" /></span>
+        </div>
+        <div class="navbar-right">
+          <a href="https://visualizer-lite-html.vercel.app/?site=23&buildings=19" target="_blank" class="topbar-button">
+            Digital Twin
+          </a>
+          <span>{{ userName }}</span>
+          <i class="fas fa-user"></i>
+        </div>
       </div>
-      <div class="navbar-right">
-        <span>{{ userName }}</span>
-        <i class="fas fa-user"></i>
-      </div>
-    </div>
-    <div class="content" :class="{ 'shifted': isExpanded }">
-      <slot></slot>
     </div>
   </div>
 </template>
@@ -132,6 +134,10 @@ export default {
 </script>
 
 <style scoped>
+.app-container {
+  display: flex;
+}
+
 .sidebar {
   width: 200px; /* Sidebar is expanded by default */
   transition: width 0.3s;
@@ -219,28 +225,35 @@ export default {
   padding: 10px;
 }
 
+.main-content {
+  flex-grow: 1;
+  transition: margin-left 0.3s;
+  margin-left: 200px; /* Adjusted for expanded sidebar width */
+}
+
+.sidebar:not(.expanded) ~ .main-content {
+  margin-left: 60px; /* Adjusted for collapsed sidebar width */
+}
+
 .navbar {
   height: 60px;
   background-color: #f8f9fa;
   border-bottom: 2px solid #ccc;
-  position: fixed;
-  top: 0;
-  right: 0;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: width 0.3s;
-  z-index: 999;
-  /* Ensure the navbar is above other content */
-}
-
-.navbar.shifted {
   width: calc(100% - 200px); /* Adjusted for expanded sidebar width */
+  transition: width 0.3s;
+  position: fixed;
+  top: 0;
+  left: 200px; /* Adjusted for expanded sidebar width */
+  z-index: 999; /* Ensure the navbar is above other content */
 }
 
-.sidebar:not(.expanded) + .navbar {
-  width: calc(100% - 60px);
+.sidebar:not(.expanded) ~ .main-content .navbar {
+  width: calc(100% - 60px); /* Adjusted for collapsed sidebar width */
+  left: 60px; /* Adjusted for collapsed sidebar width */
 }
 
 .navbar-left {
@@ -261,15 +274,27 @@ export default {
 }
 
 .content {
-  padding: 20px;
+  padding: 80px 20px 20px 20px; /* Added padding-top to account for the fixed navbar */
+  margin-top: 60px; /* Add margin-top to avoid overlapping with the navbar */
   transition: margin-left 0.3s;
 }
 
-.content.shifted {
-  margin-left: 200px; /* Adjusted for expanded sidebar width */
+.sidebar:not(.expanded) ~ .main-content .content {
+  margin-left: 60px; /* Adjusted for collapsed sidebar width */
 }
 
-.sidebar:not(.expanded) + .content {
-  margin-left: 60px;
+.topbar-button {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  font-size: 14px;
 }
+
+.topbar-button:hover {
+  background-color: #0056b3;
+}
+
 </style>

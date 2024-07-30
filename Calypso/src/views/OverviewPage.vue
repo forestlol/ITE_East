@@ -77,7 +77,7 @@
               <SemiCircleProgressBar v-if="currentPowerMeterIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Avg kWh: {{ powerMeters[currentPowerMeterIndex].avgKwh }}</p>
-                <p>Total kWh: {{ powerMeters[currentPowerMeterIndex].totalKwh }}</p>
+                <p>Total kWh: {{ powerMeters.currentPowerMeterIndex.totalKwh }}</p>
               </div>
             </div>
             <div v-if="subsystem.name === 'Asset Tagging System Overview'">
@@ -180,13 +180,18 @@
         </div>
       </div>
       <div class="additional-card quick-links">
-        <h4>Quick Links</h4>
+        <h4>Fault Call / Ticket</h4>
+        <router-link to="/quick-links" class="view-all-link">View All</router-link>
         <div class="links-content">
-          <button v-for="(link, index) in quickLinks" :key="index" class="quick-link-button" @click="navigateToLink(link.url)">
+          <div
+            v-for="(link, index) in quickLinks"
+            :key="index"
+            :class="['quick-link-item', link.status]"
+          >
             {{ link.label }}
-          </button>
+          </div>
         </div>
-      </div>
+      </div>  
     </div>
   </div>
 </template>
@@ -230,8 +235,6 @@ export default {
         { name: 'Smart Washroom System Overview', type: 'semi-circle', operational: 100, link: '/smart-toilet-system' },
         { name: 'Smart Energy Management System Overview', type: 'semi-circle', operational: 100, link: '/power-meter-reading' },
         { name: 'Smart Pest Control System Overview', type: 'semi-circle', operational: 100, link: '/smart-pest-control-system' },
-        // { name: 'Smart Security System Overview', type: 'semi-circle', operational: 100, link: '/smart-security-system' },
-        // { name: 'Smart Air Quality System Overview', type: 'semi-circle', operational: 100, link: '/smart-air-quality-system' },
         { name: 'Asset Tagging System Overview', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
         { name: 'Smart Lighting System Overview', type: 'semi-circle', operational: 100, link: '/smart-lighting-system' },
         { name: 'Hybrid Air System Overview', type: 'semi-circle', operational: 100, link: '/hybrid-aircon-system' },
@@ -320,7 +323,9 @@ export default {
         { message: 'Power Meter 2 voltage low: 210V.', time: '2024-06-22 10:30:00' },
       ],
       quickLinks: [
-        { label: '3D System Page', url: 'https://visualizer-lite-html.vercel.app/?site=23&buildings=19' }
+        { label: '#0010 – Asset Missing [Clear]', status: 'clear' },
+        { label: '#0012 – Toilet Leakage', status: 'leakage' },
+        { label: '#0013 – Aircon Dusty [Clear]', status: 'clear' }
       ],
     };
   },
@@ -599,35 +604,42 @@ export default {
 
 .links-content {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
   gap: 10px; /* Adjust the gap between buttons as needed */
   margin-top: 10px; /* Add margin to separate the title and content */
+  width: 100%; /* Ensure it fills the available width */
 }
 
-.quick-link-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
+.quick-link-item {
+  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  min-width: 150px; /* Ensures buttons have a consistent width */
-  text-align: center;
+  width: 100%; /* Ensure it fills the available width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  text-align: left; /* Align text to the left */
 }
 
-.quick-link-button:hover {
-  background: #0056b3;
+.quick-link-item.clear {
+  background-color: #90ee90; /* Green background for clear status */
+  color: black;
 }
 
-.quick-link-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+.quick-link-item.leakage {
+  background-color: #ff4c4c; /* Red background for leakage status */
+  color: yellow;
 }
 
-.quick-link-button:last-child {
-  margin-bottom: 0;
+.view-all-link {
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.view-all-link:hover {
+  color: #0056b3;
 }
 
 .overview-container {  

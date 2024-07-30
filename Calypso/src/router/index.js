@@ -15,6 +15,7 @@ import AssetTaggingSystem from '@/views/AssetTaggingSystem.vue';
 import SmartLightingSystem from '@/views/SmartLightingSystem.vue';
 import HybridAirconSystem from '@/views/HybridAirconSystem.vue';
 import AlarmsNotificationsPage from '@/views/AlarmsNotificationsPage.vue';
+import FaultCallTicket from '@/views/FaultCallTicket.vue';
 
 const routes = [
   {
@@ -97,6 +98,11 @@ const routes = [
     path: '/alarms-notifications',
     name: 'AlarmsNotifications',
     component: AlarmsNotificationsPage,
+  },
+  {
+    path: '/quick-links',
+    name: 'QuickLinks',
+    component: FaultCallTicket,
   },
 ];
 

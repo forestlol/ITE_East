@@ -44,6 +44,13 @@
             </div>
           </div>
         </div>
+        <div class="switch-buttons mt-4 text-center">
+        <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
+        <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
+        <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{'btn-success': switchStates[n-1], 'btn-secondary': !switchStates[n-1]}" class="btn">
+          SWITCH {{ n }} {{ switchStates[n-1] ? 'ON' : 'OFF' }}
+        </button>
+      </div>
       </div>
     </div>
     <div v-if="currentView === 'hybridAircon'" class="hybrid-aircon-section">
@@ -72,11 +79,13 @@
       <div class="condition mt-4 text-center">
         <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.</p>
       </div>
+      
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 import Floorplan1 from '@/assets/Sub System and Icons/B05-07_Smart_IAQ_systems.jpg';
 import Floorplan2 from '@/assets/Sub System and Icons/B05-08_Smart_IAQ_system.jpg';
 import Floorplan3 from '@/assets/Sub System and Icons/B05-09_Smart_IAQ_System.jpg';
@@ -125,6 +134,7 @@ export default {
       lastX: 0,
       lastY: 0,
       animationFrame: null,
+      switchStates: [0, 0, 0, 0, 0, 0, 0, 0], // Initial switch states (all off)
     };
   },
   methods: {
@@ -176,6 +186,28 @@ export default {
     getCurrentFloorplanImage(id) {
       const floorplan = this.floorplans.find(fp => fp.id === id);
       return floorplan ? floorplan.image : '';
+    },
+    async sendSwitchCommand(deviceEUI, switchStates) {
+      try {
+        await axios.post('http://152.42.161.80:4000/ws558/', {
+          device_eui: deviceEUI,
+          switch_states: switchStates
+        });
+        console.log('Switch command sent successfully');
+        console.log('Current switch states:', switchStates);
+      } catch (error) {
+        console.error('Error sending switch command:', error);
+      }
+    },
+    setAllSwitches(state) {
+      const switchStates = Array(8).fill(state ? 1 : 0);
+      this.switchStates = switchStates;
+      this.sendSwitchCommand("24e124756e049153", switchStates);
+    },
+    toggleSwitch(index) {
+      // Toggle the specified switch state
+      this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
+      this.sendSwitchCommand("24e124756e049153", this.switchStates);
     }
   }
 };
@@ -333,5 +365,15 @@ h2 {
 .smiley-green {
   font-size: 1rem;
   color: #28a745; /* Green color for the smiley face */
+}
+.switch-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.switch-buttons button {
+  min-width: 100px;
 }
 </style>
