@@ -14,6 +14,7 @@
             <div class="sensor-detection-diagram">
               <div class="image-container">
                 <img src="@/assets/IAQ Pic.jpg" alt="Relation View" class="relation-image">
+                <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="changeImage(box.id)" :style="{ top: box.top, left: box.left }"></div>
                 <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data" :style="{ top: sensor.top, left: sensor.left }">
                   <div class="sensor-row">
                     <p>CO2: {{ sensor.co2 }} ppm &nbsp; &nbsp; &nbsp; <i class="fas fa-smile smiley-green"></i></p>
@@ -30,13 +31,8 @@
         <div class="col-md-6">
           <div class="map-section">
             <h4>Floorplan</h4>
-            <div class="floorplan-selection mb-3">
-              <select v-model="selectedFloorplan" class="form-control">
-                <option v-for="floorplan in floorplans" :key="floorplan.id" :value="floorplan.id">{{ floorplan.name }}</option>
-              </select>
-            </div>
             <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan" @wheel="onWheel">
-              <img :src="getCurrentFloorplanImage(selectedFloorplan)" alt="Map View" class="map-image" :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
+              <img :src="currentImage" alt="Map View" class="map-image" :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
               <div class="zoom-controls">
                 <button class="btn btn-secondary" @click="zoomIn">+</button>
                 <button class="btn btn-secondary" @click="zoomOut">-</button>
@@ -45,12 +41,12 @@
           </div>
         </div>
         <div class="switch-buttons mt-4 text-center">
-        <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
-        <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
-        <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{'btn-success': switchStates[n-1], 'btn-secondary': !switchStates[n-1]}" class="btn">
-          SWITCH {{ n }} {{ switchStates[n-1] ? 'ON' : 'OFF' }}
-        </button>
-      </div>
+          <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
+          <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
+          <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{'btn-success': switchStates[n-1], 'btn-secondary': !switchStates[n-1]}" class="btn">
+            SWITCH {{ n }} {{ switchStates[n-1] ? 'ON' : 'OFF' }}
+          </button>
+        </div>
       </div>
     </div>
     <div v-if="currentView === 'hybridAircon'" class="hybrid-aircon-section">
@@ -99,15 +95,17 @@ export default {
   data() {
     return {
       currentView: 'indoorAirQuality',
+      currentImage: Floorplan4,
       selectedFloorplan: 1,
       floorplans: [
-        { id: 1, name: 'B05-07', image: Floorplan1 },
-        { id: 2, name: 'B05-08', image: Floorplan2 },
-        { id: 3, name: 'B05-09', image: Floorplan3 },
-        { id: 4, name: 'B05 11-12', image: Floorplan4 },
-        { id: 5, name: 'B05 13-14', image: Floorplan5 },
-        { id: 6, name: 'B05 15-16', image: Floorplan6 },
-        { id: 7, name: 'B05-18', image: Floorplan7 }
+        { id: 1, name: '11', image: Floorplan4 },
+        { id: 2, name: '12', image: Floorplan4 },
+        { id: 3, name: '13/14', image: Floorplan5 },
+        { id: 4, name: '15/16', image: Floorplan6 },
+        { id: 5, name: '18', image: Floorplan7 },
+        { id: 6, name: '7', image: Floorplan1 },
+        { id: 7, name: '8', image: Floorplan2 },
+        { id: 8, name: '9', image: Floorplan3 }
       ],
       sensors: [
         { id: 1, name: 'B05-11', co2: 400, temperature: 22, ppm: 800, top: '39%', left: '11.4%' },
@@ -118,6 +116,16 @@ export default {
         { id: 6, name: 'B05-07', co2: 450, temperature: 27, ppm: 850, top: '86%', left: '32%' },
         { id: 7, name: 'B05-08', co2: 460, temperature: 28, ppm: 860, top: '86%', left: '53%' },
         { id: 8, name: 'B05-09', co2: 470, temperature: 29, ppm: 870, top: '86%', left: '73.5%' }
+      ],
+      boxes: [
+        { id: 1, top: '26%', left: '19%' },
+        { id: 2, top: '26%', left: '40%' },
+        { id: 3, top: '26%', left: '61%' },
+        { id: 4, top: '26%', left: '81%' },
+        { id: 5, top: '74%', left: '19%' },
+        { id: 6, top: '74%', left: '40%' },
+        { id: 7, top: '74%', left: '61%' },
+        { id: 8, top: '74%', left: '81%' }
       ],
       devices: [
         { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
@@ -202,12 +210,18 @@ export default {
     setAllSwitches(state) {
       const switchStates = Array(8).fill(state ? 1 : 0);
       this.switchStates = switchStates;
-      this.sendSwitchCommand("24e124756e049153", switchStates);
+      this.sendSwitchCommand("24e124756e049516", switchStates);
     },
     toggleSwitch(index) {
       // Toggle the specified switch state
       this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
-      this.sendSwitchCommand("24e124756e049153", this.switchStates);
+      this.sendSwitchCommand("24e124756e049516", this.switchStates);
+    },
+    changeImage(boxId) {
+      const floorplan = this.floorplans.find(fp => fp.id === boxId);
+      if (floorplan) {
+        this.currentImage = floorplan.image;
+      }
     }
   }
 };
@@ -375,5 +389,13 @@ h2 {
 
 .switch-buttons button {
   min-width: 100px;
+}
+
+.clickable-box {
+  width: 155px;
+  height: 209px;
+  cursor: pointer;
+  position: absolute;
+  transform: translate(-50%, -50%);
 }
 </style>
