@@ -2,8 +2,10 @@
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">System Overview</h2>
     <div class="view-switcher mb-4 text-center">
-      <button @click="currentView = 'indoorAirQuality'" :class="{'active': currentView === 'indoorAirQuality'}">Indoor Air Quality System</button>
-      <button @click="currentView = 'hybridAircon'" :class="{'active': currentView === 'hybridAircon'}">Hybrid Aircon System</button>
+      <button @click="currentView = 'indoorAirQuality'" :class="{ 'active': currentView === 'indoorAirQuality' }">Indoor
+        Air Quality System</button>
+      <button @click="currentView = 'hybridAircon'" :class="{ 'active': currentView === 'hybridAircon' }">Hybrid Aircon
+        System</button>
     </div>
     <div v-if="currentView === 'indoorAirQuality'" class="indoor-air-quality-section">
       <h4 class="text-center">Indoor Air Quality System</h4>
@@ -14,8 +16,10 @@
             <div class="sensor-detection-diagram">
               <div class="image-container">
                 <img src="@/assets/IAQ Pic.jpg" alt="Relation View" class="relation-image">
-                <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="changeImage(box.id)" :style="{ top: box.top, left: box.left }"></div>
-                <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data" :style="{ top: sensor.top, left: sensor.left }">
+                <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="changeImage(box.id)"
+                  :style="{ top: box.top, left: box.left }"></div>
+                <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data"
+                  :style="{ top: sensor.top, left: sensor.left }">
                   <div class="sensor-row">
                     <p>CO2: {{ sensor.co2 }} ppm &nbsp; &nbsp; &nbsp; <i class="fas fa-smile smiley-green"></i></p>
                   </div>
@@ -31,8 +35,10 @@
         <div class="col-md-6">
           <div class="map-section">
             <h4>Floorplan</h4>
-            <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan" @wheel="onWheel">
-              <img :src="currentImage" alt="Map View" class="map-image" :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
+            <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
+              @wheel="onWheel">
+              <img :src="currentImage" alt="Map View" class="map-image"
+                :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
               <div class="zoom-controls">
                 <button class="btn btn-secondary" @click="zoomIn">+</button>
                 <button class="btn btn-secondary" @click="zoomOut">-</button>
@@ -43,9 +49,20 @@
         <div class="switch-buttons mt-4 text-center">
           <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
           <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
-          <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{'btn-success': switchStates[n-1], 'btn-secondary': !switchStates[n-1]}" class="btn">
-            SWITCH {{ n }} {{ switchStates[n-1] ? 'ON' : 'OFF' }}
+          <button v-for="n in 8" :key="n" @click="toggleSwitch(n)"
+            :class="{ 'btn-success': switchStates[n - 1], 'btn-secondary': !switchStates[n - 1] }" class="btn">
+            SWITCH {{ n }} {{ switchStates[n - 1] ? 'ON' : 'OFF' }}
           </button>
+        </div>
+        <div class="aircon-buttons mt-4 text-center">
+          <button @click="setAirconState(true, 1)" class="btn btn-primary">ON Aircon 1</button>
+          <button @click="setAirconState(false, 1)" class="btn btn-danger">OFF Aircon 1</button>
+          <button @click="setAirconState(true, 2)" class="btn btn-primary">ON Aircon 2</button>
+          <button @click="setAirconState(false, 2)" class="btn btn-danger">OFF Aircon 2</button>
+          <button @click="setAirconState(true, 3)" class="btn btn-primary">ON Aircon 3</button>
+          <button @click="setAirconState(false, 3)" class="btn btn-danger">OFF Aircon 3</button>
+          <button @click="setAirconState(true, 4)" class="btn btn-primary">ON Aircon 4</button>
+          <button @click="setAirconState(false, 4)" class="btn btn-danger">OFF Aircon 4</button>
         </div>
       </div>
     </div>
@@ -73,9 +90,10 @@
         </div>
       </div>
       <div class="condition mt-4 text-center">
-        <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.</p>
+        <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn
+          off, else both turned on.</p>
       </div>
-      
+
     </div>
   </div>
 </template>
@@ -197,7 +215,7 @@ export default {
     },
     async sendSwitchCommand(deviceEUI, switchStates) {
       try {
-        await axios.post('http://152.42.161.80:4000/ws558/', {
+        await axios.post('/api/ws558/', {
           device_eui: deviceEUI,
           switch_states: switchStates
         });
@@ -205,6 +223,16 @@ export default {
         console.log('Current switch states:', switchStates);
       } catch (error) {
         console.error('Error sending switch command:', error);
+      }
+    },
+    async sendAirconCommand(state, airconId) {
+      try {
+        await axios.post(`https://aircon-api.rshare.io/aircon/${airconId}`, {
+          state: state ? 'on' : 'off'
+        });
+        console.log(`Aircon ${airconId} turned ${state ? 'on' : 'off'} successfully`);
+      } catch (error) {
+        console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
       }
     },
     setAllSwitches(state) {
@@ -216,6 +244,9 @@ export default {
       // Toggle the specified switch state
       this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
       this.sendSwitchCommand("24e124756e049153", this.switchStates);
+    },
+    setAirconState(state, airconId) {
+      this.sendAirconCommand(state, airconId);
     },
     changeImage(boxId) {
       const floorplan = this.floorplans.find(fp => fp.id === boxId);
@@ -335,7 +366,8 @@ h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%; /* Full height of the parent container */
+  height: 100%;
+  /* Full height of the parent container */
 }
 
 .hybrid-aircon-section .relation-section {
@@ -378,8 +410,10 @@ h2 {
 
 .smiley-green {
   font-size: 1rem;
-  color: #28a745; /* Green color for the smiley face */
+  color: #28a745;
+  /* Green color for the smiley face */
 }
+
 .switch-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -389,6 +423,17 @@ h2 {
 
 .switch-buttons button {
   min-width: 100px;
+}
+
+.aircon-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.aircon-buttons button {
+  min-width: 150px;
 }
 
 .clickable-box {
