@@ -309,7 +309,7 @@ export default {
     },
     async sendSwitchCommand(switchStates, deviceEUI) {
       try {
-        const response = await axios.post('http://152.42.161.80:4000/ws558/', {
+        const response = await axios.post('https://152.42.161.80:4000/ws558/', {
           device_eui: deviceEUI,
           switch_states: switchStates
         });
