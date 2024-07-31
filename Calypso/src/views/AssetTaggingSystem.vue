@@ -31,7 +31,6 @@
             {{ device.isOnline ? 'Online' : 'Offline' }}
           </p>
           <p>Type: {{ device.type }}</p>
-          <p>Last Updated: {{ device.lastUpdated }}</p>
         </div>
       </div>
     </div>
