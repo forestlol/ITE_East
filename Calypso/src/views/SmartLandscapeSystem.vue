@@ -129,7 +129,7 @@
 
       <button @click="setAllSwitches(true, '24E124756E049454')" class="btn btn-primary">ON ALL (Outdoor 3)</button>
       <button @click="setAllSwitches(false, '24E124756E049454')" class="btn btn-danger">OFF ALL (Outdoor 3)</button>
-      <button v-for="n in 2" :key="n" @click="toggleSwitch(n, '24E124756E049454')" :class="{'btn-success': switchStatesOutdoor3[n-1], 'btn-secondary': !switchStatesOutdoor3[n-1]}" class="btn">
+      <button v-for="n in 3" :key="n" @click="toggleSwitch(n, '24E124756E049454')" :class="{'btn-success': switchStatesOutdoor3[n-1], 'btn-secondary': !switchStatesOutdoor3[n-1]}" class="btn">
         SWITCH {{ n + 16 }} {{ switchStatesOutdoor3[n-1] ? 'ON' : 'OFF' }}
       </button>
     </div>
@@ -229,7 +229,7 @@ export default {
       solenoidValveStatus: 'Off',
       switchStatesOutdoor1: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 1st
       switchStatesOutdoor2: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 2nd
-      switchStatesOutdoor3: Array(2).fill(false), // Initialize all switches to OFF for Outdoor 3rd
+      switchStatesOutdoor3: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 3rd
     };
   },
   methods: {
