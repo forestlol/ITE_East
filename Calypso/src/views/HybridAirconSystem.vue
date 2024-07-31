@@ -215,9 +215,9 @@ export default {
     },
     async sendSwitchCommand(deviceEUI, switchStates) {
       try {
-        await axios.post('http://152.42.161.80:4000/ws558/', {
-          device_eui: deviceEUI,
-          switch_states: switchStates
+        await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', {
+          deviceEui: deviceEUI,
+          switchStates: switchStates
         });
         console.log('Switch command sent successfully');
         console.log('Current switch states:', switchStates);
@@ -238,12 +238,12 @@ export default {
     setAllSwitches(state) {
       const switchStates = Array(8).fill(state ? 1 : 0);
       this.switchStates = switchStates;
-      this.sendSwitchCommand("24e124756e049153", switchStates);
+      this.sendSwitchCommand("24e124756e049564", switchStates);
     },
     toggleSwitch(index) {
       // Toggle the specified switch state
       this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
-      this.sendSwitchCommand("24e124756e049153", this.switchStates);
+      this.sendSwitchCommand("24e124756e049564", this.switchStates);
     },
     setAirconState(state, airconId) {
       this.sendAirconCommand(state, airconId);
