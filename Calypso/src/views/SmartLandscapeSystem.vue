@@ -115,10 +115,22 @@
       </div>
     </div>
     <div class="switch-buttons mt-4 text-center">
-      <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
-      <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
-      <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{'btn-success': switchStates[n-1], 'btn-secondary': !switchStates[n-1]}" class="btn">
-        SWITCH {{ n }} {{ switchStates[n-1] ? 'ON' : 'OFF' }}
+      <button @click="setAllSwitches(true, '24e124756e049564')" class="btn btn-primary">ON ALL (Outdoor 1st)</button>
+      <button @click="setAllSwitches(false, '24e124756e049564')" class="btn btn-danger">OFF ALL (Outdoor 1st)</button>
+      <button v-for="n in 8" :key="n" @click="toggleSwitch(n, '24e124756e049564')" :class="{'btn-success': switchStatesOutdoor1[n-1], 'btn-secondary': !switchStatesOutdoor1[n-1]}" class="btn">
+        SWITCH {{ n }} {{ switchStatesOutdoor1[n-1] ? 'ON' : 'OFF' }}
+      </button>
+
+      <button @click="setAllSwitches(true, '24e124756e049516')" class="btn btn-primary">ON ALL (Outdoor 2nd)</button>
+      <button @click="setAllSwitches(false, '24e124756e049516')" class="btn btn-danger">OFF ALL (Outdoor 2nd)</button>
+      <button v-for="n in 8" :key="n" @click="toggleSwitch(n, '24e124756e049516')" :class="{'btn-success': switchStatesOutdoor2[n-1], 'btn-secondary': !switchStatesOutdoor2[n-1]}" class="btn">
+        SWITCH {{ n + 8 }} {{ switchStatesOutdoor2[n-1] ? 'ON' : 'OFF' }}
+      </button>
+
+      <button @click="setAllSwitches(true, '24E124756E049454')" class="btn btn-primary">ON ALL (Outdoor 3)</button>
+      <button @click="setAllSwitches(false, '24E124756E049454')" class="btn btn-danger">OFF ALL (Outdoor 3)</button>
+      <button v-for="n in 2" :key="n" @click="toggleSwitch(n, '24E124756E049454')" :class="{'btn-success': switchStatesOutdoor3[n-1], 'btn-secondary': !switchStatesOutdoor3[n-1]}" class="btn">
+        SWITCH {{ n + 16 }} {{ switchStatesOutdoor3[n-1] ? 'ON' : 'OFF' }}
       </button>
     </div>
   </div>
@@ -215,7 +227,9 @@ export default {
       mainPumpStatus: 'Off',
       dosingPumpStatus: 'Off',
       solenoidValveStatus: 'Off',
-      switchStates: Array(8).fill(false) // Initialize all switches to OFF
+      switchStatesOutdoor1: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 1st
+      switchStatesOutdoor2: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 2nd
+      switchStatesOutdoor3: Array(2).fill(false), // Initialize all switches to OFF for Outdoor 3rd
     };
   },
   methods: {
@@ -293,10 +307,10 @@ export default {
       // Save the conditions
       this.closeModal();
     },
-    async sendSwitchCommand(switchStates) {
+    async sendSwitchCommand(switchStates, deviceEUI) {
       try {
         const response = await axios.post('http://152.42.161.80:4000/ws558/', {
-          device_eui: '24e124756e049516',
+          device_eui: deviceEUI,
           switch_states: switchStates
         });
         console.log('Switch command sent successfully:', response.data);
@@ -304,16 +318,38 @@ export default {
         console.error('Error sending switch command:', error);
       }
     },
-    setAllSwitches(state) {
-      this.switchStates = this.switchStates.map(() => state);
-      this.sendSwitchCommand(this.switchStates);
-      console.log('All switches:', this.switchStates);
+    setAllSwitches(state, deviceEUI) {
+      let switchStates = [];
+      if (deviceEUI === '24e124756e049564') {
+        this.switchStatesOutdoor1 = this.switchStatesOutdoor1.map(() => state);
+        switchStates = this.switchStatesOutdoor1;
+      } else if (deviceEUI === '24e124756e049516') {
+        this.switchStatesOutdoor2 = this.switchStatesOutdoor2.map(() => state);
+        switchStates = this.switchStatesOutdoor2;
+      } else if (deviceEUI === '24E124756E049454') {
+        this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map(() => state);
+        switchStates = this.switchStatesOutdoor3;
+      }
+      this.sendSwitchCommand(switchStates, deviceEUI);
+      console.log('All switches:', switchStates);
     },
-    toggleSwitch(index) {
-      this.switchStates[index - 1] = !this.switchStates[index - 1];
-      this.sendSwitchCommand(this.switchStates);
-      console.log(`Switch ${index} toggled to:`, this.switchStates[index - 1]);
-      console.log('Current switch states:', this.switchStates);
+    toggleSwitch(index, deviceEUI) {
+      if (deviceEUI === '24e124756e049564') {
+        this.switchStatesOutdoor1[index - 1] = !this.switchStatesOutdoor1[index - 1];
+        this.sendSwitchCommand(this.switchStatesOutdoor1, deviceEUI);
+        console.log(`Switch ${index} toggled to:`, this.switchStatesOutdoor1[index - 1]);
+        console.log('Current switch states (Outdoor 1st):', this.switchStatesOutdoor1);
+      } else if (deviceEUI === '24e124756e049516') {
+        this.switchStatesOutdoor2[index - 1] = !this.switchStatesOutdoor2[index - 1];
+        this.sendSwitchCommand(this.switchStatesOutdoor2, deviceEUI);
+        console.log(`Switch ${index + 8} toggled to:`, this.switchStatesOutdoor2[index - 1]);
+        console.log('Current switch states (Outdoor 2nd):', this.switchStatesOutdoor2);
+      } else if (deviceEUI === '24E124756E049454') {
+        this.switchStatesOutdoor3[index - 1] = !this.switchStatesOutdoor3[index - 1];
+        this.sendSwitchCommand(this.switchStatesOutdoor3, deviceEUI);
+        console.log(`Switch ${index + 16} toggled to:`, this.switchStatesOutdoor3[index - 1]);
+        console.log('Current switch states (Outdoor 3rd):', this.switchStatesOutdoor3);
+      }
     }
   }
 };

@@ -210,12 +210,12 @@ export default {
     setAllSwitches(state) {
       const switchStates = Array(8).fill(state ? 1 : 0);
       this.switchStates = switchStates;
-      this.sendSwitchCommand("24e124756e049516", switchStates);
+      this.sendSwitchCommand("24e124756e049153", switchStates);
     },
     toggleSwitch(index) {
       // Toggle the specified switch state
       this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
-      this.sendSwitchCommand("24e124756e049516", this.switchStates);
+      this.sendSwitchCommand("24e124756e049153", this.switchStates);
     },
     changeImage(boxId) {
       const floorplan = this.floorplans.find(fp => fp.id === boxId);
