@@ -49,6 +49,15 @@
     <div class="condition mt-4 text-center">
       <p>If PIR sensor motion detect activity, Lights dim up, else light will dim down and turn off</p>
     </div>
+    <div class="switch-buttons mt-4 text-center">
+      <div v-for="group in ['group7', 'group8', 'group9']" :key="group" class="mb-4">
+        <h5>{{ group.toUpperCase() }}</h5>
+        <div v-for="(deviceEUI, index) in getGroupDevices(group)" :key="deviceEUI" class="mb-2">
+          <button @click="setSwitch(true, deviceEUI)" class="btn btn-primary">ON Switch {{ index + 1 }}</button>
+          <button @click="setSwitch(false, deviceEUI)" class="btn btn-danger">OFF Switch {{ index + 1 }}</button>
+        </div>
+      </div>
+    </div>
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
@@ -85,6 +94,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'SmartLightingSystem',
   data() {
@@ -133,6 +144,15 @@ export default {
       showModal: false,
       pirSensorStatus: 'Activity Detected',
       lightsStatus: 'Dim Up',
+      group7Devices: [
+        '24E124782D131774', '24E124782D131940', '24E124782D131721', '24E124782D099018', '24E124782D130904', '24E124782D131065'
+      ],
+      group8Devices: [
+        '24E124782D131508', '24E124782D131142', '24E124782D131803', '24E124782D131818', '24E124782D131201', '24E124782D131779'
+      ],
+      group9Devices: [
+        '24E124782D131156', '24E124782D139009', '24E124782D131050', '24E124782D131870', '24E124782D131793', '24E124782D131824'
+      ]
     };
   },
   methods: {
@@ -160,7 +180,28 @@ export default {
       alert(`PIR Sensor: ${this.pirSensorStatus}, Lights: ${this.lightsStatus}`);
       this.closeModal();
     },
-  },
+    async sendSwitchCommand(deviceEUI, switchStates) {
+      try {
+        await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
+          deviceEui: deviceEUI,
+          switchStates: switchStates
+        });
+        console.log('Switch command sent successfully');
+      } catch (error) {
+        console.error('Error sending switch command:', error);
+      }
+    },
+    async setSwitch(state, deviceEUI) {
+      const switchStates = Array(3).fill(state ? 1 : 0);
+      await this.sendSwitchCommand(deviceEUI, switchStates);
+    },
+    getGroupDevices(group) {
+      if (group === 'group7') return this.group7Devices;
+      if (group === 'group8') return this.group8Devices;
+      if (group === 'group9') return this.group9Devices;
+      return [];
+    }
+  }
 };
 </script>
 
@@ -211,7 +252,7 @@ h2 {
   align-items: center;
   transform: translate(-50%, -50%);
   cursor: pointer;
-  z-index: 1; /* Ensure the icons are below the sensor data */
+  z-index: 1;
 }
 
 .sensor-icon i {
@@ -226,11 +267,11 @@ h2 {
   color: #fff;
   padding: 10px;
   border-radius: 5px;
-  top: -120%; /* Adjust this value to position the data box above the icon */
+  top: -120%;
   left: 50%;
-  transform: translate(-50%, -10px); /* Slightly adjust the Y axis to prevent overlap */
+  transform: translate(-50%, -10px);
   white-space: nowrap;
-  z-index: 100; /* Ensure the sensor data is above all other elements */
+  z-index: 100;
   pointer-events: none;
 }
 
@@ -334,5 +375,11 @@ h2 {
 
 .condition-input {
   margin-bottom: 10px;
+}
+
+.switch-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

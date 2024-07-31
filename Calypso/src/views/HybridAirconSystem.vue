@@ -46,24 +46,6 @@
             </div>
           </div>
         </div>
-        <div class="switch-buttons mt-4 text-center">
-          <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
-          <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
-          <button v-for="n in 8" :key="n" @click="toggleSwitch(n)"
-            :class="{ 'btn-success': switchStates[n - 1], 'btn-secondary': !switchStates[n - 1] }" class="btn">
-            SWITCH {{ n }} {{ switchStates[n - 1] ? 'ON' : 'OFF' }}
-          </button>
-        </div>
-        <div class="aircon-buttons mt-4 text-center">
-          <button @click="setAirconState(true, 1)" class="btn btn-primary">ON Aircon 1</button>
-          <button @click="setAirconState(false, 1)" class="btn btn-danger">OFF Aircon 1</button>
-          <button @click="setAirconState(true, 2)" class="btn btn-primary">ON Aircon 2</button>
-          <button @click="setAirconState(false, 2)" class="btn btn-danger">OFF Aircon 2</button>
-          <button @click="setAirconState(true, 3)" class="btn btn-primary">ON Aircon 3</button>
-          <button @click="setAirconState(false, 3)" class="btn btn-danger">OFF Aircon 3</button>
-          <button @click="setAirconState(true, 4)" class="btn btn-primary">ON Aircon 4</button>
-          <button @click="setAirconState(false, 4)" class="btn btn-danger">OFF Aircon 4</button>
-        </div>
       </div>
     </div>
     <div v-if="currentView === 'hybridAircon'" class="hybrid-aircon-section">
@@ -93,7 +75,24 @@
         <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn
           off, else both turned on.</p>
       </div>
-
+      <div class="switch-buttons mt-4 text-center">
+        <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
+        <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
+        <button v-for="n in 8" :key="n" @click="toggleSwitch(n)"
+          :class="{ 'btn-success': switchStates[n - 1], 'btn-secondary': !switchStates[n - 1] }" class="btn">
+          SWITCH {{ n }} {{ switchStates[n - 1] ? 'ON' : 'OFF' }}
+        </button>
+      </div>
+      <div class="aircon-buttons mt-4 text-center">
+        <button @click="setAirconState(true, 1)" class="btn btn-primary">ON Aircon 1</button>
+        <button @click="setAirconState(false, 1)" class="btn btn-danger">OFF Aircon 1</button>
+        <button @click="setAirconState(true, 2)" class="btn btn-primary">ON Aircon 2</button>
+        <button @click="setAirconState(false, 2)" class="btn btn-danger">OFF Aircon 2</button>
+        <button @click="setAirconState(true, 3)" class="btn btn-primary">ON Aircon 3</button>
+        <button @click="setAirconState(false, 3)" class="btn btn-danger">OFF Aircon 3</button>
+        <button @click="setAirconState(true, 4)" class="btn btn-primary">ON Aircon 4</button>
+        <button @click="setAirconState(false, 4)" class="btn btn-danger">OFF Aircon 4</button>
+      </div>
     </div>
   </div>
 </template>
