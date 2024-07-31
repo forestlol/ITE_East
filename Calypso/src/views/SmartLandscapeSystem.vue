@@ -10,7 +10,8 @@
               <img src="@/assets/Smart Landscape Algo 2 empty.png" alt="Relation View" class="relation-image">
               <div v-for="(point, index) in relationPoints" :key="index"
                 :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
-                @mouseenter="showValue(index, $event)" @mouseleave="hideValue" :class="{'relation-point': true, 'point-label-break': point.type === 'break'}">
+                @mouseenter="showValue(index, $event)" @mouseleave="hideValue"
+                :class="{ 'relation-point': true, 'point-label-break': point.type === 'break' }">
                 <template v-if="point.type === 'sensor'">
                   <span class="point-number">{{ point.number }}</span>
                 </template>
@@ -64,7 +65,7 @@
             <i class="fas fa-plus"></i>
           </button>
           <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">{{
-                device.isOnline ? 'Online' : 'Offline' }}</p>
+            device.isOnline ? 'Online' : 'Offline' }}</p>
         </div>
       </div>
     </div>
@@ -117,20 +118,23 @@
     <div class="switch-buttons mt-4 text-center">
       <button @click="setAllSwitches(true, '24e124756e049564')" class="btn btn-primary">ON ALL (Outdoor 1st)</button>
       <button @click="setAllSwitches(false, '24e124756e049564')" class="btn btn-danger">OFF ALL (Outdoor 1st)</button>
-      <button v-for="n in 8" :key="n" @click="toggleSwitch(n, '24e124756e049564')" :class="{'btn-success': switchStatesOutdoor1[n-1], 'btn-secondary': !switchStatesOutdoor1[n-1]}" class="btn">
-        SWITCH {{ n }} {{ switchStatesOutdoor1[n-1] ? 'ON' : 'OFF' }}
+      <button v-for="n in 8" :key="n" @click="toggleSwitch(n, '24e124756e049564')"
+        :class="{ 'btn-success': switchStatesOutdoor1[n - 1], 'btn-secondary': !switchStatesOutdoor1[n - 1] }" class="btn">
+        SWITCH {{ n }} {{ switchStatesOutdoor1[n - 1] ? 'ON' : 'OFF' }}
       </button>
 
       <button @click="setAllSwitches(true, '24e124756e049516')" class="btn btn-primary">ON ALL (Outdoor 2nd)</button>
       <button @click="setAllSwitches(false, '24e124756e049516')" class="btn btn-danger">OFF ALL (Outdoor 2nd)</button>
-      <button v-for="n in 8" :key="n" @click="toggleSwitch(n, '24e124756e049516')" :class="{'btn-success': switchStatesOutdoor2[n-1], 'btn-secondary': !switchStatesOutdoor2[n-1]}" class="btn">
-        SWITCH {{ n + 8 }} {{ switchStatesOutdoor2[n-1] ? 'ON' : 'OFF' }}
+      <button v-for="n in 8" :key="n" @click="toggleSwitch(n, '24e124756e049516')"
+        :class="{ 'btn-success': switchStatesOutdoor2[n - 1], 'btn-secondary': !switchStatesOutdoor2[n - 1] }" class="btn">
+        SWITCH {{ n + 8 }} {{ switchStatesOutdoor2[n - 1] ? 'ON' : 'OFF' }}
       </button>
 
       <button @click="setAllSwitches(true, '24E124756E049454')" class="btn btn-primary">ON ALL (Outdoor 3)</button>
       <button @click="setAllSwitches(false, '24E124756E049454')" class="btn btn-danger">OFF ALL (Outdoor 3)</button>
-      <button v-for="n in 3" :key="n" @click="toggleSwitch(n, '24E124756E049454')" :class="{'btn-success': switchStatesOutdoor3[n-1], 'btn-secondary': !switchStatesOutdoor3[n-1]}" class="btn">
-        SWITCH {{ n + 16 }} {{ switchStatesOutdoor3[n-1] ? 'ON' : 'OFF' }}
+      <button v-for="n in 3" :key="n" @click="toggleSwitch(n, '24E124756E049454')"
+        :class="{ 'btn-success': switchStatesOutdoor3[n - 1], 'btn-secondary': !switchStatesOutdoor3[n - 1] }" class="btn">
+        SWITCH {{ n + 16 }} {{ switchStatesOutdoor3[n - 1] ? 'ON' : 'OFF' }}
       </button>
     </div>
   </div>
@@ -307,7 +311,7 @@ export default {
       // Save the conditions
       this.closeModal();
     },
-    async sendSwitchCommand(switchStates, deviceEUI) {
+    async sendSwitchCommand(deviceEUI, switchStates) {
       try {
         const response = await axios.post('https://152.42.161.80:4000/ws558/', {
           device_eui: deviceEUI,
