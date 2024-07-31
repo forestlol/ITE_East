@@ -15,7 +15,7 @@
         <div class="map-section">
           <h4>Floorplan</h4>
           <div class="map-container">
-            <img src="@/assets/Sub System and Icons/B05 11-12_Room/B05_11-12_empty.jpg" alt="Map View" class="map-image">
+            <img src="@/assets/Sub System and Icons/V2/B05-11-12_empty.jpg" alt="Map View" class="map-image">
             <div
               v-for="(sensor, index) in sensors"
               :key="index"

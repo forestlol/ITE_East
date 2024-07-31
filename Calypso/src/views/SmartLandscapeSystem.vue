@@ -45,7 +45,7 @@
           <h4>Floorplan View</h4>
           <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
             @wheel="onWheel">
-            <img src="@/assets/Sub System and Icons/smart Landscape system.jpg" alt="Map View" class="map-image"
+            <img src="@/assets/Sub System and Icons/V2/smart Landscape systemV2.png" alt="Map View" class="map-image"
               :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
             <div class="zoom-controls">
               <button class="btn btn-secondary" @click="zoomIn">+</button>

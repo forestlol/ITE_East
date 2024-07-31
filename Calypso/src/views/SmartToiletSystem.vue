@@ -14,7 +14,7 @@
             @wheel="onWheel"
           >
             <img 
-              src="@/assets/Sub System and Icons/smart washroom system.jpg" 
+              src="@/assets/Sub System and Icons/V2/smart washroom system_V2.jpg" 
               alt="Map View" 
               class="map-image"
               :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"

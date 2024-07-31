@@ -82,13 +82,13 @@
 
 <script>
 import axios from 'axios';
-import Floorplan1 from '@/assets/Sub System and Icons/B05-07_Smart_IAQ_systems.jpg';
-import Floorplan2 from '@/assets/Sub System and Icons/B05-08_Smart_IAQ_system.jpg';
-import Floorplan3 from '@/assets/Sub System and Icons/B05-09_Smart_IAQ_System.jpg';
-import Floorplan4 from '@/assets/Sub System and Icons/B05 11-12_Room/B05_11-12_IAQ_sensors.jpg';
-import Floorplan5 from '@/assets/Sub System and Icons/B05 13-14/B05 13-14_IAQ_sensor.jpg';
-import Floorplan6 from '@/assets/Sub System and Icons/B05 15-16_ SmartB_IAQ_system.jpg';
-import Floorplan7 from '@/assets/Sub System and Icons/B05-18_Smart_IAQ_system.jpg';
+import Floorplan1 from '@/assets/Sub System and Icons/V2/B05-07_Smart_IAQ_systems_V2.jpg';
+import Floorplan2 from '@/assets/Sub System and Icons/V2/B05-08_Smart_IAQ_system_V2.jpg';
+import Floorplan3 from '@/assets/Sub System and Icons/V2/B05-09_Smart_IAQ_System_V2.jpg';
+import Floorplan4 from '@/assets/Sub System and Icons/V2/B05-11-12_Hybrid Aircon System.jpg';
+import Floorplan5 from '@/assets/Sub System and Icons/V2/B05 13-14_IAQ system.jpg';
+import Floorplan6 from '@/assets/Sub System and Icons/V2/B05 15-16_ IAQ_system.jpg';
+import Floorplan7 from '@/assets/Sub System and Icons/V2/B05-18_Smart_IAQ_system.jpg';
 
 export default {
   name: 'SystemOverview',
