@@ -312,11 +312,14 @@ export default {
       this.closeModal();
     },
     async sendSwitchCommand(deviceEUI, switchStates) {
+      const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
+      const payload = {
+        deviceEui: deviceEUI,
+        switchStates: switchStates.map(state => state ? 1 : 0)
+      };
+      console.log('Sending payload:', payload);
       try {
-        const response = await axios.post('https://152.42.161.80:4000/ws558/', {
-          device_eui: deviceEUI,
-          switch_states: switchStates
-        });
+        const response = await axios.post(url, payload);
         console.log('Switch command sent successfully:', response.data);
       } catch (error) {
         console.error('Error sending switch command:', error);
@@ -334,23 +337,23 @@ export default {
         this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map(() => state);
         switchStates = this.switchStatesOutdoor3;
       }
-      this.sendSwitchCommand(switchStates, deviceEUI);
+      this.sendSwitchCommand(deviceEUI, switchStates);
       console.log('All switches:', switchStates);
     },
     toggleSwitch(index, deviceEUI) {
       if (deviceEUI === '24e124756e049564') {
         this.switchStatesOutdoor1[index - 1] = !this.switchStatesOutdoor1[index - 1];
-        this.sendSwitchCommand(this.switchStatesOutdoor1, deviceEUI);
+        this.sendSwitchCommand(deviceEUI, this.switchStatesOutdoor1);
         console.log(`Switch ${index} toggled to:`, this.switchStatesOutdoor1[index - 1]);
         console.log('Current switch states (Outdoor 1st):', this.switchStatesOutdoor1);
       } else if (deviceEUI === '24e124756e049516') {
         this.switchStatesOutdoor2[index - 1] = !this.switchStatesOutdoor2[index - 1];
-        this.sendSwitchCommand(this.switchStatesOutdoor2, deviceEUI);
+        this.sendSwitchCommand(deviceEUI, this.switchStatesOutdoor2);
         console.log(`Switch ${index + 8} toggled to:`, this.switchStatesOutdoor2[index - 1]);
         console.log('Current switch states (Outdoor 2nd):', this.switchStatesOutdoor2);
       } else if (deviceEUI === '24E124756E049454') {
         this.switchStatesOutdoor3[index - 1] = !this.switchStatesOutdoor3[index - 1];
-        this.sendSwitchCommand(this.switchStatesOutdoor3, deviceEUI);
+        this.sendSwitchCommand(deviceEUI, this.switchStatesOutdoor3);
         console.log(`Switch ${index + 16} toggled to:`, this.switchStatesOutdoor3[index - 1]);
         console.log('Current switch states (Outdoor 3rd):', this.switchStatesOutdoor3);
       }
