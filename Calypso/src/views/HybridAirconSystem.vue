@@ -72,7 +72,7 @@
         <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{ 'btn-success': switchStates[n - 1], 'btn-secondary': !switchStates[n - 1] }" class="btn">SWITCH {{ n }} {{ switchStates[n - 1] ? 'ON' : 'OFF' }}</button>
       </div>
       <div class="aircon-buttons mt-4 text-center">
-        <button @click="setAirconState(true, 1)" class="btn btn-primary">ON Aircon 1</button>
+        <button @click="setAirconState(true, 1)" class="btn btn-primary">ON Aircons 1</button>
         <button @click="setAirconState(false, 1)" class="btn btn-danger">OFF Aircon 1</button>
         <button @click="setAirconState(true, 2)" class="btn btn-primary">ON Aircon 2</button>
         <button @click="setAirconState(false, 2)" class="btn btn-danger">OFF Aircon 2</button>
