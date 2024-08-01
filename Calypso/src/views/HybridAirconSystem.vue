@@ -2,10 +2,8 @@
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">System Overview</h2>
     <div class="view-switcher mb-4 text-center">
-      <button @click="currentView = 'indoorAirQuality'" :class="{ 'active': currentView === 'indoorAirQuality' }">Indoor
-        Air Quality System</button>
-      <button @click="currentView = 'hybridAircon'" :class="{ 'active': currentView === 'hybridAircon' }">Hybrid Aircon
-        System</button>
+      <button @click="currentView = 'indoorAirQuality'" :class="{ 'active': currentView === 'indoorAirQuality' }">Indoor Air Quality System</button>
+      <button @click="currentView = 'hybridAircon'" :class="{ 'active': currentView === 'hybridAircon' }">Hybrid Aircon System</button>
     </div>
     <div v-if="currentView === 'indoorAirQuality'" class="indoor-air-quality-section">
       <h4 class="text-center">Indoor Air Quality System</h4>
@@ -16,10 +14,8 @@
             <div class="sensor-detection-diagram">
               <div class="image-container">
                 <img src="@/assets/IAQ Pic.jpg" alt="Relation View" class="relation-image">
-                <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="changeImage(box.id)"
-                  :style="{ top: box.top, left: box.left }"></div>
-                <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data"
-                  :style="{ top: sensor.top, left: sensor.left }">
+                <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="changeImage(box.id)" :style="{ top: box.top, left: box.left }"></div>
+                <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data" :style="{ top: sensor.top, left: sensor.left }">
                   <div class="sensor-row">
                     <p>CO2: {{ sensor.co2 }} ppm &nbsp; &nbsp; &nbsp; <i class="fas fa-smile smiley-green"></i></p>
                   </div>
@@ -35,13 +31,15 @@
         <div class="col-md-6">
           <div class="map-section">
             <h4>Floorplan</h4>
-            <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
-              @wheel="onWheel">
-              <img :src="currentImage" alt="Map View" class="map-image"
-                :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
+            <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan" @wheel="onWheel">
+              <img :src="currentImage" alt="Map View" class="map-image" :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
               <div class="zoom-controls">
                 <button class="btn btn-secondary" @click="zoomIn">+</button>
                 <button class="btn btn-secondary" @click="zoomOut">-</button>
+              </div>
+              <div v-for="(box, index) in airconBoxes" :key="index" class="aircon-box" :style="{ top: box.top, left: box.left }" @mouseenter="showTooltip(index, $event)" @mouseleave="hideTooltip"></div>
+              <div v-if="tooltip.visible" class="tooltip" :style="{ top: tooltip.top, left: tooltip.left }">
+                <p v-for="(item, idx) in airconData" :key="idx">{{ item.name }}: {{ item.parse }}</p>
               </div>
             </div>
           </div>
@@ -64,24 +62,18 @@
         <div class="col-md-3" v-for="device in devices" :key="device.id">
           <div class="device-status-card">
             <h5>{{ device.name }}</h5>
-            <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
-              {{ device.isOnline ? 'Online' : 'Offline' }}
-            </p>
+            <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">{{ device.isOnline ? 'Online' : 'Offline' }}</p>
             <p>Type: {{ device.type }}</p>
           </div>
         </div>
       </div>
       <div class="condition mt-4 text-center">
-        <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn
-          off, else both turned on.</p>
+        <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.</p>
       </div>
       <div class="switch-buttons mt-4 text-center">
         <button @click="setAllSwitches(true)" class="btn btn-primary">ON ALL</button>
         <button @click="setAllSwitches(false)" class="btn btn-danger">OFF ALL</button>
-        <button v-for="n in 8" :key="n" @click="toggleSwitch(n)"
-          :class="{ 'btn-success': switchStates[n - 1], 'btn-secondary': !switchStates[n - 1] }" class="btn">
-          SWITCH {{ n }} {{ switchStates[n - 1] ? 'ON' : 'OFF' }}
-        </button>
+        <button v-for="n in 8" :key="n" @click="toggleSwitch(n)" :class="{ 'btn-success': switchStates[n - 1], 'btn-secondary': !switchStates[n - 1] }" class="btn">SWITCH {{ n }} {{ switchStates[n - 1] ? 'ON' : 'OFF' }}</button>
       </div>
       <div class="aircon-buttons mt-4 text-center">
         <button @click="setAirconState(true, 1)" class="btn btn-primary">ON Aircon 1</button>
@@ -160,9 +152,41 @@ export default {
       lastY: 0,
       animationFrame: null,
       switchStates: [0, 0, 0, 0, 0, 0, 0, 0], // Initial switch states (all off)
+      airconData: [], // Data for aircon icons
+      airconBoxes: [
+        { top: '20%', left: '20%' },
+        { top: '40%', left: '40%' },
+        { top: '60%', left: '60%' },
+        { top: '80%', left: '80%' }
+      ], // Positions for aircon boxes
+      tooltip: {
+        visible: false,
+        top: '0px',
+        left: '0px'
+      }
     };
   },
+  mounted() {
+    this.fetchAirconData();
+  },
   methods: {
+    async fetchAirconData() {
+      try {
+        const response = await axios.get('https://aircon-api.rshare.io/aircon/read/1');
+        this.airconData = response.data.registers;
+      } catch (error) {
+        console.error('Error fetching aircon data:', error);
+      }
+    },
+    showTooltip(index, event) {
+      console.log('Hovering on box:', index);
+      this.tooltip.visible = true;
+      this.tooltip.top = `${event.clientY + 10}px`;
+      this.tooltip.left = `${event.clientX + 10}px`;
+    },
+    hideTooltip() {
+      this.tooltip.visible = false;
+    },
     zoomIn() {
       this.zoomLevel = Math.min(this.zoomLevel + 0.1, 2);
     },
@@ -226,7 +250,7 @@ export default {
     },
     async sendAirconCommand(state, airconId) {
       try {
-        await axios.post(`https://aircon-api.rshare.io/aircon/${airconId}`, {
+        await axios.post(`https://aircon-api.rshare.io/aircon/1`, {
           state: state ? 'on' : 'off'
         });
         console.log(`Aircon ${airconId} turned ${state ? 'on' : 'off'} successfully`);
@@ -237,12 +261,12 @@ export default {
     setAllSwitches(state) {
       const switchStates = Array(8).fill(state ? 1 : 0);
       this.switchStates = switchStates;
-      this.sendSwitchCommand("24e124756e049564", switchStates);
+      this.sendSwitchCommand("24E124756E049153", switchStates);
     },
     toggleSwitch(index) {
       // Toggle the specified switch state
       this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
-      this.sendSwitchCommand("24e124756e049564", this.switchStates);
+      this.sendSwitchCommand("24E124756E049153", this.switchStates);
     },
     setAirconState(state, airconId) {
       this.sendAirconCommand(state, airconId);
@@ -387,10 +411,14 @@ h2 {
 
 .sensor-data {
   position: absolute;
-  padding: 5px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
   border-radius: 5px;
-  text-align: center;
+  text-align: left;
   font-size: 0.8rem;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .sensor-row {
@@ -441,5 +469,25 @@ h2 {
   cursor: pointer;
   position: absolute;
   transform: translate(-50%, -50%);
+}
+
+.aircon-box {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(0, 123, 255, 0.5);
+  border: 1px solid #007bff;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
+.tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  pointer-events: none;
+  white-space: nowrap;
 }
 </style>
