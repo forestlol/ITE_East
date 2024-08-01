@@ -37,10 +37,6 @@
                 <button class="btn btn-secondary" @click="zoomIn">+</button>
                 <button class="btn btn-secondary" @click="zoomOut">-</button>
               </div>
-              <div v-for="(box, index) in airconBoxes" :key="index" class="aircon-box" :style="{ top: box.top, left: box.left }" @mouseenter="showTooltip(index, $event)" @mouseleave="hideTooltip"></div>
-              <div v-if="tooltip.visible" class="tooltip" :style="{ top: tooltip.top, left: tooltip.left }">
-                <p v-for="(item, idx) in airconData" :key="idx">{{ item.name }}: {{ item.parse }}</p>
-              </div>
             </div>
           </div>
         </div>
@@ -412,8 +408,7 @@ h2 {
 .sensor-data {
   position: absolute;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  color: black;
   border-radius: 5px;
   text-align: left;
   font-size: 0.8rem;
