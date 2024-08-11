@@ -13,9 +13,11 @@ import SmartSecuritySystem from '@/views/SmartSecuritySystem.vue';
 import SmartAirQualitySystem from '@/views/SmartAirQualitySystem.vue';
 import AssetTaggingSystem from '@/views/AssetTaggingSystem.vue';
 import SmartLightingSystem from '@/views/SmartLightingSystem.vue';
-import HybridAirconSystem from '@/views/HybridAirconSystem.vue';
+// import HybridAirconSystem from '@/views/HybridAirconSystem.vue';
 import AlarmsNotificationsPage from '@/views/AlarmsNotificationsPage.vue';
 import FaultCallTicket from '@/views/FaultCallTicket.vue';
+import IndoorAirQuality from '@/views/IndoorAirQuality.vue';
+import HybridAircon from '@/views/HybridAircon.vue';
 
 const routes = [
   {
@@ -89,10 +91,20 @@ const routes = [
     name: 'SmartLightingSystem',
     component: SmartLightingSystem
   },
+  // {
+  //   path: '/hybrid-aircon-system',
+  //   name: 'HybridAirconSystem',
+  //   component: HybridAirconSystem
+  // },
   {
-    path: '/hybrid-aircon-system',
-    name: 'HybridAirconSystem',
-    component: HybridAirconSystem
+    path: '/indoor-air-quality',
+    name: 'IndoorAirQuality',
+    component: IndoorAirQuality
+  },
+  {
+    path: '/hybrid-aircon',
+    name: 'HybridAircon',
+    component: HybridAircon
   },
   {
     path: '/alarms-notifications',

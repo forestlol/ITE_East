@@ -19,7 +19,7 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/fire-alarm-system">
-            <i :class="['fas', 'fa-bell', { 'active-icon': $route.path === '/fire-alarm-system' }]"></i>
+            <img :src="FASIcon" alt="Fire Alarm System" class="icon-image">
             <span class="nav-text">Fire Alarm System</span>
           </router-link>
         </li>
@@ -60,8 +60,14 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/hybrid-aircon-system">
-            <i :class="['fas', 'fa-fan', { 'active-icon': $route.path === '/hybrid-aircon-system' }]"></i>
+          <router-link class="nav-link" to="/indoor-air-quality">
+            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/indoor-air-quality' }]"></i>
+            <span class="nav-text">Indoor Air Quality System</span>
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" to="/hybrid-aircon">
+            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/hybrid-aircon' }]"></i>
             <span class="nav-text">Hybrid Aircon System</span>
           </router-link>
         </li>
@@ -91,6 +97,7 @@
 
 <script>
 import axios from 'axios';
+import FASIcon from '@/assets/FAS-icon.png'; // Assuming this is the correct path
 
 export default {
   name: 'AppSidebar',
@@ -101,6 +108,7 @@ export default {
       weather: 'Fetching weather...',
       weatherIcon: null,
       userName: 'User',
+      FASIcon, // Assigning the imported icon to be used in the template
     };
   },
   mounted() {
@@ -200,6 +208,12 @@ export default {
   margin-right: 10px;
 }
 
+.icon-image {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
 .sidebar:not(.expanded) .nav-link i {
   margin-right: 0;
 }
@@ -296,5 +310,4 @@ export default {
 .topbar-button:hover {
   background-color: #0056b3;
 }
-
 </style>
