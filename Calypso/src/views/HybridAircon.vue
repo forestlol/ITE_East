@@ -51,17 +51,16 @@
             <button type="button" class="btn-close" @click="closeModal">×</button>
           </div>
           <div class="modal-body text-center">
-            <button v-if="currentType === 'freshAirFan' || currentType === 'aircon'" @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'aircon'" @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
-            <button v-if="currentType === 'dampener'" @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'dampener'" @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'aircon'" @click="setAirconState(true, modalTitle)" class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'aircon'" @click="setAirconState(false, modalTitle)" class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -120,10 +119,11 @@ export default {
       }
     },
     async sendAirconCommand(state, airconId) {
+      console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
       const payload = {
         state: state ? 'on' : 'off'
       };
-      const targetUrl = `https://aircon-api.rshare.io/aircon/1`;
+      const targetUrl = `https://aircon-api.rshare.io/aircon/control/master`;
       console.log('Sending aircon command:', payload);
       try {
         const response = await axios.post(targetUrl, payload);
@@ -142,25 +142,8 @@ export default {
         console.error('Config:', error.config);
       }
     },
-    setAllSwitches(state) {
-      const switchStates = Array(8).fill(state ? 1 : 0); // Ensure all 8 switches are controlled
-      this.switchStates = switchStates;
-      this.sendSwitchCommand("24E124756E049153", switchStates);
-    },
-    toggleSwitch(index) {
-      // Toggle the specified switch state
-      this.switchStates = this.switchStates.map((state, idx) => (idx === index - 1 ? (state ? 0 : 1) : state));
-      this.sendSwitchCommand("24E124756E049153", this.switchStates);
-    },
-    setSwitch(state, deviceType) {
-      const switchStates = Array(8).fill(state ? 1 : 0);
-      this.sensors.forEach(sensor => {
-        if (sensor.type === deviceType) {
-          this.sendSwitchCommand(sensor.deviceEUI, switchStates);
-        }
-      });
-    },
     setAirconState(state, airconId) {
+      console.log(`Set Aircon State: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
       this.sendAirconCommand(state, airconId);
     },
     toggleButtons(sensor) {
@@ -189,6 +172,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .container-fluid {
   width: 100%;
