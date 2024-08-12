@@ -87,10 +87,10 @@ export default {
         { id: 8, name: 'Fresh Air Fan 1', type: 'Fresh Air Fan', isOnline: true, lastUpdated: '2024-05-29 14:30:00' }
       ],
       sensors: [
-        { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124782D131774', name: 'Fresh Air Fan 1' },
-        { id: 2, top: '62%', left: '77%', type: 'freshAirFan', deviceEUI: '24E124782D131940', name: 'Fresh Air Fan 2' },
-        { id: 3, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124782D131721', name: 'MDU 1' },
-        { id: 4, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124782D099018', name: 'MDU 2' }
+        { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 1' },
+        { id: 2, top: '62%', left: '77%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 2' },
+        { id: 3, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1' },
+        { id: 4, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2' }
       ],
       switchStates: Array(8).fill(0), // Initialize with 8 elements
       airconBoxes: [
@@ -126,9 +126,30 @@ export default {
         console.error('Config:', error.config);
       }
     },
-    async setSwitch(state, deviceEUI) {
-      const switchStates = Array(8).fill(state ? 1 : 0);
-      await this.sendSwitchCommand(deviceEUI, switchStates);
+    async setSwitch(state, deviceType) {
+      let switchStates = Array(8).fill(0); // Default all switches off
+
+      // Assign the switch states based on the device type and the desired state
+      if (deviceType === 'freshAirFan' && state) {
+        if (this.modalTitle === 'Fresh Air Fan 1') {
+          switchStates[0] = 1;
+        } else if (this.modalTitle === 'Fresh Air Fan 2') {
+          switchStates[1] = 1;
+        }
+      } else if (deviceType === 'dampener' && state) {
+        if (this.modalTitle === 'MDU 1') {
+          switchStates[2] = 1;
+        } else if (this.modalTitle === 'MDU 2') {
+          switchStates[3] = 1;
+        }
+      }
+
+      // Send the command
+      this.sensors.forEach(sensor => {
+        if (sensor.type === deviceType) {
+          this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+        }
+      });
     },
     async sendAirconCommand(state, airconId) {
       console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
@@ -176,7 +197,7 @@ export default {
       this.showModal = true;
     },
     closeModal() {
-      this.showModal = false;
+      this.showModal = false; 
     },
     getSensorIcon(type) {
       switch (type) {
