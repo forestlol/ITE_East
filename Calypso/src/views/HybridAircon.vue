@@ -15,10 +15,12 @@
           <h4>Floorplan</h4>
           <div class="map-container">
             <img src="@/assets/Sub System and Icons/V2/B05-11-12_empty.jpg" alt="Map View" class="map-image">
-            <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon" :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
+            <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
+              :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
               <img :src="getSensorIcon(sensor.type)" alt="Sensor Icon" class="icon-image">
             </div>
-            <div v-for="(aircon, index) in airconBoxes" :key="index" class="aircon-box" :style="{ top: aircon.top, left: aircon.left }" @click="toggleAirconButtons(aircon)">
+            <div v-for="(aircon, index) in airconBoxes" :key="index" class="aircon-box"
+              :style="{ top: aircon.top, left: aircon.left }" @click="toggleAirconButtons(aircon)">
               <img src="@/assets/aircon-icon.png" alt="Aircon Icon" class="icon-image">
             </div>
             <div class="all-buttons">
@@ -33,13 +35,15 @@
       <div class="col-md-3" v-for="device in devices" :key="device.id">
         <div class="device-status-card">
           <h5>{{ device.name }}</h5>
-          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">{{ device.isOnline ? 'Online' : 'Offline' }}</p>
+          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">{{
+            device.isOnline ? 'Online' : 'Offline' }}</p>
           <p>Type: {{ device.type }}</p>
         </div>
       </div>
     </div>
     <div class="condition mt-4 text-center">
-      <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.</p>
+      <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off,
+        else both turned on.</p>
     </div>
 
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
@@ -51,10 +55,14 @@
             <button type="button" class="btn-close" @click="closeModal">×</button>
           </div>
           <div class="modal-body text-center">
-            <button v-if="currentType === 'aircon'" @click="setAirconState(true, modalTitle)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'aircon'" @click="setAirconState(false, modalTitle)" class="btn btn-danger">OFF</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'aircon'" @click="setAirconState(true, modalTitle)"
+              class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'aircon'" @click="setAirconState(false, modalTitle)"
+              class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
+              @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
+              @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
           </div>
         </div>
       </div>
@@ -118,6 +126,10 @@ export default {
         console.error('Config:', error.config);
       }
     },
+    async setSwitch(state, deviceEUI) {
+      const switchStates = Array(8).fill(state ? 1 : 0);
+      await this.sendSwitchCommand(deviceEUI, switchStates);
+    },
     async sendAirconCommand(state, airconId) {
       console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
       const payload = {
@@ -145,6 +157,13 @@ export default {
     setAirconState(state, airconId) {
       console.log(`Set Aircon State: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
       this.sendAirconCommand(state, airconId);
+    },
+    setAllSwitches(state) {
+      console.log(`Setting all switches to ${state ? 'ON' : 'OFF'}`);
+      const switchStates = Array(8).fill(state ? 1 : 0);
+      this.sensors.forEach(sensor => {
+        this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      });
     },
     toggleButtons(sensor) {
       this.modalTitle = sensor.name;
@@ -229,7 +248,8 @@ h2 {
 .sensor-title,
 .aircon-title {
   position: absolute;
-  top: -20px; /* Position the title above the icon */
+  top: -20px;
+  /* Position the title above the icon */
   left: 50%;
   transform: translateX(-50%);
   font-size: 12px;

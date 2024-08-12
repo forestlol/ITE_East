@@ -5,26 +5,39 @@
       <div class="col-md-8">
         <div class="map-section">
           <h4>Floorplan</h4>
-          <div 
-            class="map-container"
-            @mousedown="startPan"
-            @mousemove="pan"
-            @mouseup="endPan"
-            @mouseleave="endPan"
-            @wheel="onWheel"
-          >
+          <div class="map-container">
             <img 
               src="@/assets/Sub System and Icons/V2/smart washroom system_V2.jpg" 
               alt="Map View" 
               class="map-image"
-              :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"
             >
-            <div class="zoom-controls">
-              <button class="btn btn-secondary" @click="zoomIn">+</button>
-              <button class="btn btn-secondary" @click="zoomOut">-</button>
+            <!-- Multiple Icons on the Floorplan -->
+            <div 
+              v-for="(icon, index) in icons"
+              :key="index"
+              class="icon-container"
+              :style="{ top: icon.top, left: icon.left }"
+              @mouseenter="showValue(index, $event)"
+              @mouseleave="hideValue"
+            >
+              <img :src="icon.src" alt="Sensor Icon" class="icon-image">
+              <!-- Tooltip should only show when hoveredIndex matches -->
+              <div v-if="hoveredIndex === index" class="tooltip" :style="{ left: tooltipX + 'px', top: tooltipY + 'px' }">
+                <h5>{{ icon.label }}</h5>
+                <p>Temperature: {{ icon.temperature }}°C</p>
+                <p>Humidity: {{ icon.humidity }}%</p>
+                <p>Pressure: {{ icon.pressure }} hPa</p>
+                <p>CO2: {{ icon.co2 }} ppm</p>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <!-- Display hovered index for debugging -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <p v-if="hoveredIndex !== null">Hovered Index: {{ hoveredIndex }}</p>
       </div>
     </div>
     <div class="row mt-4">
@@ -45,72 +58,38 @@
 </template>
 
 <script>
+import sensorIcon from '@/assets/sensor-icon.png'; // Adjust the path to your project structure
+
 export default {
   name: 'SmartWashroomSystem',
   data() {
     return {
       devices: [
-        { id: 1, name: 'People Counting Sensor', type: 'People Counting Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 3, name: 'Occupancy Sensor', type: 'Occupancy Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 13, name: 'Odor Sensor', type: 'Odor Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 15, name: 'Gateway', type: 'LoRaWAN Gateway', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 1, name: 'People Counting Sensor', type: 'People Counting Sensor', isOnline: true },
+        { id: 2, name: 'Occupancy Sensor', type: 'Occupancy Sensor', isOnline: true },
+        { id: 3, name: 'Odor Sensor', type: 'Odor Sensor', isOnline: true },
+        { id: 4, name: 'Gateway', type: 'LoRaWAN Gateway', isOnline: true },
       ],
-      zoomLevel: 1,
-      translateX: 0,
-      translateY: 0,
-      isPanning: false,
-      startX: 0,
-      startY: 0,
-      lastX: 0,
-      lastY: 0,
-      animationFrame: null,
+      hoveredIndex: null, // Keeps track of the hovered icon's index
+      icons: [
+        { top: '50%', left: '50%', src: sensorIcon, label: 'Sensor 1', temperature: 42, humidity: 65, pressure: 1029, co2: 570 },
+        { top: '30%', left: '60%', src: sensorIcon, label: 'Sensor 2', temperature: 38, humidity: 60, pressure: 1015, co2: 480 },
+        { top: '70%', left: '40%', src: sensorIcon, label: 'Sensor 3', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+      ],
+      tooltipX: 0,
+      tooltipY: 0,
     };
   },
   methods: {
-    zoomIn() {
-      this.zoomLevel = Math.min(this.zoomLevel + 0.1, 2);
-    },
-    zoomOut() {
-      this.zoomLevel = Math.max(this.zoomLevel - 0.1, 1);
-    },
-    onWheel(event) {
-      event.preventDefault();
-      const delta = Math.sign(event.deltaY) * -0.1;
-      this.zoomLevel = Math.min(Math.max(this.zoomLevel + delta, 1), 2);
-    },
-    startPan(event) {
-      this.isPanning = true;
-      this.startX = event.clientX - this.translateX;
-      this.startY = event.clientY - this.translateY;
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-    },
-    pan(event) {
-      if (!this.isPanning) return;
+    showValue(index, event) {
+      const iconRect = event.target.getBoundingClientRect();
+      this.tooltipX = iconRect.left + iconRect.width / 2; // Center horizontally relative to the icon
+      this.tooltipY = iconRect.top - 10; // Position above the icon with a small offset
 
-      const dx = event.clientX - this.lastX;
-      const dy = event.clientY - this.lastY;
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-
-      this.translateX += dx / this.zoomLevel;
-      this.translateY += dy / this.zoomLevel;
-
-      if (!this.animationFrame) {
-        this.animationFrame = requestAnimationFrame(this.updatePan);
-      }
+      this.hoveredIndex = index;
     },
-    updatePan() {
-      this.$forceUpdate();
-      this.animationFrame = null;
-    },
-    endPan() {
-      this.isPanning = false;
-      if (this.animationFrame) {
-        cancelAnimationFrame(this.animationFrame);
-        this.animationFrame = null;
-      }
+    hideValue() {
+      this.hoveredIndex = null;
     },
     navigateTo3DLandscape() {
       window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=92';
@@ -135,7 +114,7 @@ h2 {
   justify-content: space-between;
 }
 
-.relation-section, .map-section {
+.map-section {
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 5px;
@@ -144,36 +123,19 @@ h2 {
   height: 100%;
 }
 
-.relation-image, .map-image {
+.map-image {
   width: 100%;
   height: auto;
-  transition: transform 0.1s ease-out;
 }
 
 .map-container {
   overflow: hidden;
   height: 100%;
   position: relative;
-  cursor: grab;
+  cursor: default;
   display: flex;
-  justify-content: center; /* Centers the image horizontally */
-  align-items: center; /* Centers the image vertically */
-}
-
-.map-container:active {
-  cursor: grabbing;
-}
-
-.zoom-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.zoom-controls .btn {
-  margin: 2px 0;
+  justify-content: center;
+  align-items: center;
 }
 
 .device-status-card {
@@ -212,5 +174,34 @@ h2 {
 .link-button .btn {
   padding: 10px 20px;
   font-size: 1.25rem;
+}
+
+/* Icon Container */
+.icon-container {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 1000; /* Ensure it's above other elements */
+}
+
+.icon-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tooltip for Sensor Value */
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%); /* Center and position above the icon */
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 12px;
+  z-index: 1001; /* Ensure it appears above the icon */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 </style>
