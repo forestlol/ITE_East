@@ -30,13 +30,21 @@
           <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
             {{ device.isOnline ? 'Online' : 'Offline' }}
           </p>
-          <p>Type: {{ device.type }}</p>
         </div>
       </div>
     </div>
     <div class="condition mt-4 text-center">
-      <p>If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.</p>
+      <div class="row mt-4 condition-dropdown">
+        <div class="col-12 text-center">
+          <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
+            <option v-for="(condition, index) in conditions" :key="index" :value="condition">
+              {{ condition }}
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
+
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
@@ -70,7 +78,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: 'AssetTaggingSystem',
@@ -85,6 +92,13 @@ export default {
         { id: 6, name: 'BLE Tag 3', type: 'Humidity Tag', lastUpdated: '2024-05-29 14:30:00' },
         { id: 7, name: 'BLE Tag 4', type: 'Temperature Tag', lastUpdated: '2024-05-29 14:30:00' },
       ],
+      conditions: [
+        "Conditions",
+        "If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.",
+        "If BLE Beacon 1 is off, BLE Tags cannot detect within range.",
+        "If BLE Beacon 2 is off, BLE Tags cannot detect within range.",
+      ],
+      selectedCondition: "Conditions",  // Default condition
       showModal: false,
       bleBeacon1Status: 'On',
       bleBeacon2Status: 'On',
@@ -102,14 +116,16 @@ export default {
       alert(`BLE Beacon 1: ${this.bleBeacon1Status}, BLE Beacon 2: ${this.bleBeacon2Status}`);
       this.closeModal();
     },
+    updateCondition() {
+      // Update the displayed condition text
+      console.log(`Selected Condition: ${this.selectedCondition}`);
+    },
   },
 };
 </script>
-
 <style scoped>
 .container-fluid {
   width: 100%;
-  padding: 2rem;
 }
 
 h2 {
@@ -233,5 +249,9 @@ h2 {
 
 .condition-input {
   margin-bottom: 10px;
+}
+
+.condition-dropdown {
+  margin-bottom: 20px;
 }
 </style>

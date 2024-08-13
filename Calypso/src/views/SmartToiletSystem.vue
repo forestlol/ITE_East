@@ -22,7 +22,11 @@
             >
               <img :src="icon.src" alt="Sensor Icon" class="icon-image">
               <!-- Tooltip should only show when hoveredIndex matches -->
-              <div v-if="hoveredIndex === index" class="tooltip" :style="{ left: tooltipX + 'px', top: tooltipY + 'px' }">
+              <div 
+                v-if="hoveredIndex === index" 
+                class="value-tooltip"
+                :style="{ top: `${tooltipY}px`, left: `${tooltipX}px` }"
+              >
                 <h5>{{ icon.label }}</h5>
                 <p>Temperature: {{ icon.temperature }}°C</p>
                 <p>Humidity: {{ icon.humidity }}%</p>
@@ -34,12 +38,7 @@
         </div>
       </div>
     </div>
-    <!-- Display hovered index for debugging -->
-    <div class="row mt-4">
-      <div class="col-md-12">
-        <p v-if="hoveredIndex !== null">Hovered Index: {{ hoveredIndex }}</p>
-      </div>
-    </div>
+    
     <div class="row mt-4">
       <div class="col-md-3" v-for="device in devices" :key="device.id">
         <div class="device-status-card">
@@ -47,7 +46,6 @@
           <p class="status" :class="{'text-success': device.isOnline, 'text-danger': !device.isOnline}">
             {{ device.isOnline ? 'Online' : 'Offline' }}
           </p>
-          <p>Type: {{ device.type }}</p>
         </div>
       </div>
     </div>
@@ -59,6 +57,9 @@
 
 <script>
 import sensorIcon from '@/assets/sensor-icon.png'; // Adjust the path to your project structure
+import waterMeterIcon from '@/assets/water-meter-sensor.png';
+import peopleCounterIcon from '@/assets/peopleCounter.png';
+import odorIcon from '@/assets/Odor.png';
 
 export default {
   name: 'SmartWashroomSystem',
@@ -71,21 +72,29 @@ export default {
         { id: 4, name: 'Gateway', type: 'LoRaWAN Gateway', isOnline: true },
       ],
       hoveredIndex: null, // Keeps track of the hovered icon's index
+      tooltipX: 0, // X position for tooltip
+      tooltipY: 0, // Y position for tooltip
       icons: [
-        { top: '50%', left: '50%', src: sensorIcon, label: 'Sensor 1', temperature: 42, humidity: 65, pressure: 1029, co2: 570 },
-        { top: '30%', left: '60%', src: sensorIcon, label: 'Sensor 2', temperature: 38, humidity: 60, pressure: 1015, co2: 480 },
-        { top: '70%', left: '40%', src: sensorIcon, label: 'Sensor 3', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '30.4%', left: '41.5%', src: sensorIcon, label: 'Sensor 1', temperature: 42, humidity: 65, pressure: 1029, co2: 570 },
+        { top: '30.4%', left: '70.4%', src: sensorIcon, label: 'Sensor 2', temperature: 38, humidity: 60, pressure: 1015, co2: 480 },
+        { top: '48%', left: '32.3%', src: sensorIcon, label: 'Sensor 3', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '72%', left: '33.1%', src: sensorIcon, label: 'Sensor 4', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '63%', left: '68.1%', src: sensorIcon, label: 'Sensor 5', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '62%', left: '84%', src: sensorIcon, label: 'Sensor 6', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '48.6%', left: '49%', src: waterMeterIcon, label: 'Sensor 7', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '40.6%', left: '35%', src: peopleCounterIcon, label: 'Sensor 8', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '57.6%', left: '59.6%', src: peopleCounterIcon, label: 'Sensor 9', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '53.6%', left: '34.7%', src: odorIcon, label: 'Sensor 10', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '65%', left: '92.5%', src: odorIcon, label: 'Sensor 11', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
       ],
-      tooltipX: 0,
-      tooltipY: 0,
     };
   },
   methods: {
     showValue(index, event) {
-      const iconRect = event.target.getBoundingClientRect();
-      this.tooltipX = iconRect.left + iconRect.width / 2; // Center horizontally relative to the icon
-      this.tooltipY = iconRect.top - 10; // Position above the icon with a small offset
-
+      const containerRect = event.currentTarget.getBoundingClientRect();
+      const pointRect = event.target.getBoundingClientRect();
+      this.tooltipX = pointRect.x + pointRect.width / 2 - containerRect.x;
+      this.tooltipY = pointRect.y - containerRect.y - 10; // Adjust for positioning above the point
       this.hoveredIndex = index;
     },
     hideValue() {
@@ -101,7 +110,6 @@ export default {
 <style scoped>
 .container-fluid {
   width: 100%;
-  padding: 2rem;
 }
 
 h2 {
@@ -192,16 +200,14 @@ h2 {
 }
 
 /* Tooltip for Sensor Value */
-.tooltip {
+.value-tooltip {
   position: absolute;
-  transform: translate(-50%, -100%); /* Center and position above the icon */
+  transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
-  padding: 8px;
+  padding: 5px;
   border-radius: 5px;
   white-space: nowrap;
   font-size: 12px;
-  z-index: 1001; /* Ensure it appears above the icon */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 </style>

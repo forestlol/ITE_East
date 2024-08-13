@@ -180,8 +180,6 @@ export default {
 .container-fluid {
   max-width: 1200px;
   min-height: 100vh;
-  /* Ensures the container covers the full viewport height */
-  padding: 20px;
 }
 
 .view-container {

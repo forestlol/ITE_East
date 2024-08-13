@@ -15,13 +15,31 @@
           <h4>Floorplan</h4>
           <div class="map-container">
             <img src="@/assets/Sub System and Icons/V2/B05-11-12_empty.jpg" alt="Map View" class="map-image">
-            <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
-              :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
+            <div
+              v-for="sensor in sensors"
+              :key="sensor.id"
+              class="sensor-icon"
+              :style="{ top: sensor.top, left: sensor.left }"
+              @click="toggleButtons(sensor)"
+            >
               <img :src="getSensorIcon(sensor.type)" alt="Sensor Icon" class="icon-image">
+              <span
+                class="status-dot"
+                :class="sensor.isOnline ? 'online' : 'offline'"
+              ></span>
             </div>
-            <div v-for="(aircon, index) in airconBoxes" :key="index" class="aircon-box"
-              :style="{ top: aircon.top, left: aircon.left }" @click="toggleAirconButtons(aircon)">
+            <div
+              v-for="(aircon, index) in airconBoxes"
+              :key="index"
+              class="aircon-box"
+              :style="{ top: aircon.top, left: aircon.left }"
+              @click="toggleAirconButtons(aircon)"
+            >
               <img src="@/assets/aircon-icon.png" alt="Aircon Icon" class="icon-image">
+              <span
+                class="status-dot"
+                :class="aircon.isOnline ? 'online' : 'offline'"
+              ></span>
             </div>
             <div class="all-buttons">
               <button @click="setAllSwitches(true)" class="btn btn-primary">All ON</button>
@@ -31,19 +49,27 @@
         </div>
       </div>
     </div>
+
     <div class="row mt-4">
       <div class="col-md-3" v-for="device in devices" :key="device.id">
         <div class="device-status-card">
           <h5>{{ device.name }}</h5>
-          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">{{
-            device.isOnline ? 'Online' : 'Offline' }}</p>
-          <p>Type: {{ device.type }}</p>
+          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
+            {{ device.isOnline ? 'Online' : 'Offline' }}
+          </p>
         </div>
       </div>
     </div>
-    <div class="condition mt-4 text-center">
-      <p>If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off,
-        else both turned on.</p>
+
+    <!-- Condition Dropdown -->
+    <div class="row mt-4 condition-dropdown">
+      <div class="col-12 text-center">
+        <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
+          <option v-for="(condition, index) in conditions" :key="index" :value="condition">
+            {{ condition }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
@@ -69,7 +95,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 
@@ -81,24 +106,34 @@ export default {
       modalTitle: '',
       currentType: '',
       devices: [
-        { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 6, name: 'MDU 1', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 8, name: 'Fresh Air Fan 1', type: 'Fresh Air Fan', isOnline: true, lastUpdated: '2024-05-29 14:30:00' }
+        { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: false, lastUpdated: '2024-05-29 14:30:00' }
       ],
       sensors: [
-        { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 1' },
-        { id: 2, top: '62%', left: '77%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 2' },
-        { id: 3, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1' },
-        { id: 4, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2' }
+        { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 1', isOnline: false },
+        { id: 2, top: '62%', left: '77%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 2', isOnline: false },
+        { id: 3, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
+        { id: 4, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
       ],
       switchStates: Array(8).fill(0), // Initialize with 8 elements
       airconBoxes: [
-        { top: '76%', left: '37%', showButtons: false, name: 'FCU 1-1' },
-        { top: '75%', left: '46%', showButtons: false, name: 'FCU 1-2' },
-        { top: '73%', left: '59%', showButtons: false, name: 'FCU 2-1' },
-        { top: '72%', left: '71%', showButtons: false, name: 'FCU 2-2' }
-      ] // Positions for aircon boxes
+        { top: '76%', left: '37%', showButtons: false, name: 'FCU 1-1', isOnline: false },
+        { top: '75%', left: '46%', showButtons: false, name: 'FCU 1-2', isOnline: false },
+        { top: '73%', left: '59%', showButtons: false, name: 'FCU 2-1', isOnline: false },
+        { top: '72%', left: '71%', showButtons: false, name: 'FCU 2-2', isOnline: false }
+      ], // Positions for aircon boxes
+
+      // Conditions Data
+      conditions: [
+        'Conditions',
+        'If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.',
+        'If CO2 Level too high, turn on all Fresh Air Fans.',
+        'If Motorized Dampener malfunctions, notify the maintenance team immediately.',
+      ],
+      selectedCondition: '',
+      displayedCondition: ''
     };
   },
   methods: {
@@ -114,42 +149,35 @@ export default {
         console.log('Switch command sent successfully', response.data);
       } catch (error) {
         console.error('Error sending switch command:', error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
-          console.error('Request data:', error.request);
-        } else {
-          console.error('Error message:', error.message);
-        }
-        console.error('Config:', error.config);
       }
     },
     async setSwitch(state, deviceType) {
       let switchStates = Array(8).fill(0); // Default all switches off
 
-      // Assign the switch states based on the device type and the desired state
       if (deviceType === 'freshAirFan' && state) {
         if (this.modalTitle === 'Fresh Air Fan 1') {
+          this.sensors.find(sensor => sensor.name === 'Fresh Air Fan 1').isOnline = true;
           switchStates[0] = 1;
         } else if (this.modalTitle === 'Fresh Air Fan 2') {
+          this.sensors.find(sensor => sensor.name === 'Fresh Air Fan 2').isOnline = true;
           switchStates[1] = 1;
         }
       } else if (deviceType === 'dampener' && state) {
         if (this.modalTitle === 'MDU 1') {
+          this.sensors.find(sensor => sensor.name === 'MDU 1').isOnline = true;
           switchStates[2] = 1;
         } else if (this.modalTitle === 'MDU 2') {
+          this.sensors.find(sensor => sensor.name === 'MDU 2').isOnline = true;
           switchStates[3] = 1;
         }
       }
 
-      // Send the command
       this.sensors.forEach(sensor => {
         if (sensor.type === deviceType) {
           this.sendSwitchCommand(sensor.deviceEUI, switchStates);
         }
       });
+      this.closeModal();
     },
     async sendAirconCommand(state, airconId) {
       console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
@@ -161,29 +189,29 @@ export default {
       try {
         const response = await axios.post(targetUrl, payload);
         console.log(`Aircon ${airconId} turned ${state ? 'on' : 'off'} successfully`, response.data);
+        const aircon = this.airconBoxes.find(ac => ac.name === airconId);
+        if (aircon) {
+          aircon.isOnline = state;
+        }
       } catch (error) {
         console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
-          console.error('Request data:', error.request);
-        } else {
-          console.error('Error message:', error.message);
-        }
-        console.error('Config:', error.config);
       }
     },
     setAirconState(state, airconId) {
       console.log(`Set Aircon State: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
       this.sendAirconCommand(state, airconId);
+      this.closeModal();
     },
     setAllSwitches(state) {
       console.log(`Setting all switches to ${state ? 'ON' : 'OFF'}`);
       const switchStates = Array(8).fill(state ? 1 : 0);
       this.sensors.forEach(sensor => {
+        sensor.isOnline = state;
         this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      });
+      this.airconBoxes.forEach(aircon => {
+        aircon.isOnline = state;
+        this.sendAirconCommand(state, aircon.name);
       });
     },
     toggleButtons(sensor) {
@@ -197,7 +225,7 @@ export default {
       this.showModal = true;
     },
     closeModal() {
-      this.showModal = false; 
+      this.showModal = false;
     },
     getSensorIcon(type) {
       switch (type) {
@@ -208,15 +236,22 @@ export default {
         default:
           return require('@/assets/default-icon.png');
       }
+    },
+    updateCondition() {
+      this.displayedCondition = this.selectedCondition;
+    }
+  },
+  mounted() {
+    if (this.conditions.length > 0) {
+      this.selectedCondition = this.conditions[0];
+      this.updateCondition();
     }
   }
 };
 </script>
-
 <style scoped>
 .container-fluid {
   width: 100%;
-  padding: 2rem;
   margin-bottom: 5rem;
 }
 
@@ -285,6 +320,23 @@ h2 {
   height: 24px;
 }
 
+.status-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
+}
+
 .device-status-card {
   background-color: #e9f7fd;
   padding: 15px;
@@ -329,6 +381,37 @@ h2 {
 .icon-image {
   width: 24px;
   height: 24px;
+}
+
+.bordered-text {
+  border: 2px solid #000;
+  padding: 10px;
+  display: inline-block;
+}
+
+/* Condition Dropdown Styling */
+.condition-dropdown {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.condition-dropdown .form-select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+}
+
+/* Condition Label Styling */
+.condition-label p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  background-color: #f0f8ff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 /* Modal Styles */

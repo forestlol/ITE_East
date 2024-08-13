@@ -7,27 +7,19 @@
           <h4>Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Smart Pest Control Algo.png" alt="Sensor Detection Diagram" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust
+              Condition</button>
           </div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="map-section">
           <h4>Floorplan</h4>
-          <div 
-            class="map-container"
-            @mousedown="startPan"
-            @mousemove="pan"
-            @mouseup="endPan"
-            @mouseleave="endPan"
-            @wheel="onWheel"
-          >
-            <img 
-              src="@/assets/Sub System and Icons/V2/B05-11-12_Smart Pest Control System.jpg" 
-              alt="Map View" 
+          <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
+            @wheel="onWheel">
+            <img src="@/assets/Sub System and Icons/V2/B05-11-12_Smart Pest Control System.jpg" alt="Map View"
               class="map-image"
-              :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }"
-            >
+              :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
             <div class="zoom-controls">
               <button class="btn btn-secondary" @click="zoomIn">+</button>
               <button class="btn btn-secondary" @click="zoomOut">-</button>
@@ -36,17 +28,29 @@
         </div>
       </div>
     </div>
-    <div class="row mt-4">
+
+    <div class="row mt-2">
       <div class="col-md-3" v-for="device in devices" :key="device.id">
         <div class="device-status-card">
           <h5>{{ device.name }}</h5>
-          <p class="status" :class="{'text-success': device.status === 'Activated', 'text-danger': device.status !== 'Activated'}">{{ device.status }}</p>
+          <p class="status"
+            :class="{ 'text-success': device.status === 'Activated', 'text-danger': device.status !== 'Activated' }">{{
+              device.status }}</p>
         </div>
       </div>
     </div>
-    <div class="condition mt-4 text-center">
-      <p>If PIR sensor motion detected, then magnetic lock turn on, camera turn on</p>
+
+    <!-- Condition Dropdown -->
+    <div class="row mt-4 condition-dropdown">
+      <div class="col-12 text-center">
+        <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
+          <option v-for="(condition, index) in conditions" :key="index" :value="condition">
+            {{ condition }}
+          </option>
+        </select>
+      </div>
     </div>
+
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
@@ -87,7 +91,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: 'SmartPestControlSystem',
@@ -97,7 +100,7 @@ export default {
         { id: 1, name: 'Magnetic Lock', status: 'Activated' },
         { id: 2, name: 'PIR Sensor', status: 'Activated' },
         { id: 3, name: 'Camera', status: 'Activated' },
-        { id: 4, name: 'Rat Trap', status: 'Not Activated' },
+        { id: 4, name: 'Rat Trap', status: 'Activated' },
       ],
       zoomLevel: 1,
       translateX: 0,
@@ -112,6 +115,15 @@ export default {
       pirSensorStatus: 'Detected',
       magneticLockStatus: 'On',
       cameraStatus: 'On',
+      // Conditions Data
+      conditions: [
+        'Conditions',
+        'If PIR sensor motion detected, then magnetic lock turn on, camera turn on',
+        'If PIR sensor motion detected, then camera turn on',
+        'If rat trap triggered, then alert sound',
+      ],
+      selectedCondition: '',
+      displayedCondition: '',
     };
   },
   methods: {
@@ -171,10 +183,19 @@ export default {
       alert(`PIR Sensor: ${this.pirSensorStatus}, Magnetic Lock: ${this.magneticLockStatus}, Camera: ${this.cameraStatus}`);
       this.closeModal();
     },
+    updateCondition() {
+      this.displayedCondition = this.selectedCondition;
+    },
+  },
+  mounted() {
+    // Set the default condition to the first one in the list
+    if (this.conditions.length > 0) {
+      this.selectedCondition = this.conditions[0];
+      this.updateCondition();
+    }
   },
 };
 </script>
-
 <style scoped>
 .container-fluid {
   width: 100%;
@@ -191,7 +212,8 @@ h2 {
   justify-content: space-between;
 }
 
-.relation-section, .map-section {
+.relation-section,
+.map-section {
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 5px;
@@ -200,7 +222,8 @@ h2 {
   height: 100%;
 }
 
-.relation-image, .map-image {
+.relation-image,
+.map-image {
   width: 100%;
   height: auto;
   transition: transform 0.1s ease-out;
@@ -229,6 +252,30 @@ h2 {
   margin: 2px 0;
 }
 
+/* Condition Dropdown Styling */
+.condition-dropdown {
+  width: 100%; /* Make the container full width */
+}
+
+.condition-dropdown .form-select {
+  width: 100%; /* Make the dropdown full width */
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+}
+
+/* Condition Label Styling */
+.condition-label p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  background-color: #f0f8ff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Make the condition label full width */
+  text-align: center;
+}
+
 .device-status-card {
   background-color: #e9f7fd;
   padding: 15px;
@@ -254,11 +301,6 @@ h2 {
 
 .text-danger {
   color: #dc3545 !important;
-}
-
-.condition p {
-  font-size: 1.2rem;
-  font-weight: bold;
 }
 
 .modal-overlay {
@@ -316,3 +358,4 @@ h2 {
   margin-bottom: 10px;
 }
 </style>
+

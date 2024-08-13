@@ -43,7 +43,7 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/power-meter-reading">
-            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/power-meter-reading' }]"></i>
+            <i :class="['fas', 'fa-bolt', { 'active-icon': $route.path === '/power-meter-reading' }]"></i>
             <span class="nav-text">Smart Energy Management System</span>
           </router-link>
         </li>
@@ -61,13 +61,13 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/indoor-air-quality">
-            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/indoor-air-quality' }]"></i>
+            <img :src="airFlowIcon" alt="Indoor Air Quality System" class="icon-image">
             <span class="nav-text">Indoor Air Quality System</span>
           </router-link>
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/hybrid-aircon">
-            <i :class="['fas', 'fa-lightbulb', { 'active-icon': $route.path === '/hybrid-aircon' }]"></i>
+            <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image">
             <span class="nav-text">Hybrid Aircon System</span>
           </router-link>
         </li>
@@ -91,6 +91,11 @@
           <i class="fas fa-user"></i>
         </div>
       </div>
+      <!-- Main content goes here -->
+      <div class="content">
+        <!-- Example content area -->
+        <router-view></router-view>
+      </div>
     </div>
   </div>
 </template>
@@ -98,6 +103,8 @@
 <script>
 import axios from 'axios';
 import FASIcon from '@/assets/FAS-icon.png'; // Assuming this is the correct path
+import airFlowIcon from '@/assets/air-flow.png';
+import airconIcon from '@/assets/aircon.png';
 
 export default {
   name: 'AppSidebar',
@@ -109,6 +116,8 @@ export default {
       weatherIcon: null,
       userName: 'User',
       FASIcon, // Assigning the imported icon to be used in the template
+      airFlowIcon,
+      airconIcon,
     };
   },
   mounted() {

@@ -269,7 +269,6 @@ export default {
 <style scoped>
 .container {
   max-width: 1200px;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -2,7 +2,7 @@
   <div id="app">
     <Sidebar @update:expanded="isSidebarExpanded = $event" />
     <div :class="['main-content', { 'sidebar-expanded': isSidebarExpanded }]">
-      <router-view />
+      
     </div>
   </div>
 </template>
