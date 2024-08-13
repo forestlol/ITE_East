@@ -12,7 +12,7 @@
               <div v-for="(box, index) in currentBoxes" :key="index" class="box"
                 :class="{ 'disable-hover': box.label === 'B05-11/12' }" :style="{ top: box.top, left: box.left }"
                 @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)"
-                @mouseleave="box.label !== 'B05-11/12' && hidePopup()"
+                @mouseleave="hidePopup()"
                 @click="handleBoxClick(index)">
                 <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
               </div>
@@ -47,6 +47,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
