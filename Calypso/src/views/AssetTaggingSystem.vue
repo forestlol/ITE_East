@@ -15,36 +15,28 @@
         <div class="out-of-range-section">
           <h4 class="text-center mb-4">Out of Range</h4>
           <ul class="out-of-range-list">
-            <li v-for="tag in outOfRangeTags" :key="tag.id" class="out-of-range-item">
-              <span class="tag-name">{{ tag.name }}</span> - 
-              <span class="tag-updated">{{ tag.lastUpdated }}</span>
+            <li v-for="tag in outOfRangeTags" :key="tag.mac" class="out-of-range-item">
+              <span class="tag-name">{{ tag.mac }}</span> - 
+              <span class="tag-updated">{{ formatDate(tag.lastUpdated) }}</span>
             </li>
           </ul>
         </div>
       </div>
     </div>
     <div class="row mt-4 justify-content-center">
-      <div class="col-md-3" v-for="device in devices" :key="device.id">
+      <div class="col-md-3" v-for="device in devices" :key="device.mac">
         <div class="device-status-card">
-          <h5>{{ device.name }}</h5>
+          <h5>{{ device.mac }}</h5>
           <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
             {{ device.isOnline ? 'Online' : 'Offline' }}
           </p>
+          <p>Type: {{ device.type }}</p>
         </div>
       </div>
     </div>
     <div class="condition mt-4 text-center">
-      <div class="row mt-4 condition-dropdown">
-        <div class="col-12 text-center">
-          <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
-            <option v-for="(condition, index) in conditions" :key="index" :value="condition">
-              {{ condition }}
-            </option>
-          </select>
-        </div>
-      </div>
+      <p>If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.</p>
     </div>
-
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
@@ -78,27 +70,16 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'AssetTaggingSystem',
   data() {
     return {
       devices: [
-        { id: 1, name: 'BLE Beacon 1', type: 'Asset Tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 4, name: 'BLE Beacon 2', type: 'Temperature Tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 5, name: 'BLE Tags', type: 'Humidity Tag', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { mac: 'fce8c0426458', type: 'BLE Beacon', isOnline: true, lastUpdated: new Date() }
       ],
-      outOfRangeTags: [
-        { id: 6, name: 'BLE Tag 3', type: 'Humidity Tag', lastUpdated: '2024-05-29 14:30:00' },
-        { id: 7, name: 'BLE Tag 4', type: 'Temperature Tag', lastUpdated: '2024-05-29 14:30:00' },
-      ],
-      conditions: [
-        "Conditions",
-        "If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.",
-        "If BLE Beacon 1 is off, BLE Tags cannot detect within range.",
-        "If BLE Beacon 2 is off, BLE Tags cannot detect within range.",
-      ],
-      selectedCondition: "Conditions",  // Default condition
+      outOfRangeTags: [],
       showModal: false,
       bleBeacon1Status: 'On',
       bleBeacon2Status: 'On',
@@ -116,16 +97,58 @@ export default {
       alert(`BLE Beacon 1: ${this.bleBeacon1Status}, BLE Beacon 2: ${this.bleBeacon2Status}`);
       this.closeModal();
     },
-    updateCondition() {
-      // Update the displayed condition text
-      console.log(`Selected Condition: ${this.selectedCondition}`);
+    fetchData() {
+      fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/AssetTagging/data')
+        .then(response => response.json())
+        .then(data => {
+          const tag = this.devices.find(d => d.mac === data.device_info.mac);
+          const rssi = data.data.wifi_rssi;
+
+          if (rssi < -90) {
+            setTimeout(() => {
+              // Check if the RSSI is still below -90 after 20 seconds
+              if (rssi < -90) {
+                this.addToOutOfRange(tag.mac);
+              }
+            }, 20000);
+          } else {
+            // Immediately remove from out of range if RSSI is greater than -90
+            this.removeFromOutOfRange(tag.mac);
+          }
+        })
+        .catch(error => console.error('Error fetching data:', error));
     },
+    addToOutOfRange(mac) {
+      const tag = this.devices.find(d => d.mac === mac);
+      if (tag && !this.outOfRangeTags.find(t => t.mac === mac)) {
+        this.outOfRangeTags.push({
+          mac: tag.mac,
+          lastUpdated: new Date(),
+        });
+      }
+    },
+    removeFromOutOfRange(mac) {
+      this.outOfRangeTags = this.outOfRangeTags.filter(tag => tag.mac !== mac);
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleString();
+    },
+  },
+  mounted() {
+    this.fetchData();
+    this.interval = setInterval(this.fetchData, 10000);
+  },
+  beforeUnmount() {
+    clearInterval(this.interval);
   },
 };
 </script>
+
+
 <style scoped>
 .container-fluid {
   width: 100%;
+  padding: 2rem;
 }
 
 h2 {
@@ -249,9 +272,5 @@ h2 {
 
 .condition-input {
   margin-bottom: 10px;
-}
-
-.condition-dropdown {
-  margin-bottom: 20px;
 }
 </style>

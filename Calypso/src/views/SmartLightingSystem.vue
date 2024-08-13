@@ -21,16 +21,19 @@
           </div>
           <div class="map-container">
             <img :src="getImagePath(selectedImage)" alt="Map View" class="map-image">
-            <div
-              v-for="(sensor, index) in currentSensors"
-              :key="index"
-              class="sensor-icon"
-              :style="{ top: sensor.top, left: sensor.left }"
-              @click="toggleModal(sensor)"
-            >
+            <div class="slider-container" v-if="showSlider()">
+              <label class="switch">
+                <input type="checkbox" v-model="allOn">
+                <span class="slider round"></span>
+              </label>
+              <span class="slider-label">ALL ON</span>
+            </div>
+            <div v-for="(sensor, index) in currentSensors" :key="index" class="sensor-icon"
+              :style="{ top: sensor.top, left: sensor.left }" @click="toggleModal(sensor)">
               <i :class="sensor.icon"></i>
               <!-- Only show the status dot if not on B05-11-12_empty.jpg -->
-              <span v-if="selectedImage !== 'B05-11-12_empty.jpg'" :class="['status-dot', sensor.isOnline ? 'online' : 'offline']"></span>
+              <span v-if="selectedImage !== 'B05-11-12_empty.jpg'"
+                :class="['status-dot', sensor.isOnline ? 'online' : 'offline']"></span>
             </div>
           </div>
         </div>
@@ -41,21 +44,10 @@
       <div class="col-md-3" v-for="device in devices" :key="device.id">
         <div class="device-status-card">
           <h5>{{ device.name }}</h5>
-          <p class="status" :class="{'text-success': device.isOnline, 'text-danger': !device.isOnline}">
+          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
             {{ device.isOnline ? 'Online' : 'Offline' }}
           </p>
         </div>
-      </div>
-    </div>
-
-    <!-- Condition Dropdown -->
-    <div class="row mt-4 condition-dropdown">
-      <div class="col-12 text-center">
-        <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
-          <option v-for="(condition, index) in conditions" :key="index" :value="condition">
-            {{ condition }}
-          </option>
-        </select>
       </div>
     </div>
 
@@ -77,6 +69,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 
@@ -154,15 +147,8 @@ export default {
       modalTitle: '',
       currentSensor: null,
 
-      // Conditions Data
-      conditions: [
-        'Conditions',
-        'If PIR sensor motion detect activity, Lights dim up, else light will dim down and turn off',
-        'If no motion detected for 10 minutes, all lights will turn off.',
-        'If brightness levels drop below threshold, turn on additional lights.'
-      ],
-      selectedCondition: '',
-      displayedCondition: ''
+      // ALL ON toggle
+      allOn: false
     };
   },
   computed: {
@@ -199,18 +185,26 @@ export default {
     getImagePath(image) {
       return require(`@/assets/Sub System and Icons/V2/${image}`);
     },
-    updateCondition() {
-      this.displayedCondition = this.selectedCondition;
+    showSlider() {
+      return this.selectedImage !== 'B05-11-12_empty.jpg';
+    },
+    async toggleAllDevices() {
+      const sensors = this.currentSensors;
+      for (const sensor of sensors) {
+        sensor.isOnline = this.allOn;
+        const switchStates = Array(3).fill(this.allOn ? 1 : 0);
+        await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      }
     }
   },
-  mounted() {
-    if (this.conditions.length > 0) {
-      this.selectedCondition = this.conditions[0];
-      this.updateCondition();
+  watch: {
+    allOn() {
+      this.toggleAllDevices();
     }
   }
 };
 </script>
+
 <style scoped>
 .container-fluid {
   width: 100%;
@@ -226,7 +220,8 @@ h2 {
   justify-content: space-between;
 }
 
-.relation-section, .map-section {
+.relation-section,
+.map-section {
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 5px;
@@ -235,7 +230,8 @@ h2 {
   height: 100%;
 }
 
-.relation-image, .map-image {
+.relation-image,
+.map-image {
   width: 100%;
   height: auto;
   transition: transform 0.1s ease-out;
@@ -353,43 +349,62 @@ h2 {
   color: #dc3545 !important;
 }
 
-.condition {
-  margin-top: 20px;
+/* Slider Container */
+.slider-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.condition-border {
-  border: 2px solid #333;
-  padding: 10px;
+.slider-label {
+  font-weight: bold;
+}
+
+.switch {
+  position: relative;
   display: inline-block;
+  width: 34px;
+  height: 20px;
 }
 
-.condition p {
-  font-size: 1.2rem;
-  font-weight: bold;
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-/* Condition Dropdown Styling */
-.condition-dropdown {
-  width: 100%;
-  margin-top: 20px;
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
 }
 
-.condition-dropdown .form-select {
-  width: 100%;
-  max-width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: 5px;
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
 }
 
-/* Condition Label Styling */
-.condition-label p {
-  font-size: 1.2rem;
-  font-weight: bold;
-  background-color: #f0f8ff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+input:checked+.slider {
+  background-color: #2196F3;
+}
+
+input:checked+.slider:before {
+  transform: translateX(14px);
 }
 </style>

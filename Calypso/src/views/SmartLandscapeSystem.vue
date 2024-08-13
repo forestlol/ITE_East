@@ -27,7 +27,8 @@
                   <img src="@/assets/Smart Landscape Algo 2 empty.png" alt="Relation View" class="relation-image">
                   <div v-for="(point, index) in relationPoints" :key="index"
                     :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
-                    @mouseenter="showValue(index, $event)" @mouseleave="hideValue"
+                    @mouseenter="point.type !== 'Valve' && showValue(index, $event)"
+                    @mouseleave="point.type !== 'Valve' && hideValue()"
                     :class="['relation-point', { 'point-label-break': point.type === 'break', 'active': isAllOn }]">
                     <template v-if="point.type === 'sensor'">
                       <span class="point-number">{{ point.number }}</span>
@@ -35,13 +36,17 @@
                     <template v-else>
                       <span class="point-label">{{ formatLabel(point.label) }}</span>
                     </template>
-                    <span v-if="hoveredIndex === index" class="value-tooltip">
+                    <span v-if="hoveredIndex === index && point.type !== 'Valve'" class="value-tooltip">
                       <h5>{{ point.type === 'sensor' ? `Sensor ${point.number}` : point.label }}</h5>
                       <template v-if="point.type === 'sensor'">
                         <p>Temperature: {{ point.data.temperature }}°C</p>
-                        <p>Humidity: {{ point.data.humidity }}%</p>
-                        <p>Pressure: {{ point.data.pressure }} hPa</p>
-                        <p>CO2: {{ point.data.co2 }} ppm</p>
+                        <p>Soil Moisture: {{ point.data.soilMoisture }}%</p>
+                        <p>pH: {{ point.data.pH }}</p>
+                        <p>EC: {{ point.data.ec }} µS/cm</p>
+                        <p>N: {{ point.data.n }} mg/L</p>
+                        <p>P: {{ point.data.p }} mg/L</p>
+                        <p>K: {{ point.data.k }} mg/L</p>
+                        <p>Battery Voltage: {{ point.data.batteryVoltage }} V</p>
                       </template>
                       <template v-else-if="point.type === 'status'">
                         <p>{{ point.label }}: {{ point.status }}</p>
@@ -51,6 +56,7 @@
                       </template>
                     </span>
                   </div>
+
                 </div>
                 <div class="adjust-button-container">
                   <button @click="openModal" class="btn btn-primary">Adjust Condition</button>
@@ -122,9 +128,13 @@
               </div>
               <div class="card-body">
                 <p><strong>Temperature:</strong> {{ sensor.data.temperature }}°C</p>
-                <p><strong>Humidity:</strong> {{ sensor.data.humidity }}%</p>
-                <p><strong>Pressure:</strong> {{ sensor.data.pressure }} hPa</p>
-                <p><strong>CO2:</strong> {{ sensor.data.co2 }} ppm</p>
+                <p><strong>Soil Moisture:</strong> {{ sensor.data.soilMoisture }}%</p>
+                <p><strong>pH:</strong> {{ sensor.data.pH }}</p>
+                <p><strong>EC:</strong> {{ sensor.data.ec }} µS/cm</p>
+                <p><strong>N:</strong> {{ sensor.data.n }} mg/L</p>
+                <p><strong>P:</strong> {{ sensor.data.p }} mg/L</p>
+                <p><strong>K:</strong> {{ sensor.data.k }} mg/L</p>
+                <p><strong>Battery Voltage:</strong> {{ sensor.data.batteryVoltage }} V</p>
               </div>
             </div>
           </div>
@@ -223,35 +233,7 @@ export default {
         { number: 15, type: 'sensor', x: 27.6, y: 53, data: { temperature: 39, humidity: 90, pressure: 1026, co2: 540 } },
         { number: 16, type: 'sensor', x: 34, y: 53, data: { temperature: 40, humidity: 95, pressure: 1027, co2: 550 } },
         { number: 17, type: 'sensor', x: 14.7, y: 63.5, data: { temperature: 41, humidity: 60, pressure: 1028, co2: 560 } },
-        { number: 2, type: 'sensor', x: 68, y: 47, data: { temperature: 42, humidity: 65, pressure: 1029, co2: 570 } },
-        { number: 3, type: 'sensor', x: 72.5, y: 47, data: { temperature: 43, humidity: 70, pressure: 1030, co2: 580 } },
-        { number: 4, type: 'sensor', x: 77, y: 47, data: { temperature: 44, humidity: 75, pressure: 1031, co2: 590 } },
-        { number: 5, type: 'sensor', x: 81.7, y: 47, data: { temperature: 45, humidity: 80, pressure: 1032, co2: 600 } },
-        { number: 6, type: 'sensor', x: 86.5, y: 47, data: { temperature: 46, humidity: 85, pressure: 1033, co2: 610 } },
-        { number: 7, type: 'sensor', x: 68, y: 55, data: { temperature: 47, humidity: 90, pressure: 1034, co2: 620 } },
-        { number: 8, type: 'sensor', x: 72.5, y: 55, data: { temperature: 48, humidity: 95, pressure: 1035, co2: 630 } },
-        { number: 9, type: 'sensor', x: 77, y: 55, data: { temperature: 49, humidity: 60, pressure: 1036, co2: 640 } },
-        { number: 10, type: 'sensor', x: 81.7, y: 55, data: { temperature: 50, humidity: 65, pressure: 1037, co2: 650 } },
-        { number: 11, type: 'sensor', x: 86.5, y: 55, data: { temperature: 51, humidity: 70, pressure: 1038, co2: 660 } },
-        { number: 12, type: 'sensor', x: 68, y: 62.5, data: { temperature: 52, humidity: 75, pressure: 1039, co2: 670 } },
-        { number: 13, type: 'sensor', x: 72.6, y: 62.5, data: { temperature: 53, humidity: 80, pressure: 1040, co2: 680 } },
-        { number: 14, type: 'sensor', x: 77.3, y: 62.5, data: { temperature: 54, humidity: 85, pressure: 1041, co2: 690 } },
-        { number: 15, type: 'sensor', x: 81.9, y: 62.5, data: { temperature: 55, humidity: 90, pressure: 1042, co2: 700 } },
-        { number: 16, type: 'sensor', x: 86.7, y: 62.5, data: { temperature: 56, humidity: 95, pressure: 1043, co2: 710 } },
-        { number: 17, type: 'sensor', x: 68, y: 70, data: { temperature: 57, humidity: 60, pressure: 1044, co2: 720 } },
-        { number: 18, type: 'sensor', x: 72.7, y: 70, data: { temperature: 58, humidity: 65, pressure: 1045, co2: 730 } },
-        { label: '1', type: 'status', x: 48.4, y: 57, status: 'On' },
-        { label: 'Rainfall Sensor', type: 'reading', x: 15.4, y: 77, reading: '10 mm' },
-        { label: 'Lux Sensor', type: 'reading', x: 24.5, y: 77, reading: '1500 lux' },
-        { label: 'Water Level Sensor', type: 'reading', x: 34, y: 77, reading: '75%' },
-        { label: '19', type: 'status', x: 61.3, y: 21, status: 'Off' },
-        { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },
-        { label: '(Readings/ Threshold)', x: 15.5, y: 85, type: 'break' },
-        { label: '(Readings/ Threshold)', x: 24.5, y: 85, type: 'break' },
-        { label: '(Readings/ Threshold)', x: 34, y: 85, type: 'break' },
-        { label: 'ON/OFF', type: 'title', x: 48.5, y: 48 },
-        { label: 'ON/OFF, (Readings/Threshold)', type: 'title', x: 61.5, y: 11 },
-        { label: 'Solenoid Valve ON/OFF', type: 'title', x: 68, y: 37 },
+
       ],
       hoveredIndex: null,
       tooltipX: 0,
@@ -290,48 +272,101 @@ export default {
         { x: 41, y: 67, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
         { x: 23, y: 68, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
       ],
-      sensors: [
-        { number: 1, data: { temperature: 25, humidity: 60, pressure: 1012, co2: 400 } },
-        { number: 2, data: { temperature: 26, humidity: 65, pressure: 1013, co2: 410 } },
-        { number: 3, data: { temperature: 27, humidity: 70, pressure: 1014, co2: 420 } },
-        { number: 4, data: { temperature: 28, humidity: 75, pressure: 1015, co2: 430 } },
-        { number: 5, data: { temperature: 29, humidity: 80, pressure: 1016, co2: 440 } },
-        { number: 6, data: { temperature: 30, humidity: 85, pressure: 1017, co2: 450 } },
-        { number: 7, data: { temperature: 31, humidity: 90, pressure: 1018, co2: 460 } },
-        { number: 8, data: { temperature: 32, humidity: 95, pressure: 1019, co2: 470 } },
-        { number: 9, data: { temperature: 33, humidity: 60, pressure: 1020, co2: 480 } },
-        { number: 10, data: { temperature: 34, humidity: 65, pressure: 1021, co2: 490 } },
-        { number: 11, data: { temperature: 35, humidity: 70, pressure: 1022, co2: 500 } },
-        { number: 12, data: { temperature: 36, humidity: 75, pressure: 1023, co2: 510 } },
-        { number: 13, data: { temperature: 37, humidity: 80, pressure: 1024, co2: 520 } },
-        { number: 14, data: { temperature: 38, humidity: 85, pressure: 1025, co2: 530 } },
-        { number: 15, data: { temperature: 39, humidity: 90, pressure: 1026, co2: 540 } },
-        { number: 16, data: { temperature: 40, humidity: 95, pressure: 1027, co2: 550 } },
-        { number: 17, data: { temperature: 41, humidity: 60, pressure: 1028, co2: 560 } },
-        { number: 18, data: { temperature: 42, humidity: 65, pressure: 1029, co2: 570 } },
-        { number: 19, data: { temperature: 43, humidity: 70, pressure: 1030, co2: 580 } },
-        { number: 20, data: { temperature: 44, humidity: 75, pressure: 1031, co2: 590 } },
-        { number: 21, data: { temperature: 45, humidity: 80, pressure: 1032, co2: 600 } },
-        { number: 22, data: { temperature: 46, humidity: 85, pressure: 1033, co2: 610 } },
-        { number: 23, data: { temperature: 47, humidity: 90, pressure: 1034, co2: 620 } },
-        { number: 24, data: { temperature: 48, humidity: 95, pressure: 1035, co2: 630 } },
-        { number: 25, data: { temperature: 49, humidity: 60, pressure: 1036, co2: 640 } },
-        { number: 26, data: { temperature: 50, humidity: 65, pressure: 1037, co2: 650 } },
-        { number: 27, data: { temperature: 51, humidity: 70, pressure: 1038, co2: 660 } },
-        { number: 28, data: { temperature: 52, humidity: 75, pressure: 1039, co2: 670 } },
-        { number: 29, data: { temperature: 53, humidity: 80, pressure: 1040, co2: 680 } },
-        { number: 30, data: { temperature: 54, humidity: 85, pressure: 1041, co2: 690 } },
-        { number: 31, data: { temperature: 55, humidity: 90, pressure: 1042, co2: 700 } },
-        { number: 32, data: { temperature: 56, humidity: 95, pressure: 1043, co2: 710 } },
-        { number: 33, data: { temperature: 57, humidity: 60, pressure: 1044, co2: 720 } },
-        { number: 34, data: { temperature: 58, humidity: 65, pressure: 1045, co2: 730 } },
-        { number: 35, data: { temperature: 59, humidity: 70, pressure: 1046, co2: 740 } },
-        { number: 36, data: { temperature: 60, humidity: 75, pressure: 1047, co2: 750 } },
-      ],
+      sensors: [],
       isAllOn: false, // Track if "ALL ON" is active or not
     };
   },
   methods: {
+    async fetchSensorData() {
+      try {
+        const response = await axios.get(
+          'https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/outdoor'
+        );
+
+        const sensorData = [
+          response.data['aaaa202406140017'],
+          response.data['aaaa202406140009'],
+          response.data['aaaa202406140005'],
+          response.data['aaaa202406140006'],
+          response.data['aaaa202406140007'],
+          response.data['aaaa202406140008'],
+          response.data['aaaa202406140010'],
+          response.data['aaaa202406140011'],
+          response.data['aaaa202406140012'],
+          response.data['aaaa202406140015'],
+          response.data['aaaa202406140004'],
+          response.data['aaaa202406140001'],
+          response.data['aaaa202406140002'],
+        ];
+
+        // Adding 4 more duplicated data points to match 17 sensors
+        for (let i = 0; i < 4; i++) {
+          sensorData.push(sensorData[i]);
+        }
+
+        this.relationPoints = sensorData.map((sensor, index) => ({
+          number: index + 1,
+          type: 'sensor',
+          data: {
+            temperature: sensor.Temperature,
+            soilMoisture: sensor.SoilMoisture,
+            pH: sensor.pH,
+            ec: sensor.EC,
+            n: sensor.N,
+            p: sensor.P,
+            k: sensor.K,
+            batteryVoltage: sensor.BatteryVoltage,
+          },
+        }));
+
+        // Populate the sensors array for the Sensors tab
+        this.sensors = this.relationPoints.map((point) => ({
+          number: point.number,
+          data: point.data,
+        }));
+
+        // Include the Solenoid Valves and other static relation points
+        const solenoidValves = [
+          { label: '1', type: 'Valve', x: 68, y: 47 },
+          { label: '2', type: 'Valve', x: 72.5, y: 47, status: 'Off' },
+          { label: '3', type: 'Valve', x: 77, y: 47 },
+          { label: '4', type: 'Valve', x: 81.7, y: 47 },
+          { label: '5', type: 'Valve', x: 86.5, y: 47 },
+          { label: '6', type: 'Valve', x: 68, y: 55 },
+          { label: '7', type: 'Valve', x: 72.5, y: 55 },
+          { label: '8', type: 'Valve', x: 77, y: 55 },
+          { label: '9', type: 'Valve', x: 81.7, y: 55 },
+          { label: '10', type: 'Valve', x: 86.5, y: 55 },
+          { label: '11', type: 'Valve', x: 68, y: 62.5 },
+          { label: '12', type: 'Valve', x: 72.6, y: 62.5 },
+          { label: '13', type: 'Valve', x: 77.3, y: 62.5 },
+          { label: '14', type: 'Valve', x: 81.9, y: 62.5 },
+          { label: '15', type: 'Valve', x: 86.7, y: 62.5 },
+          { label: '16', type: 'Valve', x: 68, y: 70 },
+          { label: '17', type: 'Valve', x: 72.7, y: 70 },
+        ];
+
+        const additionalPoints = [
+          { label: '1', type: 'status', x: 48.4, y: 57, status: 'On' },
+          { label: 'Rainfall Sensor', type: 'reading', x: 15.4, y: 77, reading: '10 mm' },
+          { label: 'Lux Sensor', type: 'reading', x: 24.5, y: 77, reading: '1500 lux' },
+          { label: 'Water Level Sensor', type: 'reading', x: 34, y: 77, reading: '75%' },
+          { label: '19', type: 'status', x: 61.3, y: 21, status: 'Off' },
+          { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },
+          { label: '(Readings/ Threshold)', x: 15.5, y: 85, type: 'break' },
+          { label: '(Readings/ Threshold)', x: 24.5, y: 85, type: 'break' },
+          { label: '(Readings/ Threshold)', x: 34, y: 85, type: 'break' },
+          { label: 'ON/OFF', type: 'title', x: 48.5, y: 48 },
+          { label: 'ON/OFF, (Readings/Threshold)', type: 'title', x: 61.5, y: 11 },
+          { label: 'Solenoid Valve ON/OFF', type: 'title', x: 68, y: 37 },
+        ];
+
+        this.relationPoints = this.relationPoints.concat(solenoidValves, additionalPoints);
+
+      } catch (error) {
+        console.error('Error fetching sensor data:', error);
+      }
+    },
     showValue(index, event) {
       const containerRect = event.currentTarget.getBoundingClientRect();
       const pointRect = event.target.getBoundingClientRect();
@@ -371,7 +406,7 @@ export default {
       const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
       const payload = {
         deviceEui: deviceEUI,
-        switchStates: switchStates.map(state => state ? 1 : 0)
+        switchStates: switchStates.map((state) => (state ? 1 : 0)),
       };
 
       console.log('Preparing to send payload:', payload);
@@ -418,7 +453,7 @@ export default {
       console.log('All switches:', switchStates);
 
       // Update all icons' status based on the switch state
-      this.icons.forEach(icon => {
+      this.icons.forEach((icon) => {
         icon.isOn = state;
       });
     },
@@ -462,16 +497,18 @@ export default {
         this.setAllSwitches(false, '24e124756e049516');
         this.setAllSwitches(false, '24E124756E049454');
       }, 20 * 60 * 1000); // 20 minutes in milliseconds
-    }
+    },
   },
   mounted() {
+    this.fetchSensorData(); // Fetch sensor data on mount
+
     // Schedule automatic valve operation at 7AM and 1PM
     const scheduleTimes = [
       { hour: 7, minute: 0 },
-      { hour: 13, minute: 0 }
+      { hour: 13, minute: 0 },
     ];
 
-    scheduleTimes.forEach(schedule => {
+    scheduleTimes.forEach((schedule) => {
       const now = new Date();
       const targetTime = new Date();
       targetTime.setHours(schedule.hour, schedule.minute, 0, 0);
@@ -485,7 +522,7 @@ export default {
         this.testValveOperation();
       }, timeUntilOperation);
     });
-  }
+  },
 };
 </script>
 
@@ -503,7 +540,8 @@ body {
 }
 
 .link-button .btn {
-  margin-right: 20px; /* Adds spacing between buttons */
+  margin-right: 20px;
+  /* Adds spacing between buttons */
   padding: 10px 20px;
   font-size: 1.25rem;
 }
@@ -564,7 +602,7 @@ h2 {
 }
 
 .point-label {
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   white-space: pre-line;
   text-align: center;
 }
@@ -626,8 +664,10 @@ h2 {
 }
 
 .device-status-card {
-  width: 15%; /* Adjust width to your needs */
-  margin: 0 10px; /* Add margin to space out the cards */
+  width: 15%;
+  /* Adjust width to your needs */
+  margin: 0 10px;
+  /* Add margin to space out the cards */
   padding: 10px;
   text-align: center;
   background-color: #e9f7fd;

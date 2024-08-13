@@ -44,7 +44,8 @@
               {{ currentBMSIndex === 0 ? subsystem.name : bms[currentBMSIndex].name }}
             </h4>
             <h4 v-else-if="subsystem.name === 'Smart Pest Control System Overview'">
-              {{ currentSmartPestControlIndex === 0 ? subsystem.name : smartPestControl[currentSmartPestControlIndex].name }}
+              {{ currentSmartPestControlIndex === 0 ? subsystem.name :
+                smartPestControl[currentSmartPestControlIndex].name }}
             </h4>
             <h4 v-else-if="subsystem.name === 'Smart Security System Overview'">
               {{ currentSmartSecurityIndex === 0 ? subsystem.name : smartSecurity[currentSmartSecurityIndex].name }}
@@ -58,8 +59,9 @@
             <div v-if="subsystem.name === 'Fire Alarm System Overview'">
               <SemiCircleProgressBar v-if="currentFireAlarmIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
-                <p>Status: {{ fireAlarms[currentFireAlarmIndex].status }} 
-                  <span :class="['status-dot', {'status-online': fireAlarms[currentFireAlarmIndex].status === 'Online', 'status-offline': fireAlarms[currentFireAlarmIndex].status === 'Offline'}]"></span>
+                <p>Status: {{ fireAlarms[currentFireAlarmIndex].status }}
+                  <span
+                    :class="['status-dot', { 'status-online': fireAlarms[currentFireAlarmIndex].status === 'Online', 'status-offline': fireAlarms[currentFireAlarmIndex].status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ fireAlarms[currentFireAlarmIndex].lastUpdated }}</p>
               </div>
@@ -93,7 +95,8 @@
               <SemiCircleProgressBar v-if="currentSmartLandscapeIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Status: {{ smartLandscape[currentSmartLandscapeIndex].status }}
-                  <span :class="['status-dot', {'status-online': smartLandscape[currentSmartLandscapeIndex].status === 'Online', 'status-offline': smartLandscape[currentSmartLandscapeIndex].status === 'Offline'}]"></span>
+                  <span
+                    :class="['status-dot', { 'status-online': smartLandscape[currentSmartLandscapeIndex].status === 'Online', 'status-offline': smartLandscape[currentSmartLandscapeIndex].status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ smartLandscape[currentSmartLandscapeIndex].lastUpdated }}</p>
               </div>
@@ -102,7 +105,8 @@
               <SemiCircleProgressBar v-if="currentSmartToiletIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Status: {{ smartToilet[currentSmartToiletIndex].status }}
-                  <span :class="['status-dot', {'status-online': smartToilet[currentSmartToiletIndex].status === 'Online', 'status-offline': smartToilet[currentSmartToiletIndex].status === 'Offline'}]"></span>
+                  <span
+                    :class="['status-dot', { 'status-online': smartToilet[currentSmartToiletIndex].status === 'Online', 'status-offline': smartToilet[currentSmartToiletIndex].status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ smartToilet[currentSmartToiletIndex].lastUpdated }}</p>
               </div>
@@ -118,7 +122,8 @@
               <SemiCircleProgressBar v-if="currentSmartPestControlIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Status: {{ smartPestControl[currentSmartPestControlIndex].status }}
-                  <span :class="['status-dot', {'status-online': smartPestControl[currentSmartPestControlIndex].status === 'Online', 'status-offline': smartPestControl[currentSmartPestControlIndex].status === 'Offline'}]"></span>
+                  <span
+                    :class="['status-dot', { 'status-online': smartPestControl[currentSmartPestControlIndex].status === 'Online', 'status-offline': smartPestControl.currentSmartPestControlIndex.status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ smartPestControl[currentSmartPestControlIndex].lastUpdated }}</p>
               </div>
@@ -127,7 +132,8 @@
               <SemiCircleProgressBar v-if="currentSmartSecurityIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Status: {{ smartSecurity[currentSmartSecurityIndex].status }}
-                  <span :class="['status-dot', {'status-online': smartSecurity[currentSmartSecurityIndex].status === 'Online', 'status-offline': smartSecurity[currentSmartSecurityIndex].status === 'Offline'}]"></span>
+                  <span
+                    :class="['status-dot', { 'status-online': smartSecurity[currentSmartSecurityIndex].status === 'Online', 'status-offline': smartSecurity.currentSmartSecurityIndex.status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ smartSecurity[currentSmartSecurityIndex].lastUpdated }}</p>
               </div>
@@ -136,7 +142,8 @@
               <SemiCircleProgressBar v-if="currentSmartLightingIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Status: {{ smartLighting[currentSmartLightingIndex].status }}
-                  <span :class="['status-dot', {'status-online': smartLighting[currentSmartLightingIndex].status === 'Online', 'status-offline': smartLighting[currentSmartLightingIndex].status === 'Offline'}]"></span>
+                  <span
+                    :class="['status-dot', { 'status-online': smartLighting[currentSmartLightingIndex].status === 'Online', 'status-offline': smartLighting[currentSmartLightingIndex].status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ smartLighting[currentSmartLightingIndex].lastUpdated }}</p>
               </div>
@@ -145,7 +152,8 @@
               <SemiCircleProgressBar v-if="currentHybridAirIndex === 0" :percentage="subsystem.operational" />
               <div v-else>
                 <p>Status: {{ hybridAir[currentHybridAirIndex].status }}
-                  <span :class="['status-dot', {'status-online': hybridAir[currentHybridAirIndex].status === 'Online', 'status-offline': hybridAir[currentHybridAirIndex].status === 'Offline'}]"></span>
+                  <span
+                    :class="['status-dot', { 'status-online': hybridAir[currentHybridAirIndex].status === 'Online', 'status-offline': hybridAir[currentHybridAirIndex].status === 'Offline' }]"></span>
                 </p>
                 <p>Last Updated: {{ hybridAir[currentHybridAirIndex].lastUpdated }}</p>
               </div>
@@ -183,15 +191,12 @@
         <h4>Fault Call / Ticket</h4>
         <router-link to="/quick-links" class="view-all-link">View All</router-link>
         <div class="links-content">
-          <div
-            v-for="(link, index) in quickLinks"
-            :key="index"
-            :class="['quick-link-item', link.status]"
-          >
-            {{ link.label }}
+          <div v-for="(fault, index) in faults" :key="index"
+            :class="['quick-link-item', fault.status === 'work_completed' ? 'completed' : 'pending']">
+            {{ fault.fault_number }} – {{ fault.trade_name }} [{{ fault.type_name }}]
           </div>
         </div>
-      </div>  
+      </div>
     </div>
   </div>
 </template>
@@ -221,6 +226,7 @@ export default {
       currentSmartSecurityIndex: 0,
       currentSmartLightingIndex: 0,
       currentHybridAirIndex: 0,
+      faults: [], // Store fault data
       progressData: [
         { label: 'Energy Efficiency', value: 100 },
         { label: 'Water Usage', value: 100 },
@@ -580,9 +586,19 @@ export default {
           return 1;
       }
     },
-    navigateToLink(url) {
-      window.open(url, '_blank');
-    }
+    async fetchFaults() {
+      try {
+        const response = await fetch('https://octopus-app-afr3m.ondigitalocean.app/api/Faults');
+        const data = await response.json();
+        console.log(data); // Add this line to check the fetched data
+        this.faults = data.slice(0, 3); // Only take the first 3 items
+      } catch (error) {
+        console.error('Error fetching faults:', error);
+      }
+    },
+  },
+  created() {
+    this.fetchFaults(); // Fetch fault data when the component is created
   },
 };
 </script>
@@ -599,33 +615,52 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px solid #d3d3d3; /* Updated border color */
+  border: 2px solid #d3d3d3;
+  /* Updated border color */
 }
 
 .links-content {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Adjust the gap between buttons as needed */
-  margin-top: 10px; /* Add margin to separate the title and content */
-  width: 100%; /* Ensure it fills the available width */
+  gap: 10px;
+  /* Adjust the gap between buttons as needed */
+  margin-top: 10px;
+  /* Add margin to separate the title and content */
+  width: 100%;
+  /* Ensure it fills the available width */
 }
 
 .quick-link-item {
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%; /* Ensure it fills the available width */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  text-align: left; /* Align text to the left */
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
 }
 
+/* Completed status - green background */
+.quick-link-item.completed {
+  background-color: #90ee90; /* Light green */
+  color: black;
+}
+
+/* Pending status - orange background */
+.quick-link-item.pending {
+  background-color: #ff9900; /* Orange */
+  color: white;
+}
+
+
 .quick-link-item.clear {
-  background-color: #90ee90; /* Green background for clear status */
+  background-color: #90ee90;
+  /* Green background for clear status */
   color: black;
 }
 
 .quick-link-item.leakage {
-  background-color: #ff4c4c; /* Red background for leakage status */
+  background-color: #ff4c4c;
+  /* Red background for leakage status */
   color: yellow;
 }
 
@@ -642,7 +677,7 @@ export default {
   color: #0056b3;
 }
 
-.overview-container {  
+.overview-container {
   background-color: #d6ecfa;
   display: grid;
   grid-template-columns: 3fr 3fr;
@@ -661,7 +696,8 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid #d3d3d3; /* Updated border color */
+  border: 2px solid #d3d3d3;
+  /* Updated border color */
 }
 
 .progress-bars {
@@ -682,13 +718,15 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid #d3d3d3; /* Updated border color */
+  border: 2px solid #d3d3d3;
+  /* Updated border color */
 }
 
 .additional-cards {
   grid-area: additional-cards;
   display: flex;
-  justify-content: flex-end; /* Aligns items to the right */
+  justify-content: flex-end;
+  /* Aligns items to the right */
   gap: 20px;
   height: 250px;
 }
@@ -704,23 +742,30 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 2px solid #d3d3d3; /* Updated border color */
+  border: 2px solid #d3d3d3;
+  /* Updated border color */
 }
 
 .additional-card.auto-scroll-feed {
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Ensures content stays within the card */
-  flex: 1; /* Takes up remaining space */
-  width: 100%; /* Ensure it fills the available width */
+  overflow: hidden;
+  /* Ensures content stays within the card */
+  flex: 1;
+  /* Takes up remaining space */
+  width: 100%;
+  /* Ensure it fills the available width */
 }
 
 .feed-wrapper {
   position: relative;
   height: 100%;
-  overflow: hidden; /* Ensures content stays within the card */
-  margin-top: 10px; /* Add margin to separate the title and content */
-  width: 100%; /* Ensure it fills the available width */
+  overflow: hidden;
+  /* Ensures content stays within the card */
+  margin-top: 10px;
+  /* Add margin to separate the title and content */
+  width: 100%;
+  /* Ensure it fills the available width */
 }
 
 .feed-content {
@@ -729,7 +774,8 @@ export default {
   position: absolute;
   top: 0;
   animation: scroll 20s linear infinite;
-  width: 100%; /* Ensure it fills the available width */
+  width: 100%;
+  /* Ensure it fills the available width */
 }
 
 .feed-item {
@@ -737,16 +783,20 @@ export default {
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
-  width: 100%; /* Ensure it fills the available width */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  width: 100%;
+  /* Ensure it fills the available width */
+  box-sizing: border-box;
+  /* Include padding and border in the element's total width and height */
 }
 
 @keyframes scroll {
   0% {
     transform: translateY(0%);
   }
+
   100% {
-    transform: translateY(calc(-100% - 10px)); /* Adjust this value to ensure correct scrolling distance */
+    transform: translateY(calc(-100% - 10px));
+    /* Adjust this value to ensure correct scrolling distance */
   }
 }
 
@@ -777,8 +827,10 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid #d3d3d3; /* Updated border color */
-  position: relative; /* Make the parent div the positioning context */
+  border: 2px solid #d3d3d3;
+  /* Updated border color */
+  position: relative;
+  /* Make the parent div the positioning context */
 }
 
 .summary-content,
@@ -790,7 +842,8 @@ export default {
 
 .subsystems-container {
   display: flex;
-  justify-content: center; /* Center align the cards */
+  justify-content: center;
+  /* Center align the cards */
   align-items: center;
   position: relative;
 }
@@ -814,10 +867,14 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 2px solid #d3d3d3; /* Updated border color */
-  width: 93%; /* Fixed width */
-  height: 96%; /* Fixed height */
-  box-sizing: border-box; /* Ensures padding and border are included in the width and height */
+  border: 2px solid #d3d3d3;
+  /* Updated border color */
+  width: 93%;
+  /* Fixed width */
+  height: 96%;
+  /* Fixed height */
+  box-sizing: border-box;
+  /* Ensures padding and border are included in the width and height */
 }
 
 .scroll-button {
@@ -830,22 +887,27 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  padding: 0 0px; /* Add padding to the left and right */
+  padding: 0 0px;
+  /* Add padding to the left and right */
 }
 
 .scroll-button.left {
-  left: 0px; /* Adjust as needed */
+  left: 0px;
+  /* Adjust as needed */
 }
 
 .scroll-button.right {
-  right: 0px; /* Adjust as needed */
+  right: 0px;
+  /* Adjust as needed */
 }
 
 .subsystem-card h4 {
   color: black;
   text-align: center;
-  line-height: 1.3; /* Adjust line height for better spacing */
-  height: 3em; /* Ensures the title takes up enough space for two lines */
+  line-height: 1.3;
+  /* Adjust line height for better spacing */
+  height: 3em;
+  /* Ensures the title takes up enough space for two lines */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -919,7 +981,8 @@ export default {
 
 .page-indicators {
   position: absolute;
-  bottom: -3px; /* Adjust as needed */
+  bottom: -3px;
+  /* Adjust as needed */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;

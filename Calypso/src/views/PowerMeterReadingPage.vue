@@ -9,12 +9,13 @@
             <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to Main</button>
             <img :src="currentImage" alt="Smart Energy Overview" class="img-fluid" @click="handleImageClick">
             <div class="boxes-overlay">
-              <div v-for="(box, index) in currentBoxes" :key="index" class="box"
-                :class="{ 'disable-hover': box.label === 'B05-11/12' }" :style="{ top: box.top, left: box.left }"
-                @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)"
-                @mouseleave="hidePopup()"
-                @click="handleBoxClick(index)">
-                <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
+              <div v-for="(box, index) in currentBoxes" :key="index" 
+                   :class="['box', currentImageIndex === 0 ? 'first-page-box' : 'second-page-box']"
+                   :style="{ top: box.top, left: box.left }"
+                   @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)"
+                   @mouseleave="hidePopup()"
+                   @click="handleBoxClick(index)">
+                   <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
               </div>
             </div>
           </div>
@@ -47,7 +48,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -88,7 +88,7 @@ export default {
       popupY: 0,
       chartData: [],
       floorSelectionBoxes: [
-        { label: 'B05-11/12', top: '168px', left: '50px' }
+        { label: 'B05-11/12', top: '6%', left: '17%', totalVoltage: 'N/A', totalConsumption: 'N/A', month: 'N/A' }
       ]
     };
   },
@@ -104,40 +104,88 @@ export default {
     async fetchData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
-        this.boxes = [
-          { label: ' ', data: response.data[0] || {}, top: '168px', left: '50px' },
-          { label: ' ', data: response.data[1] || {}, top: '168px', left: '114px' },
-          { label: ' ', data: response.data[2] || {}, top: '168px', left: '178px' },
-          { label: ' ', data: response.data[3] || {}, top: '168px', left: '239px' },
-          { label: ' ', data: response.data[4] || {}, top: '168px', left: '300px' },
-          { label: ' ', data: response.data[5] || {}, top: '168px', left: '364px' },
-          { label: ' ', data: response.data[6] || {}, top: '168px', left: '427px' },
-          { label: ' ', data: response.data[7] || {}, top: '168px', left: '488px' },
-          { label: ' ', data: response.data[8] || {}, top: '168px', left: '549px' },
-          { label: ' ', data: response.data[9] || {}, top: '168px', left: '610px' },
-          { label: ' ', data: response.data[10] || {}, top: '238px', left: '50px' },
-          { label: ' ', data: response.data[11] || {}, top: '238px', left: '114px' },
-          { label: ' ', data: response.data[12] || {}, top: '238px', left: '178px' },
-          { label: ' ', data: response.data[13] || {}, top: '238px', left: '239px' },
-          { label: ' ', data: response.data[14] || {}, top: '238px', left: '300px' },
-          { label: ' ', data: response.data[15] || {}, top: '238px', left: '364px' },
-          { label: ' ', data: response.data[16] || {}, top: '238px', left: '427px' },
-          { label: ' ', data: response.data[17] || {}, top: '238px', left: '488px' },
-          { label: ' ', data: response.data[18] || {}, top: '238px', left: '549px' },
-          { label: ' ', data: response.data[19] || {}, top: '238px', left: '610px' },
-          { label: ' ', data: response.data[20] || {}, top: '311px', left: '50px' },
-          { label: ' ', data: response.data[21] || {}, top: '311px', left: '114px' },
-          { label: ' ', data: response.data[22] || {}, top: '311px', left: '178px' },
-          { label: ' ', data: response.data[23] || {}, top: '311px', left: '239px' },
-          { label: ' ', data: response.data[24] || {}, top: '311px', left: '300px' },
-          { label: ' ', data: response.data[25] || {}, top: '311px', left: '364px' },
-          { label: ' ', data: response.data[26] || {}, top: '311px', left: '427px' },
-          { label: ' ', data: response.data[27] || {}, top: '311px', left: '488px' },
-        ];
+        
+        // Variables to store the total voltage and consumption
+        let totalVoltage = 0;
+        let totalConsumption = 0;
+
+        this.boxes = response.data.map((item, index) => {
+          const position = this.getBoxPosition(index);
+
+          if (!position) {
+            console.error(`No position found for index ${index}`);
+            return null; // Skip this box if no position is found
+          }
+
+          // Calculate total voltage and consumption
+          totalVoltage += item.ua || 0;  // Assuming 'ua' is the voltage key
+          totalConsumption += item.epi || 0;  // Assuming 'epi' is the consumption key
+
+          return {
+            label: ' ',
+            data: item,
+            top: position.top,
+            left: position.left,
+            totalVoltage: item.totalVoltage || 'N/A', // For individual display if needed
+            month: item.month || 'N/A',              // For individual display if needed
+            totalConsumption: item.totalConsumption || 'N/A' // For individual display if needed
+          };
+        }).filter(box => box !== null); // Filter out any null values
+
+        // Assuming the data contains a 'month' key for the month
+        const month = response.data.length > 0 ? response.data[0].month : 'N/A';
+
+        // Save calculated values to a specific box for display
+        this.floorSelectionBoxes[0].totalVoltage = totalVoltage.toFixed(2);  // Two decimal places
+        this.floorSelectionBoxes[0].totalConsumption = totalConsumption.toFixed(2);  // Two decimal places
+        this.floorSelectionBoxes[0].month = month;
+
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
+
+    getBoxPosition(index) {
+      const positions = [
+        { top: '168px', left: '50px' },
+        { top: '168px', left: '114px' },
+        { top: '168px', left: '178px' },
+        { top: '168px', left: '239px' },
+        { top: '168px', left: '300px' },
+        { top: '168px', left: '364px' },
+        { top: '168px', left: '427px' },
+        { top: '168px', left: '488px' },
+        { top: '168px', left: '549px' },
+        { top: '168px', left: '610px' },
+        { top: '238px', left: '50px' },
+        { top: '238px', left: '114px' },
+        { top: '238px', left: '178px' },
+        { top: '238px', left: '239px' },
+        { top: '238px', left: '300px' },
+        { top: '238px', left: '364px' },
+        { top: '238px', left: '427px' },
+        { top: '238px', left: '488px' },
+        { top: '238px', left: '549px' },
+        { top: '238px', left: '610px' },
+        { top: '311px', left: '50px' },
+        { top: '311px', left: '114px' },
+        { top: '311px', left: '178px' },
+        { top: '311px', left: '239px' },
+        { top: '311px', left: '300px' },
+        { top: '311px', left: '364px' },
+        { top: '311px', left: '427px' },
+        { top: '311px', left: '488px' },
+      ];
+
+      // Check if the index is within the positions array length
+      if (index >= positions.length) {
+        console.warn(`Index ${index} exceeds positions array length`);
+        return null;
+      }
+
+      return positions[index];
+    },
+
     showPopup(box, event) {
       if (box.label !== 'B05-11/12') {
         this.popupData = box.data || {};
@@ -146,9 +194,11 @@ export default {
         this.popupVisible = true;
       }
     },
+
     hidePopup() {
       this.popupVisible = false;
     },
+
     updateChart(box) {
       this.chartData = [
         { label: 'Voltage', value: box.data.ua },
@@ -157,12 +207,15 @@ export default {
         // Add more data points as needed
       ];
     },
+
     navigateTo3DLandscape() {
       window.location.href = "https://visualizer-lite-html.vercel.app/?site=23&levels=94";
     },
+
     goToMainImage() {
       this.currentImageIndex = 0;
     },
+
     handleBoxClick(index) {
       // Handle navigation for B05-11/12 box
       if (this.currentImageIndex === 0 && this.floorSelectionBoxes[index].label === 'B05-11/12') {
@@ -171,6 +224,7 @@ export default {
       }
     }
   },
+
   mounted() {
     this.fetchData();
   }
@@ -186,7 +240,6 @@ export default {
 .view-container {
   display: flex;
   flex-direction: column;
-  /* Ensures the content stacks vertically */
   justify-content: center;
   align-items: center;
   background-color: #f8f9fa;
@@ -202,7 +255,6 @@ export default {
 
 .image-container img {
   max-width: 100%;
-  /* Adjust as needed */
   height: auto;
 }
 
@@ -232,8 +284,8 @@ export default {
 }
 
 .box.disable-hover {
-  cursor: pointer; /* Ensure cursor changes on hover */
-  pointer-events: auto; /* Enable click on the box */
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .boxes-container {
@@ -243,19 +295,28 @@ export default {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  /* Allows clicks to pass through */
 }
 
 .box {
   position: absolute;
-  width: 55px;
-  height: 62px;
+  width: 8%;
+  height: 15%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   pointer-events: auto;
-  /* Allows clicks on the boxes */
+}
+
+.first-page-box {
+  width: 15%;  /* Adjust this size for the first page */
+  height: 43%;
+}
+
+.second-page-box {
+  width: 8%;  /* Original size for the second page */
+  height: 15%;
 }
 
 .popup {
@@ -267,10 +328,21 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   max-width: 250px;
-  /* Adjust as needed */
 }
 
 .popup p {
   margin: 5px 0;
+}
+
+.box img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.box p {
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
 }
 </style>

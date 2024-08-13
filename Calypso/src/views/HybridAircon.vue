@@ -134,10 +134,10 @@ export default {
       allDampenerOn: false,
       allAirconOn: false,
       devices: [
-        { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: false, lastUpdated: '2024-05-29 14:30:00' }
+        { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
+        { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: true , lastUpdated: '2024-05-29 14:30:00' }
       ],
       sensors: [
         { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 1', isOnline: false },

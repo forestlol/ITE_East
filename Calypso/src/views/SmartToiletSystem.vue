@@ -28,10 +28,23 @@
                 :style="{ top: `${tooltipY}px`, left: `${tooltipX}px` }"
               >
                 <h5>{{ icon.label }}</h5>
-                <p>Temperature: {{ icon.temperature }}°C</p>
-                <p>Humidity: {{ icon.humidity }}%</p>
-                <p>Pressure: {{ icon.pressure }} hPa</p>
-                <p>CO2: {{ icon.co2 }} ppm</p>
+                <template v-if="icon.type === 'Water Meter'">
+                  <p>Water Flow: {{ icon.waterFlow }} L/min</p>
+                  <p>Water Consumption: {{ icon.waterConsumption }} L</p>
+                </template>
+                <template v-else-if="icon.type === 'People Counter'">
+                  <p>People Count: {{ icon.peopleCount }}</p>
+                </template>
+                <template v-else-if="icon.type === 'Odor Sensor'">
+                  <p>Ammonia Level: {{ icon.ammoniaLevel }} ppm</p>
+                  <p>Hydrogen Sulfide Level: {{ icon.hydrogenSulfideLevel }} ppm</p>
+                </template>
+                <template v-else>
+                  <p>Temperature: {{ icon.temperature }}°C</p>
+                  <p>Humidity: {{ icon.humidity }}%</p>
+                  <p>Pressure: {{ icon.pressure }} hPa</p>
+                  <p>CO2: {{ icon.co2 }} ppm</p>
+                </template>
               </div>
             </div>
           </div>
@@ -54,9 +67,7 @@
     </div>
   </div>
 </template>
-
 <script>
-import sensorIcon from '@/assets/sensor-icon.png'; // Adjust the path to your project structure
 import waterMeterIcon from '@/assets/water-meter-sensor.png';
 import peopleCounterIcon from '@/assets/peopleCounter.png';
 import odorIcon from '@/assets/Odor.png';
@@ -71,21 +82,18 @@ export default {
         { id: 3, name: 'Odor Sensor', type: 'Odor Sensor', isOnline: true },
         { id: 4, name: 'Gateway', type: 'LoRaWAN Gateway', isOnline: true },
       ],
-      hoveredIndex: null, // Keeps track of the hovered icon's index
-      tooltipX: 0, // X position for tooltip
-      tooltipY: 0, // Y position for tooltip
+      hoveredIndex: null,
+      tooltipX: 0,
+      tooltipY: 0,
       icons: [
-        { top: '30.4%', left: '41.5%', src: sensorIcon, label: 'Sensor 1', temperature: 42, humidity: 65, pressure: 1029, co2: 570 },
-        { top: '30.4%', left: '70.4%', src: sensorIcon, label: 'Sensor 2', temperature: 38, humidity: 60, pressure: 1015, co2: 480 },
-        { top: '48%', left: '32.3%', src: sensorIcon, label: 'Sensor 3', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '72%', left: '33.1%', src: sensorIcon, label: 'Sensor 4', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '63%', left: '68.1%', src: sensorIcon, label: 'Sensor 5', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '62%', left: '84%', src: sensorIcon, label: 'Sensor 6', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '48.6%', left: '49%', src: waterMeterIcon, label: 'Sensor 7', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '40.6%', left: '35%', src: peopleCounterIcon, label: 'Sensor 8', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '57.6%', left: '59.6%', src: peopleCounterIcon, label: 'Sensor 9', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '53.6%', left: '34.7%', src: odorIcon, label: 'Sensor 10', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
-        { top: '65%', left: '92.5%', src: odorIcon, label: 'Sensor 11', temperature: 40, humidity: 55, pressure: 1009, co2: 450 },
+        { top: '30.4%', left: '41.5%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34  },
+        { top: '30.4%', left: '70.4%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
+        { top: '48%', left: '32.3%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', waterFlow: 15, waterConsumption: 1200 },
+        { top: '72%', left: '33.1%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
+        { top: '53.6%', left: '34.7%', src: odorIcon, label: 'Odor Sensor', type: 'Odor Sensor', ammoniaLevel: 5, hydrogenSulfideLevel: 3 },
+        { top: '57.6%', left: '59.6%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
+        { top: '40.6%', left: '35%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34 },
+        { top: '65%', left: '92.5%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34 },
       ],
     };
   },
@@ -94,7 +102,7 @@ export default {
       const containerRect = event.currentTarget.getBoundingClientRect();
       const pointRect = event.target.getBoundingClientRect();
       this.tooltipX = pointRect.x + pointRect.width / 2 - containerRect.x;
-      this.tooltipY = pointRect.y - containerRect.y - 10; // Adjust for positioning above the point
+      this.tooltipY = pointRect.y - containerRect.y - 10;
       this.hoveredIndex = index;
     },
     hideValue() {
