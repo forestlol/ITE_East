@@ -15,6 +15,33 @@
           <h4>Floorplan</h4>
           <div class="map-container">
             <img src="@/assets/Sub System and Icons/V2/B05-11-12_empty.jpg" alt="Map View" class="map-image">
+
+            <!-- Slider Controls -->
+            <div class="slider-controls">
+              <div class="slider-control">
+                <label class="switch">
+                  <input type="checkbox" v-model="allFreshAirFanOn" @change="toggleAllFreshAirFans">
+                  <span class="slider round"></span>
+                </label>
+                <span>Fresh Air Fans All ON</span>
+              </div>
+              <div class="slider-control">
+                <label class="switch">
+                  <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
+                  <span class="slider round"></span>
+                </label>
+                <span>Motorized Dampeners All ON</span>
+              </div>
+              <div class="slider-control">
+                <label class="switch">
+                  <input type="checkbox" v-model="allAirconOn" @change="toggleAllAircons">
+                  <span class="slider round"></span>
+                </label>
+                <span>Aircons All ON</span>
+              </div>
+            </div>
+
+            <!-- Sensors -->
             <div
               v-for="sensor in sensors"
               :key="sensor.id"
@@ -28,12 +55,13 @@
                 :class="sensor.isOnline ? 'online' : 'offline'"
               ></span>
             </div>
+
+            <!-- Aircons (no @click) -->
             <div
               v-for="(aircon, index) in airconBoxes"
               :key="index"
               class="aircon-box"
               :style="{ top: aircon.top, left: aircon.left }"
-              @click="toggleAirconButtons(aircon)"
             >
               <img src="@/assets/aircon-icon.png" alt="Aircon Icon" class="icon-image">
               <span
@@ -41,15 +69,12 @@
                 :class="aircon.isOnline ? 'online' : 'offline'"
               ></span>
             </div>
-            <div class="all-buttons">
-              <button @click="setAllSwitches(true)" class="btn btn-primary">All ON</button>
-              <button @click="setAllSwitches(false)" class="btn btn-danger">All OFF</button>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Device Status Cards -->
     <div class="row mt-4">
       <div class="col-md-3" v-for="device in devices" :key="device.id">
         <div class="device-status-card">
@@ -72,6 +97,7 @@
       </div>
     </div>
 
+    <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
@@ -81,20 +107,19 @@
             <button type="button" class="btn-close" @click="closeModal">×</button>
           </div>
           <div class="modal-body text-center">
-            <button v-if="currentType === 'aircon'" @click="setAirconState(true, modalTitle)"
-              class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'aircon'" @click="setAirconState(false, modalTitle)"
-              class="btn btn-danger">OFF</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
-              @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
-              @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'aircon'" @click="setAirconState(true, modalTitle)" class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'aircon'" @click="setAirconState(false, modalTitle)" class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+
+
 <script>
 import axios from 'axios';
 
@@ -105,6 +130,9 @@ export default {
       showModal: false,
       modalTitle: '',
       currentType: '',
+      allFreshAirFanOn: false,
+      allDampenerOn: false,
+      allAirconOn: false,
       devices: [
         { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
         { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
@@ -117,13 +145,12 @@ export default {
         { id: 3, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
         { id: 4, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
       ],
-      switchStates: Array(8).fill(0), // Initialize with 8 elements
       airconBoxes: [
         { top: '76%', left: '37%', showButtons: false, name: 'FCU 1-1', isOnline: false },
         { top: '75%', left: '46%', showButtons: false, name: 'FCU 1-2', isOnline: false },
         { top: '73%', left: '59%', showButtons: false, name: 'FCU 2-1', isOnline: false },
         { top: '72%', left: '71%', showButtons: false, name: 'FCU 2-2', isOnline: false }
-      ], // Positions for aircon boxes
+      ],
 
       // Conditions Data
       conditions: [
@@ -239,6 +266,37 @@ export default {
     },
     updateCondition() {
       this.displayedCondition = this.selectedCondition;
+    },
+    toggleAllFreshAirFans() {
+      this.setAllDevicesState('freshAirFan', this.allFreshAirFanOn);
+    },
+    toggleAllDampeners() {
+      this.setAllDevicesState('dampener', this.allDampenerOn);
+    },
+    toggleAllAircons() {
+      this.setAllDevicesState('aircon', this.allAirconOn);
+    },
+    setAllDevicesState(deviceType, state) {
+      if (deviceType === 'freshAirFan') {
+        this.sensors.forEach(sensor => {
+          if (sensor.type === 'freshAirFan') {
+            sensor.isOnline = state;
+            this.setSwitch(state, 'freshAirFan');
+          }
+        });
+      } else if (deviceType === 'dampener') {
+        this.sensors.forEach(sensor => {
+          if (sensor.type === 'dampener') {
+            sensor.isOnline = state;
+            this.setSwitch(state, 'dampener');
+          }
+        });
+      } else if (deviceType === 'aircon') {
+        this.airconBoxes.forEach(aircon => {
+          aircon.isOnline = state;
+          this.setAirconState(state, aircon.name);
+        });
+      }
     }
   },
   mounted() {
@@ -249,7 +307,9 @@ export default {
   }
 };
 </script>
+
 <style scoped>
+/* Basic styling */
 .container-fluid {
   width: 100%;
   margin-bottom: 5rem;
@@ -403,15 +463,78 @@ h2 {
   border-radius: 5px;
 }
 
-/* Condition Label Styling */
-.condition-label p {
-  font-size: 1.2rem;
-  font-weight: bold;
-  background-color: #f0f8ff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+/* Slider Controls Styling */
+.slider-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slider-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-control span {
+  font-size: 14px;
+}
+
+/* Toggle Switch Styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 
 /* Modal Styles */
@@ -480,3 +603,4 @@ h2 {
   margin: 0 10px;
 }
 </style>
+
