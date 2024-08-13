@@ -6,7 +6,8 @@
         <a class="nav-link" :class="{ active: currentView === 'bms' }" @click="toggleView('bms')">BMS</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" :class="{ active: currentView === 'groupings' }" @click="toggleView('groupings')">Groupings</a>
+        <a class="nav-link" :class="{ active: currentView === 'groupings' }"
+          @click="toggleView('groupings')">Groupings</a>
       </li>
     </ul>
     <div v-if="currentView === 'bms'" class="tab-content">
@@ -58,34 +59,34 @@ export default {
       refreshInterval: null,
       search: '',
       sensorPositions: {
-        'NCE-02/Energy.DATA.CHW-FLOW-RT': { top: '517px', left: '184px' },
-        'NCE-02/Programming.AGILENT.CH-CHWR-TP': { top: '525px', left: '375px' },
-        'NCE-02/Programming.AGILENT.CH-CHWS-TP': { top: '499px', left: '399px' },
-        'NCE-02/Programming.AGILENT.CH-CWS-TP': { top: '230px', left: '642px' },
-        'NCE-02/FCB.Local Application.OA-T': { top: '67px', left: '567px' },
-        'NCE-02/FCB.Local Application.OA-H': { top: '95px', left: '567px' },
-        'NCE-02/FCB.Local Application.CT-TEMP': { top: '148px', left: '468px' },
-        'NCE-02/Energy.DATA.SYS-EFF': { top: '135px', left: '994px' },
-        'NCE-02/Energy.DATA.HEAT-BALANCE': { top: '135px', left: '1095px' },
-        'NCE-02/Energy.DATA.TOT-CLG-KW': { top: '135px', left: '788px' },
-        'NCE-02/Energy.DATA.TOT-ELEC-KW': { top: '135px', left: '892px' },
-        'NCE-02/Programming.AGILENT.CH-CWR-TP': { top: '227px', left: '494px' },
-        'NCE-02/FCB.Local Application.CDW FLOWRATE': { top: '260px', left: '518px' },
-        'NAE35-01/Field Bus MSTP1.FAC-6.VALVE': { top: '403px', left: '787px' },
-        'NAE35-01/Field Bus MSTP1.FAC-6.AHU CHW-F': { top: '458px', left: '681px' },
-        'NAE35-01/Field Bus MSTP1.FAC-6.SAT': { top: '338px', left: '1018px' },
-        'STOP 1': { top: '345px', left: '570px' },
-        'STOP 2': { top: '385px', left: '1020px' },
-        'STOP 3': { top: '555px', left: '976px' },
-        'STOP 4': { top: '325px', left: '310px' },
-        'STOP 5': { top: '147px', left: '186px' },
-        'STOP 6': { top: '576px', left: '82px' },
-        'OFF 1': { top: '412px', left: '1023px' },
-        'OFF 2': { top: '373px', left: '572px' },
-        'OFF 3': { top: '352px', left: '313px' },
-        'OFF 4': { top: '171px', left: '190px' },
-        'OFF 5': { top: '601px', left: '81px' },
-        'ALARM': { top: '600px', left: '937px' }
+        'NCE-02/Energy.DATA.CHW-FLOW-RT': { top: '77.625%', left: '16.33%' },
+        'NCE-02/Programming.AGILENT.CH-CHWR-TP': { top: '79.625%', left: '32.25%' },
+        'NCE-02/Programming.AGILENT.CH-CHWS-TP': { top: '75.375%', left: '34.25%' },
+        'NCE-02/Programming.AGILENT.CH-CWS-TP': { top: '37%', left: '56.5%' },
+        'NCE-02/FCB.Local Application.OA-T': { top: '12.375%', left: '50.25%' },
+        'NCE-02/FCB.Local Application.OA-H': { top: '16.875%', left: '50.25%' },
+        'NCE-02/FCB.Local Application.CT-TEMP': { top: '25.5%', left: '41.5%' },
+        'NCE-02/Energy.DATA.SYS-EFF': { top: '22.875%', left: '85.83%' },
+        'NCE-02/Energy.DATA.HEAT-BALANCE': { top: '22.875%', left: '94.25%' },
+        'NCE-02/Energy.DATA.TOT-CLG-KW': { top: '22.875%', left: '68.5%' },
+        'NCE-02/Energy.DATA.TOT-ELEC-KW': { top: '22.875%', left: '77.33%' },
+        'NCE-02/Programming.AGILENT.CH-CWR-TP': { top: '36.5%', left: '43.8%' },
+        'NCE-02/FCB.Local Application.CDW FLOWRATE': { top: '42%', left: '45.5%' },
+        'NAE35-01/Field Bus MSTP1.FAC-6.VALVE': { top: '63.375%', left: '68.5%' },
+        'NAE35-01/Field Bus MSTP1.FAC-6.AHU CHW-F': { top: '71.66%', left: '59.75%' },
+        'NAE35-01/Field Bus MSTP1.FAC-6.SAT': { top: '53.5%', left: '88.3%' },
+        'STOP 1': { top: '54.5%', left: '50.3%' },
+        'STOP 2': { top: '60.5%', left: '88.5%' },
+        'STOP 3': { top: '86.375%', left: '84.8%' },
+        'STOP 4': { top: '51.625%', left: '28.3%' },
+        'STOP 5': { top: '24.375%', left: '17.7%' },
+        'STOP 6': { top: '89%', left: '8.6%' },
+        'OFF 1': { top: '64.5%', left: '88.5%' },
+        'OFF 2': { top: '58.625%', left: '50.2%' },
+        'OFF 3': { top: '55.5%', left: '28.08%' },
+        'OFF 4': { top: '28.375%', left: '17.7%' },
+        'OFF 5': { top: '93.125%', left: '8.5%' },
+        'ALARM': { top: '93%', left: '82.08%' }
       },
       lastUpdated: ''
     };
@@ -304,11 +305,12 @@ export default {
 
 .image-container {
   position: relative;
+  width: 100%; /* Ensure the image container is 100% of the parent */
 }
 
 .background-image {
   width: 100%;
-  height: auto;
+  height: auto; /* Maintain aspect ratio */
 }
 
 .sensor-value {
@@ -316,8 +318,9 @@ export default {
   padding: 5px;
   border-radius: 3px;
   font-weight: bold;
-  /* Adjust styles as needed */
+  transform: translate(-50%, -50%); /* Center the sensor value on the position */
 }
+
 
 .slantedNegative {
   transform: rotate(-20deg);
