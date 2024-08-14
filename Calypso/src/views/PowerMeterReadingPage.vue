@@ -7,20 +7,24 @@
           <h4 class="text-center mb-4">Overview</h4>
           <div class="grid-container">
             <img :src="currentImage" alt="Smart Energy Overview" class="grid-image">
-            <div class="total-active-power" :style="{ top: '39%', left: '17%' }">
+            <!-- Display "Back to Main" button on the second page -->
+            <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to
+              Main</button>
+            <!-- Show Total Active Power only on the first page -->
+            <div v-if="currentImageIndex === 0" class="total-active-power" :style="{ top: '39%', left: '17%' }">
               <p style="font-size: 0.7rem;">Total Active Power: <br> {{ totalActivePower }} kW</p>
             </div>
             <div class="boxes-overlay">
-              <div v-for="(box, index) in currentBoxes" :key="index" 
-                   :class="['box', currentImageIndex === 0 ? 'first-page-box' : 'second-page-box']"
-                   :style="{ top: box.top, left: box.left }"
-                   @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)"
-                   @mouseleave="hidePopup()"
-                   @click="handleBoxClick(index)">
-                   <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
+              <div v-for="(box, index) in currentBoxes" :key="index"
+                :class="['box', currentImageIndex === 0 ? 'first-page-box' : 'second-page-box']"
+                :style="{ top: box.top, left: box.left }"
+                @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)" @mouseleave="hidePopup()"
+                @click="handleBoxClick(index)">
+                <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
               </div>
             </div>
           </div>
+
         </div>
       </div>
       <div class="col-md-4">
@@ -50,7 +54,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -108,7 +111,7 @@ export default {
     async fetchData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
-        
+
         let totalVoltage = 0;
         let totalConsumption = 0;
         let totalActivePower = 0; // Variable to calculate total active power
@@ -344,12 +347,14 @@ export default {
 }
 
 .first-page-box {
-  width: 15%;  /* Adjust this size for the first page */
+  width: 15%;
+  /* Adjust this size for the first page */
   height: 43%;
 }
 
 .second-page-box {
-  width: 8%;  /* Original size for the second page */
+  width: 8%;
+  /* Original size for the second page */
   height: 15%;
 }
 
