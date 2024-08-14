@@ -42,32 +42,17 @@
             </div>
 
             <!-- Sensors -->
-            <div
-              v-for="sensor in sensors"
-              :key="sensor.id"
-              class="sensor-icon"
-              :style="{ top: sensor.top, left: sensor.left }"
-              @click="toggleButtons(sensor)"
-            >
+            <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
+              :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
               <img :src="getSensorIcon(sensor.type)" alt="Sensor Icon" class="icon-image">
-              <span
-                class="status-dot"
-                :class="sensor.isOnline ? 'online' : 'offline'"
-              ></span>
+              <span class="status-dot" :class="sensor.isOnline ? 'online' : 'offline'"></span>
             </div>
 
             <!-- Aircons (no @click) -->
-            <div
-              v-for="(aircon, index) in airconBoxes"
-              :key="index"
-              class="aircon-box"
-              :style="{ top: aircon.top, left: aircon.left }"
-            >
+            <div v-for="(aircon, index) in airconBoxes" :key="index" class="aircon-box"
+              :style="{ top: aircon.top, left: aircon.left }">
               <img src="@/assets/aircon-icon.png" alt="Aircon Icon" class="icon-image">
-              <span
-                class="status-dot"
-                :class="aircon.isOnline ? 'online' : 'offline'"
-              ></span>
+              <span class="status-dot" :class="aircon.isOnline ? 'online' : 'offline'"></span>
             </div>
           </div>
         </div>
@@ -107,18 +92,20 @@
             <button type="button" class="btn-close" @click="closeModal">×</button>
           </div>
           <div class="modal-body text-center">
-            <button v-if="currentType === 'aircon'" @click="setAirconState(true, modalTitle)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'aircon'" @click="setAirconState(false, modalTitle)" class="btn btn-danger">OFF</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'" @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'aircon'" @click="sendAirconState(true, modalTitle)"
+              class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'aircon'" @click="sendAirconState(false, modalTitle)"
+              class="btn btn-danger">OFF</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
+              @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
+            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
+              @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-
 
 <script>
 import axios from 'axios';
@@ -137,7 +124,7 @@ export default {
         { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: true , lastUpdated: '2024-05-29 14:30:00' }
+        { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: true, lastUpdated: '2024-05-29 14:30:00' }
       ],
       sensors: [
         { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 1', isOnline: false },
@@ -181,74 +168,56 @@ export default {
     async setSwitch(state, deviceType) {
       let switchStates = Array(8).fill(0); // Default all switches off
 
-      if (deviceType === 'freshAirFan' && state) {
-        if (this.modalTitle === 'Fresh Air Fan 1') {
-          this.sensors.find(sensor => sensor.name === 'Fresh Air Fan 1').isOnline = true;
-          switchStates[0] = 1;
-        } else if (this.modalTitle === 'Fresh Air Fan 2') {
-          this.sensors.find(sensor => sensor.name === 'Fresh Air Fan 2').isOnline = true;
-          switchStates[1] = 1;
+      if (deviceType === 'freshAirFan') {
+        const sensor = this.sensors.find(sensor => sensor.name === this.modalTitle);
+        if (sensor) {
+          sensor.isOnline = state; // Update the isOnline state
+          switchStates[0] = state ? 1 : 0; // Set the state in the switchStates array
+          this.sendSwitchCommand(sensor.deviceEUI, switchStates); // Send the command
         }
-      } else if (deviceType === 'dampener' && state) {
-        if (this.modalTitle === 'MDU 1') {
-          this.sensors.find(sensor => sensor.name === 'MDU 1').isOnline = true;
-          switchStates[2] = 1;
-        } else if (this.modalTitle === 'MDU 2') {
-          this.sensors.find(sensor => sensor.name === 'MDU 2').isOnline = true;
-          switchStates[3] = 1;
+      } else if (deviceType === 'dampener') {
+        const sensor = this.sensors.find(sensor => sensor.name === this.modalTitle);
+        if (sensor) {
+          sensor.isOnline = state; // Update the isOnline state
+          switchStates[2] = state ? 1 : 0; // Set the state in the switchStates array
+          this.sendSwitchCommand(sensor.deviceEUI, switchStates); // Send the command
         }
       }
 
-      this.sensors.forEach(sensor => {
-        if (sensor.type === deviceType) {
-          this.sendSwitchCommand(sensor.deviceEUI, switchStates);
-        }
-      });
-      this.closeModal();
+      this.closeModal(); // Close the modal after the action
     },
-    async sendAirconCommand(state, airconId) {
-      console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
+    async sendAirconCommand(state) {
+      console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for all aircons`); // Log the action
       const payload = {
         state: state ? 'on' : 'off'
       };
-      const targetUrl = `https://aircon-api.rshare.io/aircon/control/master`;
+      const targetUrl = `https://aircon-api.rshare.io/aircon/control/master`; // Assuming the endpoint is the same for all aircons
       console.log('Sending aircon command:', payload);
       try {
         const response = await axios.post(targetUrl, payload);
-        console.log(`Aircon ${airconId} turned ${state ? 'on' : 'off'} successfully`, response.data);
-        const aircon = this.airconBoxes.find(ac => ac.name === airconId);
-        if (aircon) {
-          aircon.isOnline = state;
-        }
+        console.log(`Aircons turned ${state ? 'on' : 'off'} successfully`, response.data);
+        this.updateAirconStates(state); // Update the UI state after the command
       } catch (error) {
-        console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
+        console.error(`Error turning aircons ${state ? 'on' : 'off'}:`, error);
       }
     },
-    setAirconState(state, airconId) {
-      console.log(`Set Aircon State: ${state ? 'on' : 'off'} for ${airconId}`); // Log the action
-      this.sendAirconCommand(state, airconId);
-      this.closeModal();
-    },
-    setAllSwitches(state) {
-      console.log(`Setting all switches to ${state ? 'ON' : 'OFF'}`);
-      const switchStates = Array(8).fill(state ? 1 : 0);
-      this.sensors.forEach(sensor => {
-        sensor.isOnline = state;
-        this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+    sendAirconState(state, airconId) {
+      console.log(`Set Aircon State: ${state ? 'on' : 'off'} for ${airconId}`);
+      this.airconBoxes.forEach(aircon => {
+        if (aircon.name === airconId) {
+          aircon.isOnline = state;
+        }
       });
+      this.sendAirconCommand(state);
+    },
+    updateAirconStates(state) {
       this.airconBoxes.forEach(aircon => {
         aircon.isOnline = state;
-        this.sendAirconCommand(state, aircon.name);
       });
     },
     toggleButtons(sensor) {
       this.modalTitle = sensor.name;
       this.currentType = sensor.type;
-      this.showModal = true;
-    },
-    toggleAirconButtons(aircon) {
-      this.modalTitle = aircon.name;
-      this.currentType = 'aircon';
       this.showModal = true;
     },
     closeModal() {
@@ -294,10 +263,10 @@ export default {
       } else if (deviceType === 'aircon') {
         this.airconBoxes.forEach(aircon => {
           aircon.isOnline = state;
-          this.setAirconState(state, aircon.name);
         });
+        this.sendAirconCommand(state);
       }
-    }
+    },
   },
   mounted() {
     if (this.conditions.length > 0) {
@@ -521,11 +490,11 @@ h2 {
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #2196F3;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(14px);
 }
 
@@ -603,4 +572,3 @@ input:checked + .slider:before {
   margin: 0 10px;
 }
 </style>
-

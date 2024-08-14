@@ -2,8 +2,8 @@
   <div class="container mt-5 bordered-container">
     <h2 class="text-center mb-4">Fire Alarm System</h2>
     <div class="view-switcher">
-      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Relation</button>
-      <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Devices</button>
+      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Schematic</button>
+      <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Zones</button>
     </div>
     <div v-if="currentView === 'relation'" class="map-container">
       <img src="@/assets/ite_firealarm_relation.png" alt="Floor Plan" class="map-image">
