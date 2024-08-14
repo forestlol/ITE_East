@@ -285,13 +285,11 @@ export default {
 
 .total-active-power {
   position: absolute;
-  background-color: white;
   padding: 5px;
   border-radius: 3px;
   text-align: center;
   font-weight: bold;
   color: black;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chart-wrapper {
