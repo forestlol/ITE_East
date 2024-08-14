@@ -5,9 +5,11 @@
       <div class="col-md-8">
         <div class="view-container">
           <h4 class="text-center mb-4">Overview</h4>
-          <div class="image-container">
-            <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to Main</button>
-            <img :src="currentImage" alt="Smart Energy Overview" class="img-fluid" @click="handleImageClick">
+          <div class="grid-container">
+            <img :src="currentImage" alt="Smart Energy Overview" class="grid-image">
+            <div class="total-active-power" :style="{ top: '39%', left: '17%' }">
+              <p style="font-size: 0.7rem;">Total Active Power: <br> {{ totalActivePower }} kW</p>
+            </div>
             <div class="boxes-overlay">
               <div v-for="(box, index) in currentBoxes" :key="index" 
                    :class="['box', currentImageIndex === 0 ? 'first-page-box' : 'second-page-box']"
@@ -49,6 +51,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import ChartComponent from '@/components/ChartComponent.vue';
@@ -68,6 +71,7 @@ export default {
         B0511_12
       ],
       boxes: [],
+      totalActivePower: null, // New data property for total active power
       popupVisible: false,
       popupData: {
         meterSN: '',
@@ -105,9 +109,9 @@ export default {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
         
-        // Variables to store the total voltage and consumption
         let totalVoltage = 0;
         let totalConsumption = 0;
+        let totalActivePower = 0; // Variable to calculate total active power
 
         this.boxes = response.data.map((item, index) => {
           const position = this.getBoxPosition(index);
@@ -117,28 +121,29 @@ export default {
             return null; // Skip this box if no position is found
           }
 
-          // Calculate total voltage and consumption
           totalVoltage += item.ua || 0;  // Assuming 'ua' is the voltage key
           totalConsumption += item.epi || 0;  // Assuming 'epi' is the consumption key
+          totalActivePower += Math.abs(item.p || 0); // Using Math.abs to ensure positive active power
 
           return {
             label: ' ',
             data: item,
             top: position.top,
             left: position.left,
-            totalVoltage: item.totalVoltage || 'N/A', // For individual display if needed
-            month: item.month || 'N/A',              // For individual display if needed
-            totalConsumption: item.totalConsumption || 'N/A' // For individual display if needed
+            totalVoltage: item.totalVoltage || 'N/A',
+            month: item.month || 'N/A',
+            totalConsumption: item.totalConsumption || 'N/A'
           };
-        }).filter(box => box !== null); // Filter out any null values
+        }).filter(box => box !== null);
 
-        // Assuming the data contains a 'month' key for the month
         const month = response.data.length > 0 ? response.data[0].month : 'N/A';
 
-        // Save calculated values to a specific box for display
-        this.floorSelectionBoxes[0].totalVoltage = totalVoltage.toFixed(2);  // Two decimal places
-        this.floorSelectionBoxes[0].totalConsumption = totalConsumption.toFixed(2);  // Two decimal places
+        this.floorSelectionBoxes[0].totalVoltage = totalVoltage.toFixed(2);
+        this.floorSelectionBoxes[0].totalConsumption = totalConsumption.toFixed(2);
         this.floorSelectionBoxes[0].month = month;
+
+        // Save the calculated total active power as an absolute value
+        this.totalActivePower = totalActivePower.toFixed(2);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -177,7 +182,6 @@ export default {
         { top: '311px', left: '488px' },
       ];
 
-      // Check if the index is within the positions array length
       if (index >= positions.length) {
         console.warn(`Index ${index} exceeds positions array length`);
         return null;
@@ -189,8 +193,8 @@ export default {
     showPopup(box, event) {
       if (box.label !== 'B05-11/12') {
         this.popupData = box.data || {};
-        this.popupX = event.clientX + 15;  // Slight offset to the right of the mouse pointer
-        this.popupY = event.clientY + 15;  // Slight offset below the mouse pointer
+        this.popupX = event.clientX + 15;
+        this.popupY = event.clientY + 15;
         this.popupVisible = true;
       }
     },
@@ -204,7 +208,6 @@ export default {
         { label: 'Voltage', value: box.data.ua },
         { label: 'Current', value: box.data.ia },
         { label: 'Power', value: box.data.p },
-        // Add more data points as needed
       ];
     },
 
@@ -217,10 +220,9 @@ export default {
     },
 
     handleBoxClick(index) {
-      // Handle navigation for B05-11/12 box
       if (this.currentImageIndex === 0 && this.floorSelectionBoxes[index].label === 'B05-11/12') {
         this.currentImageIndex = 1;
-        this.fetchData(); // Fetch data for the next image
+        this.fetchData();
       }
     }
   },
@@ -248,14 +250,48 @@ export default {
   padding: 20px;
 }
 
-.image-container {
+.grid-container {
   position: relative;
   width: 100%;
 }
 
-.image-container img {
+.grid-image {
   max-width: 100%;
   height: auto;
+}
+
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.grid-line.horizontal {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+  position: absolute;
+}
+
+.grid-line.vertical {
+  height: 100%;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+  position: absolute;
+}
+
+.total-active-power {
+  position: absolute;
+  background-color: white;
+  padding: 5px;
+  border-radius: 3px;
+  text-align: center;
+  font-weight: bold;
+  color: black;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chart-wrapper {

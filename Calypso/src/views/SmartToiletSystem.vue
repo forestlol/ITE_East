@@ -86,14 +86,14 @@ export default {
       tooltipX: 0,
       tooltipY: 0,
       icons: [
-        { top: '30.4%', left: '41.5%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34  },
-        { top: '30.4%', left: '70.4%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
+        // { top: '30.4%', left: '41.5%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34  },
+        // { top: '30.4%', left: '70.4%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
         { top: '48%', left: '32.3%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', waterFlow: 15, waterConsumption: 1200 },
-        { top: '72%', left: '33.1%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
+        // { top: '72%', left: '33.1%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
         { top: '53.6%', left: '34.7%', src: odorIcon, label: 'Odor Sensor', type: 'Odor Sensor', ammoniaLevel: 5, hydrogenSulfideLevel: 3 },
         { top: '57.6%', left: '59.6%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 35 },
         { top: '40.6%', left: '35%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34 },
-        { top: '65%', left: '92.5%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34 },
+        // { top: '65%', left: '92.5%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', peopleCount: 34 },
       ],
     };
   },
