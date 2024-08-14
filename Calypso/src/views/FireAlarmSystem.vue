@@ -146,12 +146,12 @@ export default {
   height: 100%;
 }
 .online {
-  background-color: green;
+  background-color: red;
   border-radius: 2px;
   border: 1px solid black;
 }
 .offline {
-  background-color: red;
+  background-color: green;
   border-radius: 2px;
   border: 1px solid black;
 }

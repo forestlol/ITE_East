@@ -7,7 +7,8 @@
           <h4>Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Smart Lighting Algo.png" alt="Relation View" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openConditionModal">Adjust Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openConditionModal">Adjust
+              Condition</button>
           </div>
         </div>
       </div>
@@ -77,18 +78,13 @@ export default {
   name: 'SmartLightingSystem',
   data() {
     return {
+      devices: [],
       selectedImage: 'B05-11-12_empty.jpg',
       images: [
         { value: 'B05-11-12_empty.jpg', label: 'B05-11/12' },
         { value: 'B05-07_Smart_IAQ_systems_V2.jpg', label: 'B05-07' },
         { value: 'B05-08_Smart_IAQ_system_V2.jpg', label: 'B05-08' },
         { value: 'B05-09_Smart_IAQ_System_V2.jpg', label: 'B05-09' }
-      ],
-      devices: [
-        { id: 1, name: 'LoRaWAN Panel', type: 'LoRaWAN Panel', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 2, name: 'LoRaWAN Switch', type: 'LoRaWAN Switch', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 3, name: 'LoRaWAN Panel', type: 'LoRaWAN Panel', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 4, name: 'LoRaWAN Switch', type: 'LoRaWAN Switch', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
       ],
       sensors: {
         'B05-11-12_empty.jpg': [
@@ -173,11 +169,17 @@ export default {
     },
     async sendSwitchCommand(deviceEUI, switchStates) {
       try {
-        await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
+        console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates);
+        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
           deviceEui: deviceEUI,
           switchStates: switchStates
         });
-        console.log('Switch command sent successfully');
+        if (response && response.data) {
+          console.log('Switch command response:', response.data);
+          // Optionally, handle the response data here, e.g., check if a status flag is returned
+        } else {
+          console.warn('Switch command sent but no data returned from server');
+        }
       } catch (error) {
         console.error('Error sending switch command:', error);
       }
