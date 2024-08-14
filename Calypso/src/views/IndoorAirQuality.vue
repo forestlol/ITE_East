@@ -25,23 +25,22 @@
                     {{ sensor.co2 }} ppm
                   </p>
                   <p class="pressure">
-                    {{ sensor.pressure }} hPa
+                    {{ sensor.pressure }}
                   </p>
                 </div>
-                <br>
                 <div class="sensor-row">
                   <p class="temperature-humidity">
-                    <i class="fas fa-thermometer-half"></i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <i class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <i class="fas fa-thermometer-half"></i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <i class="fas fa-tint ml-3"></i>&nbsp;&nbsp;
                     <b style="font-size:0.5rem;">PM2.5</b>&nbsp;
                     <b class="ml-3" style="font-size:0.5rem;">PM10</b>
                   </p>
                 </div>
-                <div class="sensor-row">
+                <div class="sensor-row" style="font-size:0.7rem;">
                   <p class="temperature-humidity">
                     {{ parseFloat(sensor.temperature).toFixed(1) }}°C
                     {{ parseFloat(sensor.humidity).toFixed(1) }}%&nbsp;
-                    {{ sensor.pm2_5 }}&nbsp;&nbsp;&nbsp;
+                    {{ sensor.pm2_5 }}&nbsp;&nbsp;
                     {{ sensor.pm10 }}
                   </p>
                 </div>
