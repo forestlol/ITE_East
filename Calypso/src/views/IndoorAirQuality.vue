@@ -18,7 +18,7 @@
                 </div>
                 <br>
                 <div class="sensor-row">
-                  <p>Temp &nbsp; &nbsp; Water Level</p>
+                  <p>Temp &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Humidity</p>
                 </div>
                 <div class="sensor-row">
                   <p>{{ sensor.temperature }}°C</p>
