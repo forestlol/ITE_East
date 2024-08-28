@@ -491,7 +491,7 @@ h2 {
 }
 
 input:checked+.slider {
-  background-color: #2196F3;
+  background-color: green;
 }
 
 input:checked+.slider:before {
