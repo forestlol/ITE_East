@@ -23,21 +23,21 @@
                   <input type="checkbox" v-model="allFreshAirFanOn" @change="toggleAllFreshAirFans">
                   <span class="slider round"></span>
                 </label>
-                <span>Fresh Air Fans All ON</span>
+                <span>{{ allFreshAirFanOn ? 'Fresh Air Fans All OFF' : 'Fresh Air Fans All ON' }}</span>
               </div>
               <div class="slider-control">
                 <label class="switch">
                   <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
                   <span class="slider round"></span>
                 </label>
-                <span>Motorized Dampeners All ON</span>
+                <span>{{ allDampenerOn ? 'Motorized Dampeners All OFF' : 'Motorized Dampeners All ON' }}</span>
               </div>
               <div class="slider-control">
                 <label class="switch">
                   <input type="checkbox" v-model="allAirconOn" @change="toggleAllAircons">
                   <span class="slider round"></span>
                 </label>
-                <span>Aircons All ON</span>
+                <span>{{ allAirconOn ? 'Aircons All OFF' : 'Aircons All ON' }}</span>
               </div>
             </div>
 

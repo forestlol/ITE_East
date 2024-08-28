@@ -78,19 +78,19 @@
                   <!-- ALL ON 1 -->
                   <div class="toggle-switch">
                     <input type="checkbox" id="allOnToggle1" v-model="isAllOn1" @change="toggleAllSwitches1">
-                    <label for="allOnToggle1">ALL ON 1</label>
+                    <label for="allOnToggle1">{{ isAllOn1 ? 'ALL OFF 1' : 'ALL ON 1' }}</label>
                   </div>
 
                   <!-- ALL ON 2 -->
                   <div class="toggle-switch">
                     <input type="checkbox" id="allOnToggle2" v-model="isAllOn2" @change="toggleAllSwitches2">
-                    <label for="allOnToggle2">ALL ON 2</label>
+                    <label for="allOnToggle2">{{ isAllOn2 ? 'ALL OFF 2' : 'ALL ON 2' }}</label>
                   </div>
 
                   <!-- ALL ON 3 -->
                   <div class="toggle-switch">
                     <input type="checkbox" id="allOnToggle3" v-model="isAllOn3" @change="toggleAllSwitches3">
-                    <label for="allOnToggle3">ALL ON 3</label>
+                    <label for="allOnToggle3">{{ isAllOn3 ? 'ALL OFF 3' : 'ALL ON 3' }}</label>
                   </div>
                 </div>
 
@@ -637,6 +637,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 body {

@@ -7,7 +7,8 @@
           <h4>Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Smart Lighting Algo.png" alt="Relation View" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openConditionModal">Adjust Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openConditionModal">Adjust
+              Condition</button>
           </div>
         </div>
       </div>
@@ -26,12 +27,13 @@
                 <input type="checkbox" v-model="allOn">
                 <span class="slider round"></span>
               </label>
-              <span class="slider-label">ALL ON</span>
+              <span class="slider-label">{{ allOn ? 'ALL OFF' : 'ALL ON' }}</span>
             </div>
             <div v-for="(sensor, index) in currentSensors" :key="index" class="sensor-icon"
               :style="{ top: sensor.top, left: sensor.left }" @click="toggleModal(sensor)">
               <!-- Apply square-bar class only for B05-11-12_empty_V3.jpg and the first two sensors -->
-              <div :class="(selectedImage === 'B05-11-12_empty_V3.jpg' && index < 2) ? 'square-bar' : 'vertical-bar'"></div>
+              <div :class="(selectedImage === 'B05-11-12_empty_V3.jpg' && index < 2) ? 'square-bar' : 'vertical-bar'">
+              </div>
               <!-- Always show the status dot -->
               <span :class="['status-dot', sensor.isOnline ? 'online' : 'offline']"></span>
             </div>
@@ -153,15 +155,62 @@ export default {
     closeModal() {
       this.showModal = false;
     },
-    async setZoneState(state, sensor) {
-      const apiUrl = state ? 'https://lumani.rshare.io/device/on' : 'https://lumani.rshare.io/device/off';
-      const payload = {
-        deviceId: sensor.deviceEUI
-      };
+    async sendSwitchCommand(deviceEUI, switchStates) {
       try {
-        console.log('Sending zone state:', payload, 'to:', apiUrl);
-        const response = await axios.post(apiUrl, payload);
-        console.log('Zone state response:', response.data);
+        console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates);
+        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
+          deviceEui: deviceEUI,
+          switchStates: switchStates
+        });
+        if (response && response.data) {
+          console.log('Switch command response:', response.data);
+          // Assuming that if switchStates are all 1, the device should be considered online
+          const sensor = this.currentSensors.find(s => s.deviceEUI === deviceEUI);
+          if (sensor) {
+            sensor.isOnline = switchStates.every(state => state === 1);
+          }
+        } else {
+          console.warn('Switch command sent but no data returned from server');
+        }
+      } catch (error) {
+        console.error('Error sending switch command:', error);
+      }
+    },
+    async toggleAllDevices() {
+      if (this.selectedImage === 'B05-11-12_empty_V3.jpg') {
+        // Handle B05-11/12 logic
+        const zones = this.currentSensors;
+        for (const zone of zones) {
+          await this.setZoneState(this.allOn, zone);
+        }
+      } else {
+        // Handle B05-07, B05-08, B05-09 logic
+        const sensors = this.currentSensors;
+        for (const sensor of sensors) {
+          sensor.isOnline = this.allOn;
+          const switchStates = Array(3).fill(this.allOn ? 1 : 0);
+          await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+        }
+      }
+    },
+    async setZoneState(state, sensor) {
+      const apiUrl = this.selectedImage === 'B05-11-12_empty_V3.jpg' ?
+        (state ? 'https://lumani.rshare.io/device/on' : 'https://lumani.rshare.io/device/off') :
+        null;
+
+      const payload = {
+        deviceId: sensor.deviceEUI,
+        switchStates: Array(3).fill(state ? 1 : 0) // Assuming 3 switches, you can adjust as needed
+      };
+
+      try {
+        if (apiUrl) {
+          console.log('Sending zone state:', payload, 'to:', apiUrl);
+          const response = await axios.post(apiUrl, payload);
+          console.log('Zone state response:', response.data);
+        } else if (this.selectedImage === 'B05-07_empty_V3.jpg' || this.selectedImage === 'B05-08_empty_V3.jpg' || this.selectedImage === 'B05-09_empty_V3.jpg') {
+          await this.sendSwitchCommand(sensor.deviceEUI, payload.switchStates);
+        }
       } catch (error) {
         console.error('Error setting zone state:', error);
       }
@@ -187,22 +236,6 @@ export default {
     },
     showSlider() {
       return this.selectedImage !== 'B05-11-12_empty.jpg';
-    },
-    async toggleAllDevices() {
-      const apiUrl = this.allOn ? 'https://lumani.rshare.io/device/on' : 'https://lumani.rshare.io/device/off';
-      const payload = {
-        deviceId: '0004ED0100001720',
-        deviceId2: '0004ED0100001713',
-        deviceId3: '0004ED010000166B',
-        deviceId4: '0004ED0100001704'
-      };
-      try {
-        console.log('Sending ALL ON/OFF command:', payload, 'to:', apiUrl);
-        const response = await axios.post(apiUrl, payload);
-        console.log('ALL ON/OFF response:', response.data);
-      } catch (error) {
-        console.error('Error setting ALL ON/OFF:', error);
-      }
     }
   },
   watch: {

@@ -7,23 +7,26 @@
           <h4>Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Smart Pest Control Algo.png" alt="Sensor Detection Diagram" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust
-              Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust Condition</button>
           </div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="map-section">
           <h4>Floorplan</h4>
-          <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
-            @wheel="onWheel">
-            <img src="@/assets/V3/B05-11-12_empty_V3.jpg" alt="Map View"
-              class="map-image"
-              :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
-            <div class="zoom-controls">
-              <button class="btn btn-secondary" @click="zoomIn">+</button>
-              <button class="btn btn-secondary" @click="zoomOut">-</button>
+          <div class="map-container">
+            <img src="@/assets/V3/B05-11-12_empty_V3.jpg" alt="Map View" class="map-image">
+
+            <!-- Magnetic Sensors -->
+            <div v-for="sensor in magneticSensors" :key="sensor.devEUI" class="magnetic-sensor-icon"
+              :style="{ top: sensor.top, left: sensor.left }" @mouseover="showSensorInfo(sensor)" @mouseleave="hideSensorInfo(sensor)">
+              <img src="@/assets/Magnetic Sensor.png" alt="Magnetic Sensor Icon" class="icon-image">
+              <div class="sensor-info" v-if="sensor.showInfo">
+                <h5>Magnetic Sensor</h5>
+                <p>Status: {{ sensor.magnet_status === '1' ? 'Closed' : 'Open' }}</p>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -91,7 +94,10 @@
     </div>
   </div>
 </template>
+
 <script>
+import axios from 'axios';
+
 export default {
   name: 'SmartPestControlSystem',
   data() {
@@ -102,19 +108,11 @@ export default {
         { id: 3, name: 'Camera', status: 'Activated' },
         { id: 4, name: 'Rat Trap', status: 'Activated' },
       ],
-      zoomLevel: 1,
-      translateX: 0,
-      translateY: 0,
-      isPanning: false,
-      startX: 0,
-      startY: 0,
-      lastX: 0,
-      lastY: 0,
-      animationFrame: null,
       showModal: false,
       pirSensorStatus: 'Detected',
       magneticLockStatus: 'On',
       cameraStatus: 'On',
+      magneticSensors: [],
       // Conditions Data
       conditions: [
         'Conditions',
@@ -127,49 +125,28 @@ export default {
     };
   },
   methods: {
-    zoomIn() {
-      this.zoomLevel = Math.min(this.zoomLevel + 0.1, 2);
-    },
-    zoomOut() {
-      this.zoomLevel = Math.max(this.zoomLevel - 0.1, 1);
-    },
-    onWheel(event) {
-      event.preventDefault();
-      const delta = Math.sign(event.deltaY) * -0.1;
-      this.zoomLevel = Math.min(Math.max(this.zoomLevel + delta, 1), 2);
-    },
-    startPan(event) {
-      this.isPanning = true;
-      this.startX = event.clientX - this.translateX;
-      this.startY = event.clientY - this.translateY;
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-    },
-    pan(event) {
-      if (!this.isPanning) return;
+    async fetchMagneticSensorData() {
+      try {
+        const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/Magnetic');
+        const data = response.data;
 
-      const dx = event.clientX - this.lastX;
-      const dy = event.clientY - this.lastY;
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-
-      this.translateX += dx / this.zoomLevel;
-      this.translateY += dy / this.zoomLevel;
-
-      if (!this.animationFrame) {
-        this.animationFrame = requestAnimationFrame(this.updatePan);
-      }
-    },
-    updatePan() {
-      this.$forceUpdate();
-      this.animationFrame = null;
-    },
-    endPan() {
-      this.isPanning = false;
-      if (this.animationFrame) {
-        cancelAnimationFrame(this.animationFrame);
-        this.animationFrame = null;
+        // Set the top and left positions individually for each sensor
+        this.magneticSensors = [
+          {
+            ...data['24e124141e151801'], // Assuming this is the first sensor's key
+            top: '24%', // Set the individual top position
+            left: '70%', // Set the individual left position
+            showInfo: false
+          },
+          {
+            ...data['24e124141e151546'], // Assuming this is the second sensor's key
+            top: '24%', // Set the individual top position
+            left: '65%', // Set the individual left position
+            showInfo: false
+          }
+        ];
+      } catch (error) {
+        console.error('Error fetching magnetic sensor data:', error);
       }
     },
     openModal() {
@@ -186,8 +163,17 @@ export default {
     updateCondition() {
       this.displayedCondition = this.selectedCondition;
     },
+    showSensorInfo(sensor) {
+      sensor.showInfo = true;
+    },
+    hideSensorInfo(sensor) {
+      sensor.showInfo = false;
+    },
   },
   mounted() {
+    // Fetch the magnetic sensor data when the component is mounted
+    this.fetchMagneticSensorData();
+
     // Set the default condition to the first one in the list
     if (this.conditions.length > 0) {
       this.selectedCondition = this.conditions[0];
@@ -196,6 +182,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .container-fluid {
   width: 100%;
@@ -233,47 +220,31 @@ h2 {
   overflow: hidden;
   height: 100%;
   position: relative;
-  cursor: grab;
 }
 
-.map-container:active {
-  cursor: grabbing;
-}
-
-.zoom-controls {
+.magnetic-sensor-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
 }
 
-.zoom-controls .btn {
-  margin: 2px 0;
+.icon-image {
+  width: 24px;
+  height: 24px;
 }
 
-/* Condition Dropdown Styling */
-.condition-dropdown {
-  width: 100%; /* Make the container full width */
-}
-
-.condition-dropdown .form-select {
-  width: 100%; /* Make the dropdown full width */
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: 5px;
-}
-
-/* Condition Label Styling */
-.condition-label p {
-  font-size: 1.2rem;
-  font-weight: bold;
-  background-color: #f0f8ff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Make the condition label full width */
+.sensor-info {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px;
+  border-radius: 3px;
   text-align: center;
+  white-space: nowrap;
+  z-index: 10;
 }
 
 .device-status-card {
@@ -358,4 +329,3 @@ h2 {
   margin-bottom: 10px;
 }
 </style>
-
