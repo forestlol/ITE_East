@@ -7,8 +7,7 @@
           <h4>Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Smart Lighting Algo.png" alt="Relation View" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openConditionModal">Adjust
-              Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openConditionModal">Adjust Condition</button>
           </div>
         </div>
       </div>
@@ -63,15 +62,15 @@
           </div>
           <div class="modal-body text-center">
             <!-- On/Off Buttons -->
-            <button @click="setSwitch(true, currentSensor)" class="btn btn-primary mb-3">ON</button>
-            <button @click="setSwitch(false, currentSensor)" class="btn btn-danger mb-3">OFF</button>
+            <button @click="setZoneState(true, currentSensor)" class="btn btn-primary mb-3">ON</button>
+            <button @click="setZoneState(false, currentSensor)" class="btn btn-danger mb-3">OFF</button>
 
             <!-- Sliders for B05-11/12 -->
             <div v-if="selectedImage === 'B05-11-12_empty_V3.jpg'" class="zone-control">
               <h5>{{ currentSensor.name }} Control</h5>
               <label>Color Temperature (Level 1): {{ currentSensor.level1 }}</label>
-              <input type="range" v-model="currentSensor.level1" min="0" max="100" />
-              
+              <input type="range" v-model="currentSensor.level1" min="0" max="100" step="100" />
+
               <label>Dimming (Level 2): {{ currentSensor.level2 }}</label>
               <input type="range" v-model="currentSensor.level2" min="0" max="100" />
 
@@ -154,31 +153,20 @@ export default {
     closeModal() {
       this.showModal = false;
     },
-    async setSwitch(state, sensor) {
-      sensor.isOnline = state;
-      const switchStates = Array(3).fill(state ? 1 : 0);
-      await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
-      this.closeModal(); // Close the modal after action
-    },
-    async sendSwitchCommand(deviceEUI, switchStates) {
+    async setZoneState(state, sensor) {
+      const apiUrl = state ? 'https://lumani.rshare.io/device/on' : 'https://lumani.rshare.io/device/off';
+      const payload = {
+        deviceId: sensor.deviceEUI
+      };
       try {
-        console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates);
-        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
-          deviceEui: deviceEUI,
-          switchStates: switchStates
-        });
-        if (response && response.data) {
-          console.log('Switch command response:', response.data);
-          // Optionally, handle the response data here, e.g., check if a status flag is returned
-        } else {
-          console.warn('Switch command sent but no data returned from server');
-        }
+        console.log('Sending zone state:', payload, 'to:', apiUrl);
+        const response = await axios.post(apiUrl, payload);
+        console.log('Zone state response:', response.data);
       } catch (error) {
-        console.error('Error sending switch command:', error);
+        console.error('Error setting zone state:', error);
       }
     },
     async updateZone(sensor) {
-      // Log the data being sent to the API
       const payload = {
         deviceId: sensor.deviceEUI,
         level1: sensor.level1,
@@ -189,7 +177,6 @@ export default {
       try {
         const response = await axios.post('https://lumani.rshare.io/device/dim', payload);
         console.log('Zone update response:', response.data);
-        // Optionally handle response if needed
       } catch (error) {
         console.error('Error updating zone:', error);
       }
@@ -202,11 +189,19 @@ export default {
       return this.selectedImage !== 'B05-11-12_empty.jpg';
     },
     async toggleAllDevices() {
-      const sensors = this.currentSensors;
-      for (const sensor of sensors) {
-        sensor.isOnline = this.allOn;
-        const switchStates = Array(3).fill(this.allOn ? 1 : 0);
-        await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      const apiUrl = this.allOn ? 'https://lumani.rshare.io/device/on' : 'https://lumani.rshare.io/device/off';
+      const payload = {
+        deviceId: '0004ED0100001720',
+        deviceId2: '0004ED0100001713',
+        deviceId3: '0004ED010000166B',
+        deviceId4: '0004ED0100001704'
+      };
+      try {
+        console.log('Sending ALL ON/OFF command:', payload, 'to:', apiUrl);
+        const response = await axios.post(apiUrl, payload);
+        console.log('ALL ON/OFF response:', response.data);
+      } catch (error) {
+        console.error('Error setting ALL ON/OFF:', error);
       }
     }
   },
@@ -268,7 +263,7 @@ h2 {
 }
 
 .vertical-bar {
-  width: 18px; /* Adjust the width of the bar to make it wider */
+  width: 18px;
   height: 200px;
   background-color: #f39c12;
   border-radius: 2px;
@@ -276,7 +271,7 @@ h2 {
 }
 
 .square-bar {
-  width: 300px !important; /* Force the width to be 300px */
+  width: 300px !important;
   height: 95px;
   background-color: #f39c12;
   border-radius: 2px;
@@ -290,7 +285,7 @@ h2 {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  z-index: 2; /* Ensure it appears above other elements */
+  z-index: 2;
 }
 
 .online {
@@ -300,7 +295,6 @@ h2 {
 .offline {
   background-color: red;
 }
-
 
 .modal-overlay {
   position: fixed;
