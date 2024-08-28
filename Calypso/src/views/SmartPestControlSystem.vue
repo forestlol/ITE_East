@@ -135,7 +135,7 @@ export default {
           {
             ...data['24e124141e151801'], // Assuming this is the first sensor's key
             top: '24%', // Set the individual top position
-            left: '70%', // Set the individual left position
+            left: '69%', // Set the individual left position
             showInfo: false
           },
           {
