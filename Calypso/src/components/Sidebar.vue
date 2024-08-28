@@ -19,7 +19,7 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/fire-alarm-system">
-            <img :src="FASIcon" alt="Fire Alarm System" class="icon-image">
+            <img :src="FASIcon" alt="Fire Alarm System" class="icon-image" :class="{ 'active-icon': $route.path === '/fire-alarm-system' }">
             <span class="nav-text">Fire Alarm System</span>
           </router-link>
         </li>
@@ -61,13 +61,13 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/indoor-air-quality">
-            <img :src="airFlowIcon" alt="Indoor Air Quality System" class="icon-image">
+            <img :src="airFlowIcon" alt="Indoor Air Quality System" class="icon-image" :class="{ 'active-icon': $route.path === '/indoor-air-quality' }">
             <span class="nav-text">Indoor Air Quality System</span>
           </router-link>
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/hybrid-aircon">
-            <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image">
+            <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image" :class="{ 'active-icon': $route.path === '/hybrid-aircon' }">
             <span class="nav-text">Hybrid Aircon System</span>
           </router-link>
         </li>
@@ -216,17 +216,19 @@ export default {
   color: black;
 }
 
-.nav-link i {
+.nav-link i, .nav-link .icon-image {
   margin-right: 10px;
 }
 
 .icon-image {
-  width: 20px;
-  height: 20px;
+  width: 20px;  /* Adjust this to the desired width */
+  height: 20px; /* Adjust this to the desired height */
   margin-right: 10px;
+  object-fit: contain; /* Ensures the icon fits within the specified dimensions */
 }
 
-.sidebar:not(.expanded) .nav-link i {
+
+.sidebar:not(.expanded) .nav-link i, .sidebar:not(.expanded) .nav-link .icon-image {
   margin-right: 0;
 }
 
@@ -239,7 +241,8 @@ export default {
 }
 
 .active-icon {
-  color: #007bff;
+  color: #007bff; /* Blue color for FontAwesome icons */
+  filter: brightness(0) saturate(100%) invert(29%) sepia(87%) saturate(2979%) hue-rotate(191deg) brightness(92%) contrast(102%); /* Blue filter for images */
 }
 
 .toggle-button {

@@ -263,7 +263,7 @@ h2 {
 }
 
 .vertical-bar {
-  width: 18px;
+  width: 10px;
   height: 200px;
   background-color: #f39c12;
   border-radius: 2px;

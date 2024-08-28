@@ -7,7 +7,8 @@
           <h4 class="text-center mb-4">Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Asset Tagging Algo.png" alt="Relation View" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust
+              Condition</button>
           </div>
         </div>
       </div>
@@ -16,7 +17,7 @@
           <h4 class="text-center mb-4">Out of Range</h4>
           <ul class="out-of-range-list">
             <li v-for="tag in outOfRangeTags" :key="tag.mac" class="out-of-range-item">
-              <span class="tag-name">{{ tag.mac }}</span> - 
+              <span class="tag-name">{{ tag.mac }}</span> -
               <span class="tag-updated">{{ formatDate(tag.lastUpdated) }}</span>
             </li>
           </ul>
@@ -65,6 +66,7 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'AssetTaggingSystem',
@@ -83,7 +85,8 @@ export default {
         "If BLE Beacon 2 is off, BLE Tags cannot be detected.",
         "If both BLE Beacons are off, BLE Tags cannot be detected."
       ],
-      selectedCondition: "If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range."
+      selectedCondition: "Conditions",
+      allSensors: [],
     };
   },
   methods: {
@@ -98,7 +101,75 @@ export default {
       this.closeModal();
     },
     fetchData() {
-      // Your existing fetch logic
+      console.log("Fetching data...");
+      fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/AssetTagging/data')
+        .then(response => response.json())
+        .then(data => {
+          console.log("Data received:", data);
+          const sensorData = data.data;
+
+          sensorData.forEach(sensor => {
+            const rssi = sensor.rssi;
+            const mac = sensor.mac;
+
+            console.log(`Processing sensor with MAC: ${mac}, RSSI: ${rssi}`);
+
+            const existingSensor = this.allSensors.find(s => s.mac === mac);
+
+            if (!existingSensor) {
+              // Add new sensor
+              if (this.allSensors.length < 28) {
+                console.log(`Adding new sensor: ${mac}`);
+                this.allSensors.push({ mac, rssi, lastUpdated: new Date() });
+              }
+            } else {
+              // Update existing sensor
+              console.log(`Updating sensor: ${mac}`);
+              existingSensor.rssi = rssi;
+              existingSensor.lastUpdated = new Date();
+            }
+
+            if (rssi < -90) {
+              console.log(`RSSI below threshold for MAC: ${mac}. Checking again in 20 seconds...`);
+              setTimeout(() => {
+                // Check if the RSSI is still below -90 after 20 seconds
+                if (rssi < -90) {
+                  console.log(`RSSI still below threshold for MAC: ${mac}. Adding to out-of-range.`);
+                  this.addToOutOfRange(mac);
+                }
+              }, 20000);
+            } else {
+              // Immediately remove from out of range if RSSI is greater than -90
+              console.log(`RSSI above threshold for MAC: ${mac}. Removing from out-of-range.`);
+              this.removeFromOutOfRange(mac);
+            }
+          });
+
+          // Log the contents of the allSensors array
+          console.log("Current allSensors array:", this.allSensors);
+
+          // When 28 sensors are filled, switch to checking every 30 seconds
+          if (this.allSensors.length >= 28) {
+            console.log("28 sensors reached. Switching to 30-second intervals.");
+            clearInterval(this.interval);
+            this.interval = setInterval(this.fetchData, 30000);
+          }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    },
+    addToOutOfRange(mac) {
+      const tag = this.allSensors.find(d => d.mac === mac);
+      if (tag && !this.outOfRangeTags.find(t => t.mac === mac)) {
+        console.log(`Adding MAC: ${mac} to out-of-range.`);
+        this.outOfRangeTags.push({
+          mac: tag.mac,
+          lastUpdated: new Date(),
+        });
+      }
+    },
+    removeFromOutOfRange(mac) {
+      console.log(`Removing MAC: ${mac} from out-of-range.`);
+      this.outOfRangeTags = this.outOfRangeTags.filter(tag => tag.mac !== mac);
     },
     formatDate(date) {
       return new Date(date).toLocaleString();
@@ -106,13 +177,14 @@ export default {
   },
   mounted() {
     this.fetchData();
-    this.interval = setInterval(this.fetchData, 10000);
+    this.interval = setInterval(this.fetchData, 1000);
   },
   beforeUnmount() {
     clearInterval(this.interval);
   },
 };
 </script>
+
 <style scoped>
 .container-fluid {
   width: 100%;
