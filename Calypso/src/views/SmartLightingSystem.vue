@@ -31,10 +31,10 @@
             </div>
             <div v-for="(sensor, index) in currentSensors" :key="index" class="sensor-icon"
               :style="{ top: sensor.top, left: sensor.left }" @click="toggleModal(sensor)">
-              <i :class="sensor.icon"></i>
-              <!-- Only show the status dot if not on B05-11-12_empty.jpg -->
-              <span v-if="selectedImage !== 'B05-11-12_empty.jpg'"
-                :class="['status-dot', sensor.isOnline ? 'online' : 'offline']"></span>
+              <!-- Apply square-bar class only for B05-11-12_empty_V3.jpg and the first two sensors -->
+              <div :class="(selectedImage === 'B05-11-12_empty_V3.jpg' && index < 2) ? 'square-bar' : 'vertical-bar'"></div>
+              <!-- Always show the status dot -->
+              <span :class="['status-dot', sensor.isOnline ? 'online' : 'offline']"></span>
             </div>
           </div>
         </div>
@@ -62,8 +62,22 @@
             <button type="button" class="btn-close" @click="closeModal">×</button>
           </div>
           <div class="modal-body text-center">
-            <button @click="setSwitch(true, currentSensor)" class="btn btn-primary">ON</button>
-            <button @click="setSwitch(false, currentSensor)" class="btn btn-danger">OFF</button>
+            <!-- On/Off Buttons -->
+            <button @click="setSwitch(true, currentSensor)" class="btn btn-primary mb-3">ON</button>
+            <button @click="setSwitch(false, currentSensor)" class="btn btn-danger mb-3">OFF</button>
+
+            <!-- Sliders for B05-11/12 -->
+            <div v-if="selectedImage === 'B05-11-12_empty_V3.jpg'" class="zone-control">
+              <h5>{{ currentSensor.name }} Control</h5>
+              <label>Color Temperature (Level 1): {{ currentSensor.level1 }}</label>
+              <input type="range" v-model="currentSensor.level1" min="0" max="100" />
+              
+              <label>Dimming (Level 2): {{ currentSensor.level2 }}</label>
+              <input type="range" v-model="currentSensor.level2" min="0" max="100" />
+
+              <!-- Set Button -->
+              <button @click="updateZone(currentSensor)" class="btn btn-success mt-3">Set</button>
+            </div>
           </div>
         </div>
       </div>
@@ -79,65 +93,44 @@ export default {
   data() {
     return {
       devices: [],
-      selectedImage: 'B05-07_Smart_IAQ_systems_V2.jpg',
+      selectedImage: 'B05-07_empty_V3.jpg',
       images: [
-        // { value: 'B05-11-12_empty.jpg', label: 'B05-11/12' },
-        { value: 'B05-07_Smart_IAQ_systems_V2.jpg', label: 'B05-07' },
-        { value: 'B05-08_Smart_IAQ_system_V2.jpg', label: 'B05-08' },
-        { value: 'B05-09_Smart_IAQ_System_V2.jpg', label: 'B05-09' }
+        { value: 'B05-07_empty_V3.jpg', label: 'B05-07' },
+        { value: 'B05-08_empty_V3.jpg', label: 'B05-08' },
+        { value: 'B05-09_empty_V3.jpg', label: 'B05-09' },
+        { value: 'B05-11-12_empty_V3.jpg', label: 'B05-11/12' }
       ],
       sensors: {
-        // 'B05-11-12_empty.jpg': [
-        //   { top: '33%', left: '15.2%', icon: 'fas fa-lightbulb', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774', showButtons: false },
-        //   { top: '31%', left: '22.6%', icon: 'fas fa-lightbulb', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940', showButtons: false },
-        //   { top: '28%', left: '30.5%', icon: 'fas fa-lightbulb', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721', showButtons: false },
-        //   { top: '28%', left: '46%', icon: 'fas fa-lightbulb', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018', showButtons: false },
-        //   { top: '28%', left: '38%', icon: 'fas fa-lightbulb', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508', showButtons: false },
-        //   { top: '29%', left: '63%', icon: 'fas fa-lightbulb', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904', showButtons: false },
-        //   { top: '29%', left: '70.7%', icon: 'fas fa-lightbulb', name: 'Sensor 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065', showButtons: false },
-        //   { top: '29%', left: '78.6%', icon: 'fas fa-lightbulb', name: 'Sensor 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824', showButtons: false },
-        //   { top: '43%', left: '63.6%', icon: 'fas fa-lightbulb', name: 'Sensor 9', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793', showButtons: false },
-        //   { top: '39%', left: '53.4%', icon: 'fas fa-lightbulb', name: 'Sensor 10', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870', showButtons: false },
-        //   { top: '43%', left: '71.6%', icon: 'fas fa-lightbulb', name: 'Sensor 11', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050', showButtons: false },
-        //   { top: '43%', left: '79%', icon: 'fas fa-lightbulb', name: 'Sensor 12', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009', showButtons: false },
-        //   { top: '50%', left: '24.4%', icon: 'fas fa-lightbulb', name: 'Sensor 13', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156', showButtons: false },
-        //   { top: '50%', left: '31.3%', icon: 'fas fa-lightbulb', name: 'Sensor 14', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201', showButtons: false },
-        //   { top: '48%', left: '40%', icon: 'fas fa-lightbulb', name: 'Sensor 15', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803', showButtons: false },
-        //   { top: '47%', left: '47%', icon: 'fas fa-lightbulb', name: 'Sensor 16', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818', showButtons: false },
-        //   { top: '64%', left: '25.3%', icon: 'fas fa-lightbulb', name: 'Sensor 17', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779', showButtons: false },
-        //   { top: '67%', left: '40.3%', icon: 'fas fa-lightbulb', name: 'Sensor 18', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065', showButtons: false },
-        //   { top: '65%', left: '79.6%', icon: 'fas fa-lightbulb', name: 'Sensor 19', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904', showButtons: false },
-        //   { top: '65%', left: '72%', icon: 'fas fa-lightbulb', name: 'Sensor 20', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018', showButtons: false },
-        //   { top: '66%', left: '47.3%', icon: 'fas fa-lightbulb', name: 'Sensor 21', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721', showButtons: false },
-        //   { top: '62%', left: '56.3%', icon: 'fas fa-lightbulb', name: 'Sensor 22', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774', showButtons: false },
-        //   { top: '65%', left: '64%', icon: 'fas fa-lightbulb', name: 'Sensor 23', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940', showButtons: false },
-        //   { top: '46%', left: '68.5%', icon: 'fas fa-wifi', name: 'WiFi Gateway 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        //   { top: '56%', left: '69%', icon: 'fas fa-wifi', name: 'WiFi Gateway 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00' },
-        // ],
-        'B05-07_Smart_IAQ_systems_V2.jpg': [
-          { top: '30%', left: '35%', icon: 'fas fa-lightbulb', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065', showButtons: false },
-          { top: '30%', left: '40%', icon: 'fas fa-lightbulb', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904', showButtons: false },
-          { top: '30%', left: '45%', icon: 'fas fa-lightbulb', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018', showButtons: false },
-          { top: '30%', left: '50%', icon: 'fas fa-lightbulb', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721', showButtons: false },
-          { top: '30%', left: '55%', icon: 'fas fa-lightbulb', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940', showButtons: false },
-          { top: '30%', left: '60%', icon: 'fas fa-lightbulb', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774', showButtons: false }
+        'B05-07_empty_V3.jpg': [
+          { top: '40%', left: '35%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' },
+          { top: '40%', left: '40%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' },
+          { top: '40%', left: '45%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' },
+          { top: '40%', left: '50%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' },
+          { top: '40%', left: '55%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' },
+          { top: '40%', left: '60%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }
         ],
-        'B05-08_Smart_IAQ_system_V2.jpg': [
-          { top: '30%', left: '35%', icon: 'fas fa-lightbulb', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508', showButtons: false },
-          { top: '30%', left: '40%', icon: 'fas fa-lightbulb', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142', showButtons: false },
-          { top: '30%', left: '45%', icon: 'fas fa-lightbulb', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803', showButtons: false },
-          { top: '30%', left: '50%', icon: 'fas fa-lightbulb', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818', showButtons: false },
-          { top: '30%', left: '55%', icon: 'fas fa-lightbulb', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201', showButtons: false },
-          { top: '30%', left: '60%', icon: 'fas fa-lightbulb', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779', showButtons: false }
+        'B05-08_empty_V3.jpg': [
+          { top: '40%', left: '30%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
+          { top: '40%', left: '35%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
+          { top: '40%', left: '40%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
+          { top: '40%', left: '45%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+          { top: '40%', left: '50%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
+          { top: '40%', left: '55%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
         ],
-        'B05-09_Smart_IAQ_System_V2.jpg': [
-          { top: '30%', left: '35%', icon: 'fas fa-lightbulb', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824', showButtons: false },
-          { top: '30%', left: '40%', icon: 'fas fa-lightbulb', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793', showButtons: false },
-          { top: '30%', left: '45%', icon: 'fas fa-lightbulb', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870', showButtons: false },
-          { top: '30%', left: '50%', icon: 'fas fa-lightbulb', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050', showButtons: false },
-          { top: '30%', left: '55%', icon: 'fas fa-lightbulb', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009', showButtons: false },
-          { top: '30%', left: '60%', icon: 'fas fa-lightbulb', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156', showButtons: false }
-        ]
+        'B05-09_empty_V3.jpg': [
+          { top: '40%', left: '30%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' },
+          { top: '40%', left: '35%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' },
+          { top: '40%', left: '40%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' },
+          { top: '40%', left: '45%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' },
+          { top: '40%', left: '50%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' },
+          { top: '40%', left: '55%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }
+        ],
+        'B05-11-12_empty_V3.jpg': [
+          { top: '55%', left: '67%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001704', level1: 0, level2: 0 },
+          { top: '32%', left: '67%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000166B', level1: 0, level2: 0 },
+          { top: '44%', left: '73%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001713', level1: 0, level2: 0 },
+          { top: '44%', left: '78%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
+        ],
       },
       showModal: false,
       modalTitle: '',
@@ -183,6 +176,24 @@ export default {
       } catch (error) {
         console.error('Error sending switch command:', error);
       }
+    },
+    async updateZone(sensor) {
+      // Log the data being sent to the API
+      const payload = {
+        deviceId: sensor.deviceEUI,
+        level1: sensor.level1,
+        level2: sensor.level2
+      };
+      console.log('Sending zone update with payload:', payload);
+
+      try {
+        const response = await axios.post('https://lumani.rshare.io/device/dim', payload);
+        console.log('Zone update response:', response.data);
+        // Optionally handle response if needed
+      } catch (error) {
+        console.error('Error updating zone:', error);
+      }
+      this.closeModal();
     },
     getImagePath(image) {
       return require(`@/assets/Sub System and Icons/V2/${image}`);
@@ -248,7 +259,6 @@ h2 {
 .sensor-icon {
   position: absolute;
   width: 24px;
-  height: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -257,9 +267,20 @@ h2 {
   z-index: 1;
 }
 
-.sensor-icon i {
-  color: #f39c12;
-  font-size: 1rem;
+.vertical-bar {
+  width: 18px; /* Adjust the width of the bar to make it wider */
+  height: 200px;
+  background-color: #f39c12;
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+
+.square-bar {
+  width: 300px !important; /* Force the width to be 300px */
+  height: 95px;
+  background-color: #f39c12;
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
 }
 
 .status-dot {
@@ -269,6 +290,7 @@ h2 {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  z-index: 2; /* Ensure it appears above other elements */
 }
 
 .online {
@@ -278,6 +300,7 @@ h2 {
 .offline {
   background-color: red;
 }
+
 
 .modal-overlay {
   position: fixed;
@@ -408,5 +431,16 @@ input:checked+.slider {
 
 input:checked+.slider:before {
   transform: translateX(14px);
+}
+
+.zone-control input[type="range"] {
+  width: 80%;
+  margin: 10px 0;
+}
+
+.zone-control label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="sidebar" :class="{ 'expanded': isExpanded }">
       <div class="sidebar-header">
-        <router-link class="navbar-brand" to="/">Calypso</router-link>
+        <router-link class="navbar-brand" to="/">IOC</router-link>
       </div>
       <ul class="sidebar-nav">
         <li class="nav-item">
@@ -84,6 +84,9 @@
           <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" /></span>
         </div>
         <div class="navbar-right">
+          <a href="http://52.237.90.38:82/" target="_blank" class="topbar-button">
+            Control Tower
+          </a>
           <a href="https://visualizer-lite-html.vercel.app/?site=23&buildings=19" target="_blank" class="topbar-button">
             Digital Twin
           </a>

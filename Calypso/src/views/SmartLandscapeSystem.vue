@@ -55,11 +55,13 @@
                         <p>{{ point.label }}: {{ point.reading }}</p>
                       </template>
                     </span>
+                    <!-- Status Dot for Solenoid Valves -->
+                    <div v-if="point.type === 'Valve'"
+                      :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
                   </div>
-
                 </div>
                 <div class="adjust-button-container">
-                  <button @click="openModal" class="btn btn-primary">Adjust Condition</button>
+                  <button @click="openConditionModal" class="btn btn-primary">Adjust Condition</button>
                 </div>
               </div>
             </div>
@@ -71,21 +73,34 @@
                 <img src="@/assets/Sub System and Icons/V2/smart Landscape systemV2.png" alt="Map View"
                   class="map-image">
 
-                <!-- Toggle Switch for All On/Off -->
-                <div class="toggle-switch-container">
+                <!-- Toggle Switches for ALL ON 1, 2, 3 -->
+                <div class="toggle-switch-container vertical-toggle">
+                  <!-- ALL ON 1 -->
                   <div class="toggle-switch">
-                    <input type="checkbox" id="allOnToggle" v-model="isAllOn" @change="toggleAllSwitches">
-                    <label for="allOnToggle"></label>
-                    <span>ALL ON</span>
+                    <input type="checkbox" id="allOnToggle1" v-model="isAllOn1" @change="toggleAllSwitches1">
+                    <label for="allOnToggle1">ALL ON 1</label>
+                  </div>
+
+                  <!-- ALL ON 2 -->
+                  <div class="toggle-switch">
+                    <input type="checkbox" id="allOnToggle2" v-model="isAllOn2" @change="toggleAllSwitches2">
+                    <label for="allOnToggle2">ALL ON 2</label>
+                  </div>
+
+                  <!-- ALL ON 3 -->
+                  <div class="toggle-switch">
+                    <input type="checkbox" id="allOnToggle3" v-model="isAllOn3" @change="toggleAllSwitches3">
+                    <label for="allOnToggle3">ALL ON 3</label>
                   </div>
                 </div>
 
                 <!-- Icons for devices -->
                 <div v-for="(icon, index) in icons" :key="index" class="icon-container"
                   :style="{ top: icon.y + '%', left: icon.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
-                  @click="handleIconClick(icon)">
+                  @click="openIconModal(icon)">
                   <img :src="icon.src" alt="Icon" class="icon-image">
                   <div :class="['status-dot', icon.isOn ? 'online' : 'offline']"></div>
+                  <span class="switch-number">{{ icon.switchNumber }}</span> <!-- Display switchNumber -->
                 </div>
               </div>
             </div>
@@ -102,8 +117,6 @@
             </div>
           </div>
         </div>
-
-
 
         <div class="condition mt-4 text-center border-condition">
           <div class="row mt-4 condition-dropdown">
@@ -142,14 +155,39 @@
       </div>
     </div>
 
-    <!-- Modals and Buttons -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
-    <div v-if="showModal" class="modal d-block">
+    <!-- pH Threshold Modal -->
+    <div v-if="showConditionModal" class="modal-overlay" @click="closeConditionModal"></div>
+    <div v-if="showConditionModal" class="modal d-block">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center">
+            <h5 class="modal-title">Set pH Threshold</h5>
+            <button type="button" class="btn-close position-absolute top-0 end-0"
+              @click="closeConditionModal">&times;</button>
+          </div>
+          <div class="modal-body text-center">
+            <form @submit.prevent="saveThreshold">
+              <div class="mb-3">
+                <label for="phThresholdInput" class="form-label">pH Threshold</label>
+                <input type="number" step="0.1" class="form-control" id="phThresholdInput" v-model="phThreshold"
+                  placeholder="Enter pH threshold" required />
+              </div>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Icon ON/OFF Modal -->
+    <div v-if="showIconModal" class="modal-overlay" @click="closeIconModal"></div>
+    <div v-if="showIconModal" class="modal d-block">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header justify-content-center">
             <h5 class="modal-title">{{ activeIcon?.name }}</h5>
-            <button type="button" class="btn-close position-absolute top-0 end-0" @click="closeModal">&times;</button>
+            <button type="button" class="btn-close position-absolute top-0 end-0"
+              @click="closeIconModal">&times;</button>
           </div>
           <div class="modal-body text-center">
             <button @click="toggleSwitchInModal(true, activeIcon)" class="btn btn-primary mx-2">ON</button>
@@ -186,17 +224,27 @@
       <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
       <button @click="openScheduleModal" class="btn btn-secondary ml-2">Schedule Valve Simulation</button>
     </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container">
+      <countdown-notification v-for="notification in notifications" :key="notification.id"
+        :message="notification.message" :countdown-time="notification.countdown"
+        @close="removeNotification(notification.id)" />
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import CountdownNotification from "@/components/CountdownNotification.vue";
 import mainPumpIcon from '@/assets/main-pump-icon.png';
 import dosagePumpIcon from '@/assets/dosage-pump-icon.png';
 import planterPotIcon from '@/assets/planter-pot-icon.png';
 
 export default {
-  name: 'SmartLandscapeSystem',
+  components: {
+    CountdownNotification,
+  },
   data() {
     return {
       devices: [
@@ -216,29 +264,33 @@ export default {
       ],
       selectedCondition: "Conditions",
       relationPoints: [
-        { number: 1, type: 'sensor', x: 15, y: 20, data: { temperature: 25, humidity: 60, pressure: 1012, co2: 400 } },
-        { number: 2, type: 'sensor', x: 21, y: 20, data: { temperature: 26, humidity: 65, pressure: 1013, co2: 410 } },
-        { number: 3, type: 'sensor', x: 27.6, y: 20, data: { temperature: 27, humidity: 70, pressure: 1014, co2: 420 } },
-        { number: 4, type: 'sensor', x: 34, y: 20, data: { temperature: 28, humidity: 75, pressure: 1015, co2: 430 } },
-        { number: 5, type: 'sensor', x: 15, y: 31, data: { temperature: 29, humidity: 80, pressure: 1016, co2: 440 } },
-        { number: 6, type: 'sensor', x: 21, y: 31, data: { temperature: 30, humidity: 85, pressure: 1017, co2: 450 } },
-        { number: 7, type: 'sensor', x: 27.6, y: 31, data: { temperature: 31, humidity: 90, pressure: 1018, co2: 460 } },
-        { number: 8, type: 'sensor', x: 34, y: 31, data: { temperature: 32, humidity: 95, pressure: 1019, co2: 470 } },
-        { number: 9, type: 'sensor', x: 15, y: 42, data: { temperature: 33, humidity: 60, pressure: 1020, co2: 480 } },
-        { number: 10, type: 'sensor', x: 21, y: 42, data: { temperature: 34, humidity: 65, pressure: 1021, co2: 490 } },
-        { number: 11, type: 'sensor', x: 27.6, y: 42, data: { temperature: 35, humidity: 70, pressure: 1022, co2: 500 } },
-        { number: 12, type: 'sensor', x: 34, y: 42, data: { temperature: 36, humidity: 75, pressure: 1023, co2: 510 } },
-        { number: 13, type: 'sensor', x: 14.7, y: 53, data: { temperature: 37, humidity: 80, pressure: 1024, co2: 520 } },
-        { number: 14, type: 'sensor', x: 21, y: 53, data: { temperature: 38, humidity: 85, pressure: 1025, co2: 530 } },
-        { number: 15, type: 'sensor', x: 27.6, y: 53, data: { temperature: 39, humidity: 90, pressure: 1026, co2: 540 } },
-        { number: 16, type: 'sensor', x: 34, y: 53, data: { temperature: 40, humidity: 95, pressure: 1027, co2: 550 } },
-        { number: 17, type: 'sensor', x: 14.7, y: 63.5, data: { temperature: 41, humidity: 60, pressure: 1028, co2: 560 } },
-
+        { number: 1, type: 'sensor', x: 15, y: 20, data: { temperature: 25, soilMoisture: 60, pH: 6.8, ec: 1.2, n: 20, p: 5, k: 10, batteryVoltage: 3.5 } },
+        { number: 2, type: 'sensor', x: 21, y: 20, data: { temperature: 26, soilMoisture: 65, pH: 6.7, ec: 1.3, n: 21, p: 6, k: 11, batteryVoltage: 3.6 } },
+        { number: 3, type: 'sensor', x: 27.6, y: 20, data: { temperature: 27, soilMoisture: 70, pH: 6.9, ec: 1.4, n: 22, p: 7, k: 12, batteryVoltage: 3.7 } },
+        { number: 4, type: 'sensor', x: 34, y: 20, data: { temperature: 28, soilMoisture: 75, pH: 7.0, ec: 1.5, n: 23, p: 8, k: 13, batteryVoltage: 3.8 } },
+        { number: 5, type: 'sensor', x: 15, y: 31, data: { temperature: 29, soilMoisture: 80, pH: 7.1, ec: 1.6, n: 24, p: 9, k: 14, batteryVoltage: 3.9 } },
+        { number: 6, type: 'sensor', x: 21, y: 31, data: { temperature: 30, soilMoisture: 85, pH: 7.2, ec: 1.7, n: 25, p: 10, k: 15, batteryVoltage: 4.0 } },
+        { number: 7, type: 'sensor', x: 27.6, y: 31, data: { temperature: 31, soilMoisture: 90, pH: 7.3, ec: 1.8, n: 26, p: 11, k: 16, batteryVoltage: 4.1 } },
+        { number: 8, type: 'sensor', x: 34, y: 31, data: { temperature: 32, soilMoisture: 95, pH: 7.4, ec: 1.9, n: 27, p: 12, k: 17, batteryVoltage: 4.2 } },
+        { number: 9, type: 'sensor', x: 15, y: 42, data: { temperature: 33, soilMoisture: 60, pH: 6.5, ec: 2.0, n: 28, p: 13, k: 18, batteryVoltage: 4.3 } },
+        { number: 10, type: 'sensor', x: 21, y: 42, data: { temperature: 34, soilMoisture: 65, pH: 6.6, ec: 2.1, n: 29, p: 14, k: 19, batteryVoltage: 4.4 } },
+        { number: 11, type: 'sensor', x: 27.6, y: 42, data: { temperature: 35, soilMoisture: 70, pH: 6.7, ec: 2.2, n: 30, p: 15, k: 20, batteryVoltage: 4.5 } },
+        { number: 12, type: 'sensor', x: 34, y: 42, data: { temperature: 36, soilMoisture: 75, pH: 6.8, ec: 2.3, n: 31, p: 16, k: 21, batteryVoltage: 4.6 } },
+        { number: 13, type: 'sensor', x: 14.7, y: 53, data: { temperature: 37, soilMoisture: 80, pH: 6.9, ec: 2.4, n: 32, p: 17, k: 22, batteryVoltage: 4.7 } },
+        { number: 14, type: 'sensor', x: 21, y: 53, data: { temperature: 38, soilMoisture: 85, pH: 7.0, ec: 2.5, n: 33, p: 18, k: 23, batteryVoltage: 4.8 } },
+        { number: 15, type: 'sensor', x: 27.6, y: 53, data: { temperature: 39, soilMoisture: 90, pH: 7.1, ec: 2.6, n: 34, p: 19, k: 24, batteryVoltage: 4.9 } },
+        { number: 16, type: 'sensor', x: 34, y: 53, data: { temperature: 40, soilMoisture: 95, pH: 7.2, ec: 2.7, n: 35, p: 20, k: 25, batteryVoltage: 5.0 } },
+        { number: 17, type: 'sensor', x: 14.7, y: 63.5, data: { temperature: 41, soilMoisture: 60, pH: 7.3, ec: 2.8, n: 36, p: 21, k: 26, batteryVoltage: 5.1 } },
+        { number: 18, type: 'sensor', x: 21, y: 63.5, data: { temperature: 42, soilMoisture: 65, pH: 7.4, ec: 2.9, n: 37, p: 22, k: 27, batteryVoltage: 5.2 } },
+        { number: 19, type: 'sensor', x: 27.6, y: 63.5, data: { temperature: 43, soilMoisture: 70, pH: 7.5, ec: 3.0, n: 38, p: 23, k: 28, batteryVoltage: 5.3 } },
+        { number: 20, type: 'sensor', x: 34, y: 63.5, data: { temperature: 44, soilMoisture: 75, pH: 7.6, ec: 3.1, n: 39, p: 24, k: 29, batteryVoltage: 5.4 } },
       ],
       hoveredIndex: null,
       tooltipX: 0,
       tooltipY: 0,
-      showModal: false,
+      showConditionModal: false,
+      showIconModal: false,
+      phThreshold: parseFloat(localStorage.getItem('phThreshold')) || 6.5, // Default to 6.5
       activeIcon: null,
       showScheduleModal: false,
       scheduleTimes: [
@@ -273,7 +325,10 @@ export default {
         { x: 23, y: 68, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
       ],
       sensors: [],
-      isAllOn: false, // Track if "ALL ON" is active or not
+      isAllOn1: false, // Track if "ALL ON 1" is active or not
+      isAllOn2: false, // Track if "ALL ON 2" is active or not
+      isAllOn3: false, // Track if "ALL ON 3" is active or not
+      notifications: [], // Notifications array
     };
   },
   methods: {
@@ -299,7 +354,7 @@ export default {
           response.data['aaaa202406140002'],
         ];
 
-        // Adding 4 more duplicated data points to match 17 sensors
+        // Adding 4 more duplicated data points to match 20 sensors
         for (let i = 0; i < 4; i++) {
           sensorData.push(sensorData[i]);
         }
@@ -327,31 +382,31 @@ export default {
 
         // Include the Solenoid Valves and other static relation points
         const solenoidValves = [
-          { label: '1', type: 'Valve', x: 68, y: 47 },
-          { label: '2', type: 'Valve', x: 72.5, y: 47, status: 'Off' },
-          { label: '3', type: 'Valve', x: 77, y: 47 },
-          { label: '4', type: 'Valve', x: 81.7, y: 47 },
-          { label: '5', type: 'Valve', x: 86.5, y: 47 },
-          { label: '6', type: 'Valve', x: 68, y: 55 },
-          { label: '7', type: 'Valve', x: 72.5, y: 55 },
-          { label: '8', type: 'Valve', x: 77, y: 55 },
-          { label: '9', type: 'Valve', x: 81.7, y: 55 },
-          { label: '10', type: 'Valve', x: 86.5, y: 55 },
-          { label: '11', type: 'Valve', x: 68, y: 62.5 },
-          { label: '12', type: 'Valve', x: 72.6, y: 62.5 },
-          { label: '13', type: 'Valve', x: 77.3, y: 62.5 },
-          { label: '14', type: 'Valve', x: 81.9, y: 62.5 },
-          { label: '15', type: 'Valve', x: 86.7, y: 62.5 },
-          { label: '16', type: 'Valve', x: 68, y: 70 },
-          { label: '17', type: 'Valve', x: 72.7, y: 70 },
+          { label: '2', type: 'Valve', x: 68, y: 47, status: 'Off' },
+          { label: '1', type: 'Valve', x: 48, y: 58, status: 'Off' },
+          { label: '19', type: 'Valve', x: 61.3, y: 21, status: 'Off' },
+          { label: '3', type: 'Valve', x: 72.5, y: 47, status: 'Off' },
+          { label: '4', type: 'Valve', x: 77, y: 47, status: 'Off' },
+          { label: '5', type: 'Valve', x: 81.7, y: 47, status: 'Off' },
+          { label: '6', type: 'Valve', x: 86.5, y: 47, status: 'Off' },
+          { label: '7', type: 'Valve', x: 68, y: 55, status: 'Off' },
+          { label: '8', type: 'Valve', x: 72.5, y: 55, status: 'Off' },
+          { label: '9', type: 'Valve', x: 77, y: 55, status: 'Off' },
+          { label: '10', type: 'Valve', x: 81.7, y: 55, status: 'Off' },
+          { label: '11', type: 'Valve', x: 86.5, y: 55, status: 'Off' },
+          { label: '12', type: 'Valve', x: 68, y: 62.5, status: 'Off' },
+          { label: '13', type: 'Valve', x: 72.6, y: 62.5, status: 'Off' },
+          { label: '14', type: 'Valve', x: 77.3, y: 62.5, status: 'Off' },
+          { label: '15', type: 'Valve', x: 81.9, y: 62.5, status: 'Off' },
+          { label: '16', type: 'Valve', x: 86.7, y: 62.5, status: 'Off' },
+          { label: '17', type: 'Valve', x: 68, y: 70, status: 'Off' },
+          { label: '18', type: 'Valve', x: 72.7, y: 70, status: 'Off' },
         ];
 
         const additionalPoints = [
-          { label: '1', type: 'status', x: 48.4, y: 57, status: 'On' },
           { label: 'Rainfall Sensor', type: 'reading', x: 15.4, y: 77, reading: '10 mm' },
           { label: 'Lux Sensor', type: 'reading', x: 24.5, y: 77, reading: '1500 lux' },
           { label: 'Water Level Sensor', type: 'reading', x: 34, y: 77, reading: '75%' },
-          { label: '19', type: 'status', x: 61.3, y: 21, status: 'Off' },
           { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },
           { label: '(Readings/ Threshold)', x: 15.5, y: 85, type: 'break' },
           { label: '(Readings/ Threshold)', x: 24.5, y: 85, type: 'break' },
@@ -361,11 +416,15 @@ export default {
           { label: 'Solenoid Valve ON/OFF', type: 'title', x: 68, y: 37 },
         ];
 
-        this.relationPoints = this.relationPoints.concat(solenoidValves, additionalPoints);
-
+        this.relationPoints.push(...solenoidValves, ...additionalPoints);
       } catch (error) {
         console.error('Error fetching sensor data:', error);
       }
+    },
+    saveThreshold() {
+      localStorage.setItem('phThreshold', this.phThreshold);
+      console.log('Threshold saved:', this.phThreshold);
+      this.closeConditionModal(); // Close the modal after saving
     },
     showValue(index, event) {
       const containerRect = event.currentTarget.getBoundingClientRect();
@@ -374,9 +433,18 @@ export default {
       this.tooltipY = pointRect.y - containerRect.y - 10; // Adjust for positioning above the point
       this.hoveredIndex = index;
     },
-    handleIconClick(icon) {
+    openConditionModal() {
+      this.showConditionModal = true;
+    },
+    closeConditionModal() {
+      this.showConditionModal = false;
+    },
+    openIconModal(icon) {
       this.activeIcon = icon;
-      this.showModal = true;
+      this.showIconModal = true;
+    },
+    closeIconModal() {
+      this.showIconModal = false;
     },
     hideValue() {
       this.hoveredIndex = null;
@@ -389,18 +457,6 @@ export default {
         return label;
       }
       return label.replace(' ', '\n');
-    },
-    openModal() {
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-    },
-    openScheduleModal() {
-      this.showScheduleModal = true;
-    },
-    closeScheduleModal() {
-      this.showScheduleModal = false;
     },
     async sendSwitchCommand(deviceEUI, switchStates) {
       const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
@@ -429,32 +485,53 @@ export default {
         }
       }
     },
-    toggleAllSwitches() {
-      // When "ALL ON" is toggled, send the switch command for all devices
-      const state = this.isAllOn;
-
-      this.setAllSwitches(state, '24e124756e049564');
-      this.setAllSwitches(state, '24e124756e049516');
-      this.setAllSwitches(state, '24E124756E049454');
+    toggleAllSwitches1() {
+      // Handle ALL ON 1 for Switch 1 to 8
+      this.setAllSwitches(this.isAllOn1, '24e124756e049564', 1, 8);
     },
-    setAllSwitches(state, deviceEUI) {
+    toggleAllSwitches2() {
+      // Handle ALL ON 2 for Switch 9 to 16
+      this.setAllSwitches(this.isAllOn2, '24e124756e049516', 9, 16);
+    },
+    toggleAllSwitches3() {
+      // Handle ALL ON 3 for Switch 17 to 19
+      this.setAllSwitches(this.isAllOn3, '24E124756E049454', 17, 19);
+    },
+    setAllSwitches(state, deviceEUI, startSwitch, endSwitch) {
       let switchStates = [];
+
       if (deviceEUI === '24e124756e049564') {
-        this.switchStatesOutdoor1 = this.switchStatesOutdoor1.map(() => state);
+        this.switchStatesOutdoor1 = this.switchStatesOutdoor1.map((_, index) =>
+          index + 1 >= startSwitch && index + 1 <= endSwitch ? state : this.switchStatesOutdoor1[index]
+        );
         switchStates = this.switchStatesOutdoor1;
       } else if (deviceEUI === '24e124756e049516') {
-        this.switchStatesOutdoor2 = this.switchStatesOutdoor2.map(() => state);
+        this.switchStatesOutdoor2 = this.switchStatesOutdoor2.map((_, index) =>
+          index + 9 >= startSwitch && index + 9 <= endSwitch ? state : this.switchStatesOutdoor2[index]
+        );
         switchStates = this.switchStatesOutdoor2;
       } else if (deviceEUI === '24E124756E049454') {
-        this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map(() => state);
+        this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map((_, index) =>
+          index + 17 >= startSwitch && index + 17 <= endSwitch ? state : this.switchStatesOutdoor3[index]
+        );
         switchStates = this.switchStatesOutdoor3;
       }
-      this.sendSwitchCommand(deviceEUI, switchStates);
-      console.log('All switches:', switchStates);
 
-      // Update all icons' status based on the switch state
-      this.icons.forEach((icon) => {
-        icon.isOn = state;
+      // Send the switch command based on the updated states
+      this.sendSwitchCommand(deviceEUI, switchStates);
+
+      // Update the icon statuses based on the range of switches
+      this.icons.forEach(icon => {
+        if (icon.switchNumber >= startSwitch && icon.switchNumber <= endSwitch) {
+          icon.isOn = state;
+        }
+      });
+
+      // Update the status of Solenoid Valves in relationPoints
+      this.relationPoints.forEach(point => {
+        if (point.type === 'Valve' && point.label >= startSwitch && point.label <= endSwitch) {
+          point.status = state ? 'On' : 'Off';
+        }
       });
     },
     toggleSwitchInModal(state, icon) {
@@ -481,22 +558,52 @@ export default {
       this.sendSwitchCommand(deviceEUI, switchStates);
       console.log(`Switch ${icon.switchNumber} toggled to ${state ? 'ON' : 'OFF'}`);
 
-      this.closeModal(); // Close the modal after toggling the switch
+      // Sync status in relationPoints
+      this.relationPoints.forEach((point) => {
+        if (point.type === 'Valve' && point.label === icon.switchNumber.toString()) {
+          point.status = state ? 'On' : 'Off';
+        }
+      });
+
+      this.closeIconModal(); // Close the modal after toggling the switch
     },
     testValveOperation() {
       // This method simulates turning on all valves for 20 minutes
       console.log('Starting test valve operation...');
 
-      this.setAllSwitches(true, '24e124756e049564');
-      this.setAllSwitches(true, '24e124756e049516');
-      this.setAllSwitches(true, '24E124756E049454');
+      this.setAllSwitches(true, '24e124756e049564', 1, 8);
+      this.setAllSwitches(true, '24e124756e049516', 9, 16);
+      this.setAllSwitches(true, '24E124756E049454', 17, 19);
 
       setTimeout(() => {
         console.log('Turning off all valves after 20 minutes...');
-        this.setAllSwitches(false, '24e124756e049564');
-        this.setAllSwitches(false, '24e124756e049516');
-        this.setAllSwitches(false, '24E124756E049454');
+        this.setAllSwitches(false, '24e124756e049564', 1, 8);
+        this.setAllSwitches(false, '24e124756e049516', 9, 16);
+        this.setAllSwitches(false, '24E124756E049454', 17, 19);
       }, 20 * 60 * 1000); // 20 minutes in milliseconds
+    },
+    // Function to check pH values and trigger notifications
+    async checkThreshold() {
+      const threshold = parseFloat(localStorage.getItem('phThreshold')) || 6.5;
+      const belowThresholdSensors = this.relationPoints.filter(point => point.type === 'sensor' && point.data.pH < threshold);
+
+      if (belowThresholdSensors.length > 0) {
+        belowThresholdSensors.forEach(sensor => {
+          this.addNotification(`Sensor ${sensor.number} has pH below ${threshold}`);
+        });
+      }
+    },
+    // Function to add a notification with a countdown timer
+    addNotification(message) {
+      const notificationId = Date.now();
+      this.notifications.push({
+        id: notificationId,
+        message,
+        countdown: 60,  // 60 seconds countdown
+      });
+    },
+    removeNotification(id) {
+      this.notifications = this.notifications.filter(n => n.id !== id);
     },
   },
   mounted() {
@@ -522,6 +629,11 @@ export default {
         this.testValveOperation();
       }, timeUntilOperation);
     });
+
+    // Start checking the threshold every 5 minutes
+    setInterval(() => {
+      this.checkThreshold();
+    }, 5 * 60 * 1000); // Every 5 minutes
   },
 };
 </script>
@@ -646,6 +758,20 @@ h2 {
   height: 24px;
 }
 
+.switch-number {
+  position: absolute;
+  bottom: -20px;
+  /* Position it below the icon */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  background-color: #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
 .status-dot {
   position: absolute;
   top: -5px;
@@ -674,8 +800,6 @@ h2 {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .device-status-card h5 {
   font-size: 1.15rem;
@@ -777,11 +901,15 @@ h2 {
   left: 10px;
   display: flex;
   align-items: center;
+  flex-direction: column;
+  /* Align vertically */
 }
 
 .toggle-switch {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
+  /* Add spacing between the toggles */
 }
 
 .toggle-switch input[type="checkbox"] {
@@ -826,5 +954,14 @@ h2 {
 .border-condition {
   padding: 10px;
   border-radius: 5px;
+}
+
+/* Notification Styles */
+.notification-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  z-index: 1060;
 }
 </style>

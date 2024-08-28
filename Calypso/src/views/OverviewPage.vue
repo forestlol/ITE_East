@@ -13,7 +13,7 @@
     <div class="map-hierarchy">
       <h3>Map of Area or Sub-System Hierarchy Selection</h3>
       <div class="map-content">
-        <img src="@/assets/Sub System and Icons/V2/B05V2.jpg" alt="ITE East Floor Plan" class="img-fluid fixed-size">
+        <img src="@/assets/V3/B05V3.jpg" alt="ITE East Floor Plan" class="img-fluid fixed-size">
       </div>
     </div>
     <div class="summary-subsystems">

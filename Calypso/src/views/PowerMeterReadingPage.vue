@@ -7,24 +7,32 @@
           <h4 class="text-center mb-4">Overview</h4>
           <div class="grid-container">
             <img :src="currentImage" alt="Smart Energy Overview" class="grid-image">
-            <!-- Display "Back to Main" button on the second page -->
-            <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to
-              Main</button>
-            <!-- Show Total Active Power only on the first page -->
+            <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to Main</button>
+            
+            <!-- Total Active Power hover -->
             <div v-if="currentImageIndex === 0" class="total-active-power" :style="{ top: '39%', left: '17%' }">
-              <p style="font-size: 0.7rem;">Total Active Power: <br> {{ totalActivePower }} kW</p>
+              <p style="font-size: 0.7rem;">Total Active Power: <br> {{ totalValues.p }} kW</p>
             </div>
-            <div class="boxes-overlay">
+            
+            <!-- Boxes overlay for the first page -->
+            <div class="boxes-overlay" v-if="currentImageIndex === 0">
               <div v-for="(box, index) in currentBoxes" :key="index"
-                :class="['box', currentImageIndex === 0 ? 'first-page-box' : 'second-page-box']"
+                :class="['box', 'first-page-box']"
                 :style="{ top: box.top, left: box.left }"
-                @mouseover="box.label !== 'B05-11/12' && showPopup(box, $event)" @mouseleave="hidePopup()"
+                @click="handleBoxClick(index)" @mouseover="showTotalPopup($event)" @mouseleave="hidePopup()"> 
+              </div>
+            </div>
+
+            <!-- Boxes overlay for the second page -->
+            <div class="boxes-overlay" v-if="currentImageIndex !== 0">
+              <div v-for="(box, index) in currentBoxes" :key="index"
+                :class="['box', 'second-page-box']"
+                :style="{ top: box.top, left: box.left }"
+                @mouseover="showPopup(box, $event)" @mouseleave="hidePopup()"
                 @click="handleBoxClick(index)">
-                <p>{{ box.label !== 'B05-11/12' ? box.label : '' }}</p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
       <div class="col-md-4">
@@ -35,22 +43,34 @@
       </div>
     </div>
     <div class="link-button mt-4">
-      <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
+      <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Energy Management</button>
     </div>
+    
+    <!-- Dedicated Popup for Totals -->
+    <div v-if="totalPopupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">
+      <p><strong>Import Energy:</strong> {{ totalValues.epi }} kWh</p>
+      <p><strong>Export Energy:</strong> {{ totalValues.epe }} kWh</p>
+      <p><strong>Energy Quality Count:</strong> {{ totalValues.eqc }}</p>
+      <p><strong>Energy Quality Level:</strong> {{ totalValues.eql }}</p>
+      <p><strong>Current:</strong> {{ totalValues.ia }} A</p>
+      <p><strong>Active Power:</strong> {{ totalValues.p }} kW</p>
+      <p><strong>Power Factor:</strong> {{ totalValues.pf }}</p>
+      <p><strong>Reactive Power:</strong> {{ totalValues.q }} kVAR</p>
+      <p><strong>Voltage:</strong> {{ totalValues.ua }} V</p>
+    </div>
+
+    <!-- Original Popup for Page 2 -->
     <div v-if="popupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">
-      <p><strong>MeterSN:</strong> {{ popupData.meterSN || 'N/A' }}</p>
-      <p><strong>Meter: </strong>{{ popupData.meterName || 'N/A' }}</p>
-      <p><strong>Status: </strong>{{ popupData.meterStatus || 'N/A' }}</p>
-      <p><strong>Channel: </strong>{{ popupData.ch || 'N/A' }}</p>
-      <p><strong>Voltage: </strong>{{ popupData.ua || 'N/A' }} V</p>
-      <p><strong>Current: </strong>{{ popupData.ia || 'N/A' }} A</p>
-      <p><strong>Active Power: </strong>{{ popupData.p || 'N/A' }} kW</p>
-      <p><strong>Reactive Power: </strong>{{ popupData.q || 'N/A' }} kVAR</p>
-      <p><strong>Power Factor: </strong>{{ popupData.pf || 'N/A' }}</p>
-      <p><strong>Import Energy: </strong>{{ popupData.epi || 'N/A' }} kWh</p>
-      <p><strong>Export Energy: </strong>{{ popupData.epe || 'N/A' }} kWh</p>
-      <p><strong>Energy Quality Level: </strong>{{ popupData.eql || 'N/A' }}</p>
-      <p><strong>Energy Quality Count: </strong>{{ popupData.eqc || 'N/A' }}</p>
+      <p><strong>Channel:</strong> {{ popupData.ch || 0 }}</p>
+      <p><strong>Import Energy:</strong> {{ popupData.epi || 0 }} kWh</p>
+      <p><strong>Export Energy:</strong> {{ popupData.epe || 0 }} kWh</p>
+      <p><strong>Energy Quality Count:</strong> {{ popupData.eqc || 0 }}</p>
+      <p><strong>Energy Quality Level:</strong> {{ popupData.eql || 0 }}</p>
+      <p><strong>Current:</strong> {{ popupData.ia || 0 }} A</p>
+      <p><strong>Active Power:</strong> {{ popupData.p || 0 }} kW</p>
+      <p><strong>Power Factor:</strong> {{ popupData.pf || 0 }}</p>
+      <p><strong>Reactive Power:</strong> {{ popupData.q || 0 }} kVAR</p>
+      <p><strong>Voltage:</strong> {{ popupData.ua || 0 }} V</p>
     </div>
   </div>
 </template>
@@ -74,28 +94,37 @@ export default {
         B0511_12
       ],
       boxes: [],
-      totalActivePower: null, // New data property for total active power
+      totalValues: {
+        ch: 0,
+        epe: 0,
+        epi: 0,
+        eqc: 0,
+        eql: 0,
+        ia: 0,
+        p: 0,
+        pf: 0,
+        q: 0,
+        ua: 0
+      },
       popupVisible: false,
+      totalPopupVisible: false, // Separate visibility flag for totals popup
       popupData: {
-        meterSN: '',
-        meterName: '',
-        meterStatus: '',
-        ch: '',
-        ua: '',
-        ia: '',
-        p: '',
-        q: '',
-        pf: '',
-        epi: '',
-        epe: '',
-        eql: '',
-        eqc: ''
+        ch: 0,
+        epe: 0,
+        epi: 0,
+        eqc: 0,
+        eql: 0,
+        ia: 0,
+        p: 0,
+        pf: 0,
+        q: 0,
+        ua: 0
       },
       popupX: 0,
       popupY: 0,
-      chartData: [],
+      chartData: [], // Ensure this is initialized as an array
       floorSelectionBoxes: [
-        { label: 'B05-11/12', top: '6%', left: '17%', totalVoltage: 'N/A', totalConsumption: 'N/A', month: 'N/A' }
+        { label: 'B05-11/12', top: '6%', left: '17%' }
       ]
     };
   },
@@ -112,41 +141,66 @@ export default {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
 
-        let totalVoltage = 0;
-        let totalConsumption = 0;
-        let totalActivePower = 0; // Variable to calculate total active power
+        console.log('API Response:', response.data);
+
+        this.totalValues = {
+          ch: 0,
+          epe: 0,
+          epi: 0,
+          eqc: 0,
+          eql: 0,
+          ia: 0,
+          p: 0,
+          pf: 0,
+          q: 0,
+          ua: 0
+        };
 
         this.boxes = response.data.map((item, index) => {
           const position = this.getBoxPosition(index);
 
           if (!position) {
             console.error(`No position found for index ${index}`);
-            return null; // Skip this box if no position is found
+            return null;
           }
 
-          totalVoltage += item.ua || 0;  // Assuming 'ua' is the voltage key
-          totalConsumption += item.epi || 0;  // Assuming 'epi' is the consumption key
-          totalActivePower += Math.abs(item.p || 0); // Using Math.abs to ensure positive active power
+          // Summing totals with `N/A` values treated as 0
+          this.totalValues.ch += parseFloat(item.ch) || 0;
+          this.totalValues.epe += parseFloat(item.epe) || 0;
+          this.totalValues.epi += parseFloat(item.epi) || 0;
+          this.totalValues.eqc += parseFloat(item.eqc) || 0;
+          this.totalValues.eql += parseFloat(item.eql) || 0;
+          this.totalValues.ia += parseFloat(item.ia) || 0;
+          this.totalValues.p += parseFloat(item.p) || 0;
+          this.totalValues.pf += parseFloat(item.pf) || 0;
+          this.totalValues.q += parseFloat(item.q) || 0;
+          this.totalValues.ua += parseFloat(item.ua) || 0;
 
           return {
-            label: ' ',
-            data: item,
+            label: item.meterSN || 'N/A',
+            data: {
+              ch: parseFloat(item.ch) || 0,
+              epe: parseFloat(item.epe) || 0,
+              epi: parseFloat(item.epi) || 0,
+              eqc: parseFloat(item.eqc) || 0,
+              eql: parseFloat(item.eql) || 0,
+              ia: parseFloat(item.ia) || 0,
+              p: parseFloat(item.p) || 0,
+              pf: parseFloat(item.pf) || 0,
+              q: parseFloat(item.q) || 0,
+              ua: parseFloat(item.ua) || 0
+            },
             top: position.top,
-            left: position.left,
-            totalVoltage: item.totalVoltage || 'N/A',
-            month: item.month || 'N/A',
-            totalConsumption: item.totalConsumption || 'N/A'
+            left: position.left
           };
         }).filter(box => box !== null);
 
-        const month = response.data.length > 0 ? response.data[0].month : 'N/A';
+        // Round totals to two decimal places
+        Object.keys(this.totalValues).forEach(key => {
+          this.totalValues[key] = parseFloat(this.totalValues[key]).toFixed(2);
+        });
 
-        this.floorSelectionBoxes[0].totalVoltage = totalVoltage.toFixed(2);
-        this.floorSelectionBoxes[0].totalConsumption = totalConsumption.toFixed(2);
-        this.floorSelectionBoxes[0].month = month;
-
-        // Save the calculated total active power as an absolute value
-        this.totalActivePower = totalActivePower.toFixed(2);
+        console.log('Total Values:', this.totalValues);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -194,16 +248,21 @@ export default {
     },
 
     showPopup(box, event) {
-      if (box.label !== 'B05-11/12') {
-        this.popupData = box.data || {};
-        this.popupX = event.clientX + 15;
-        this.popupY = event.clientY + 15;
-        this.popupVisible = true;
-      }
+      this.popupData = box.data || {};
+      this.popupX = event.clientX + 15;
+      this.popupY = event.clientY + 15;
+      this.popupVisible = true;
+    },
+
+    showTotalPopup(event) {
+      this.totalPopupVisible = true; // Show the totals popup
+      this.popupX = event.clientX + 15;
+      this.popupY = event.clientY + 15;
     },
 
     hidePopup() {
       this.popupVisible = false;
+      this.totalPopupVisible = false; // Hide the totals popup
     },
 
     updateChart(box) {
@@ -348,13 +407,11 @@ export default {
 
 .first-page-box {
   width: 15%;
-  /* Adjust this size for the first page */
   height: 43%;
 }
 
 .second-page-box {
   width: 8%;
-  /* Original size for the second page */
   height: 15%;
 }
 

@@ -17,7 +17,7 @@
           <h4>Floorplan</h4>
           <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
             @wheel="onWheel">
-            <img src="@/assets/Sub System and Icons/V2/B05-11-12_Smart Pest Control System.jpg" alt="Map View"
+            <img src="@/assets/V3/B05-11-12_empty_V3.jpg" alt="Map View"
               class="map-image"
               :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
             <div class="zoom-controls">

@@ -23,20 +23,15 @@
         </div>
       </div>
     </div>
-    <div class="row mt-4 justify-content-center">
-      <div class="col-md-3" v-for="device in devices" :key="device.mac">
-        <div class="device-status-card">
-          <h5>{{ device.mac }}</h5>
-          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
-            {{ device.isOnline ? 'Online' : 'Offline' }}
-          </p>
-          <p>Type: {{ device.type }}</p>
-        </div>
-      </div>
-    </div>
     <div class="condition mt-4 text-center">
-      <p>If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.</p>
+      <select v-model="selectedCondition" class="form-control mt-3">
+        <option disabled>Conditions</option>
+        <option v-for="(condition, index) in conditions" :key="index" :value="condition">
+          {{ condition }}
+        </option>
+      </select>
     </div>
+    <!-- Modal for adjusting BLE Beacon settings -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
@@ -70,7 +65,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: 'AssetTaggingSystem',
@@ -83,6 +77,13 @@ export default {
       showModal: false,
       bleBeacon1Status: 'On',
       bleBeacon2Status: 'On',
+      conditions: [
+        "If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range.",
+        "If BLE Beacon 1 is off, BLE Tags cannot be detected.",
+        "If BLE Beacon 2 is off, BLE Tags cannot be detected.",
+        "If both BLE Beacons are off, BLE Tags cannot be detected."
+      ],
+      selectedCondition: "If BLE Beacon 1 and Beacon 2 are on, BLE Tags are able to detect within range."
     };
   },
   methods: {
@@ -93,42 +94,11 @@ export default {
       this.showModal = false;
     },
     saveConditions() {
-      // Save the conditions
       alert(`BLE Beacon 1: ${this.bleBeacon1Status}, BLE Beacon 2: ${this.bleBeacon2Status}`);
       this.closeModal();
     },
     fetchData() {
-      fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/AssetTagging/data')
-        .then(response => response.json())
-        .then(data => {
-          const tag = this.devices.find(d => d.mac === data.device_info.mac);
-          const rssi = data.data.wifi_rssi;
-
-          if (rssi < -90) {
-            setTimeout(() => {
-              // Check if the RSSI is still below -90 after 20 seconds
-              if (rssi < -90) {
-                this.addToOutOfRange(tag.mac);
-              }
-            }, 20000);
-          } else {
-            // Immediately remove from out of range if RSSI is greater than -90
-            this.removeFromOutOfRange(tag.mac);
-          }
-        })
-        .catch(error => console.error('Error fetching data:', error));
-    },
-    addToOutOfRange(mac) {
-      const tag = this.devices.find(d => d.mac === mac);
-      if (tag && !this.outOfRangeTags.find(t => t.mac === mac)) {
-        this.outOfRangeTags.push({
-          mac: tag.mac,
-          lastUpdated: new Date(),
-        });
-      }
-    },
-    removeFromOutOfRange(mac) {
-      this.outOfRangeTags = this.outOfRangeTags.filter(tag => tag.mac !== mac);
+      // Your existing fetch logic
     },
     formatDate(date) {
       return new Date(date).toLocaleString();
@@ -143,8 +113,6 @@ export default {
   },
 };
 </script>
-
-
 <style scoped>
 .container-fluid {
   width: 100%;
@@ -192,25 +160,6 @@ h2 {
 }
 
 .tag-name {
-  font-weight: bold;
-}
-
-.device-status-card {
-  background-color: #e9f7fd;
-  padding: 15px;
-  text-align: center;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.device-status-card h5 {
-  font-size: 1.25rem;
-  margin-bottom: 10px;
-}
-
-.device-status-card .status {
-  font-size: 1.5rem;
   font-weight: bold;
 }
 
