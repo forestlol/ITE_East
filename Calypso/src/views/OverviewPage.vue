@@ -1,7 +1,7 @@
 <template>
   <div class="overview-container">
     <div class="summary-be">
-      <h3>Summary of BE</h3>
+      <h3>System Healthcheck</h3>
       <div class="summary-content">
         <div class="progress-bars">
           <div v-for="(progress, index) in progressData" :key="index" class="progress-bar-container">
@@ -228,11 +228,8 @@ export default {
       currentHybridAirIndex: 0,
       faults: [], // Store fault data
       progressData: [
-        { label: 'Energy Efficiency', value: 100 },
-        { label: 'Water Usage', value: 100 },
-        { label: 'Temperature Control', value: 100 },
         { label: 'Air Quality', value: 100 },
-        { label: 'System Performance', value: 100 },
+        { label: 'Device Operational', value: 100 },
       ],
       subsystemData: [
         { name: 'Fire Alarm System Overview', type: 'semi-circle', operational: 100, link: '/fire-alarm-system' },

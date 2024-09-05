@@ -19,7 +19,8 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/fire-alarm-system">
-            <img :src="FASIcon" alt="Fire Alarm System" class="icon-image" :class="{ 'active-icon': $route.path === '/fire-alarm-system' }">
+            <img :src="FASIcon" alt="Fire Alarm System" class="icon-image"
+              :class="{ 'active-icon': $route.path === '/fire-alarm-system' }">
             <span class="nav-text">Fire Alarm System</span>
           </router-link>
         </li>
@@ -61,13 +62,15 @@
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/indoor-air-quality">
-            <img :src="airFlowIcon" alt="Indoor Air Quality System" class="icon-image" :class="{ 'active-icon': $route.path === '/indoor-air-quality' }">
+            <img :src="airFlowIcon" alt="Indoor Air Quality System" class="icon-image"
+              :class="{ 'active-icon': $route.path === '/indoor-air-quality' }">
             <span class="nav-text">Indoor Air Quality System</span>
           </router-link>
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/hybrid-aircon">
-            <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image" :class="{ 'active-icon': $route.path === '/hybrid-aircon' }">
+            <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image"
+              :class="{ 'active-icon': $route.path === '/hybrid-aircon' }">
             <span class="nav-text">Hybrid Aircon System</span>
           </router-link>
         </li>
@@ -81,10 +84,11 @@
         <div class="navbar-left">
           <span>{{ currentDate }}</span>
           <span>ITE College East</span>
-          <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" /></span>
+          <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon"
+              class="weather-icon" /></span>
         </div>
         <div class="navbar-right">
-          <a href="http://52.237.90.38:82/" target="_blank" class="topbar-button">
+          <a href="http://52.237.90.38:82/" target="_blank" class="topbar-button control-tower-button">
             Control Tower
           </a>
           <a href="https://visualizer-lite-html.vercel.app/?site=23&buildings=19" target="_blank" class="topbar-button">
@@ -159,7 +163,8 @@ export default {
 }
 
 .sidebar {
-  width: 200px; /* Sidebar is expanded by default */
+  width: 200px;
+  /* Sidebar is expanded by default */
   transition: width 0.3s;
   height: 100vh;
   background-color: #f8f9fa;
@@ -174,7 +179,8 @@ export default {
 }
 
 .sidebar:not(.expanded) {
-  width: 60px; /* Width of collapsed sidebar */
+  width: 60px;
+  /* Width of collapsed sidebar */
 }
 
 .sidebar-header {
@@ -216,19 +222,24 @@ export default {
   color: black;
 }
 
-.nav-link i, .nav-link .icon-image {
+.nav-link i,
+.nav-link .icon-image {
   margin-right: 10px;
 }
 
 .icon-image {
-  width: 20px;  /* Adjust this to the desired width */
-  height: 20px; /* Adjust this to the desired height */
+  width: 20px;
+  /* Adjust this to the desired width */
+  height: 20px;
+  /* Adjust this to the desired height */
   margin-right: 10px;
-  object-fit: contain; /* Ensures the icon fits within the specified dimensions */
+  object-fit: contain;
+  /* Ensures the icon fits within the specified dimensions */
 }
 
 
-.sidebar:not(.expanded) .nav-link i, .sidebar:not(.expanded) .nav-link .icon-image {
+.sidebar:not(.expanded) .nav-link i,
+.sidebar:not(.expanded) .nav-link .icon-image {
   margin-right: 0;
 }
 
@@ -241,8 +252,10 @@ export default {
 }
 
 .active-icon {
-  color: #007bff; /* Blue color for FontAwesome icons */
-  filter: brightness(0) saturate(100%) invert(29%) sepia(87%) saturate(2979%) hue-rotate(191deg) brightness(92%) contrast(102%); /* Blue filter for images */
+  color: #007bff;
+  /* Blue color for FontAwesome icons */
+  filter: brightness(0) saturate(100%) invert(29%) sepia(87%) saturate(2979%) hue-rotate(191deg) brightness(92%) contrast(102%);
+  /* Blue filter for images */
 }
 
 .toggle-button {
@@ -257,11 +270,13 @@ export default {
 .main-content {
   flex-grow: 1;
   transition: margin-left 0.3s;
-  margin-left: 200px; /* Adjusted for expanded sidebar width */
+  margin-left: 200px;
+  /* Adjusted for expanded sidebar width */
 }
 
-.sidebar:not(.expanded) ~ .main-content {
-  margin-left: 60px; /* Adjusted for collapsed sidebar width */
+.sidebar:not(.expanded)~.main-content {
+  margin-left: 60px;
+  /* Adjusted for collapsed sidebar width */
 }
 
 .navbar {
@@ -272,17 +287,22 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% - 200px); /* Adjusted for expanded sidebar width */
+  width: calc(100% - 200px);
+  /* Adjusted for expanded sidebar width */
   transition: width 0.3s;
   position: fixed;
   top: 0;
-  left: 200px; /* Adjusted for expanded sidebar width */
-  z-index: 999; /* Ensure the navbar is above other content */
+  left: 200px;
+  /* Adjusted for expanded sidebar width */
+  z-index: 999;
+  /* Ensure the navbar is above other content */
 }
 
-.sidebar:not(.expanded) ~ .main-content .navbar {
-  width: calc(100% - 60px); /* Adjusted for collapsed sidebar width */
-  left: 60px; /* Adjusted for collapsed sidebar width */
+.sidebar:not(.expanded)~.main-content .navbar {
+  width: calc(100% - 60px);
+  /* Adjusted for collapsed sidebar width */
+  left: 60px;
+  /* Adjusted for collapsed sidebar width */
 }
 
 .navbar-left {
@@ -303,15 +323,19 @@ export default {
 }
 
 .content {
-  padding: 80px 20px 20px 20px; /* Added padding-top to account for the fixed navbar */
-  margin-top: 60px; /* Add margin-top to avoid overlapping with the navbar */
+  padding: 80px 20px 20px 20px;
+  /* Added padding-top to account for the fixed navbar */
+  margin-top: 60px;
+  /* Add margin-top to avoid overlapping with the navbar */
   transition: margin-left 0.3s;
 }
 
-.sidebar:not(.expanded) ~ .main-content .content {
-  margin-left: 60px; /* Adjusted for collapsed sidebar width */
+.sidebar:not(.expanded)~.main-content .content {
+  margin-left: 60px;
+  /* Adjusted for collapsed sidebar width */
 }
 
+/* General topbar button styling remains the same */
 .topbar-button {
   background-color: #007bff;
   color: white;
@@ -324,5 +348,16 @@ export default {
 
 .topbar-button:hover {
   background-color: #0056b3;
+}
+
+/* Specific style for the Control Tower button */
+.control-tower-button {
+  background-color: #343a40;
+  /* Darker color for the Control Tower button */
+}
+
+.control-tower-button:hover {
+  background-color: #1d2124;
+  /* Even darker on hover */
 }
 </style>

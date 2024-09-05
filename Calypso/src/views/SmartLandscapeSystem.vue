@@ -48,16 +48,7 @@
                         <p>K: {{ point.data.k }} mg/L</p>
                         <p>Battery Voltage: {{ point.data.batteryVoltage }} V</p>
                       </template>
-                      <template v-else-if="point.type === 'status'">
-                        <p>{{ point.label }}: {{ point.status }}</p>
-                      </template>
-                      <template v-else-if="point.type === 'reading'">
-                        <p>{{ point.label }}: {{ point.reading }}</p>
-                      </template>
                     </span>
-                    <!-- Status Dot for Solenoid Valves -->
-                    <div v-if="point.type === 'Valve'"
-                      :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
                   </div>
                 </div>
                 <div class="adjust-button-container">
@@ -106,7 +97,7 @@
             </div>
           </div>
         </div>
-        <!-- Overview Tab -->
+
         <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
           <div class="d-flex justify-content-between mt-4">
             <div class="device-status-card text-center" v-for="device in devices" :key="device.id">
@@ -155,9 +146,9 @@
       </div>
     </div>
 
-    <!-- pH Threshold Modal -->
+    <!-- Modals and Buttons -->
     <div v-if="showConditionModal" class="modal-overlay" @click="closeConditionModal"></div>
-    <div v-if="showConditionModal" class="modal d-block">
+    <div v-if="showConditionModal" class="modal d-block" style="z-index: 1050;">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header justify-content-center">
@@ -179,9 +170,8 @@
       </div>
     </div>
 
-    <!-- Icon ON/OFF Modal -->
     <div v-if="showIconModal" class="modal-overlay" @click="closeIconModal"></div>
-    <div v-if="showIconModal" class="modal d-block">
+    <div v-if="showIconModal" class="modal d-block" style="z-index: 1050;">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header justify-content-center">
@@ -190,8 +180,11 @@
               @click="closeIconModal">&times;</button>
           </div>
           <div class="modal-body text-center">
-            <button @click="toggleSwitchInModal(true, activeIcon)" class="btn btn-primary mx-2">ON</button>
-            <button @click="toggleSwitchInModal(false, activeIcon)" class="btn btn-danger mx-2">OFF</button>
+            <label class="switch">
+              <input type="checkbox" v-model="activeIcon.isOn"
+                @change="toggleSwitchInModal(activeIcon.isOn, activeIcon)">
+              <span class="slider round"></span>
+            </label>
           </div>
         </div>
       </div>
@@ -199,7 +192,7 @@
 
     <!-- Schedule Valve Simulation Modal -->
     <div v-if="showScheduleModal" class="modal-overlay" @click="closeScheduleModal"></div>
-    <div v-if="showScheduleModal" class="modal d-block">
+    <div v-if="showScheduleModal" class="modal d-block" style="z-index: 1050;">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header justify-content-center">
@@ -332,6 +325,12 @@ export default {
     };
   },
   methods: {
+    openScheduleModal() {
+      this.showScheduleModal = true;
+    },
+    closeScheduleModal() {
+      this.showScheduleModal = false;
+    },
     async fetchSensorData() {
       try {
         const response = await axios.get(
@@ -640,6 +639,51 @@ export default {
 
 
 <style scoped>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: green;
+}
+
+input:checked+.slider:before {
+  transform: translateX(26px);
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -823,6 +867,11 @@ h2 {
 /* Centering Tabs */
 .nav-tabs {
   justify-content: center;
+}
+
+/* Modal z-index handling */
+.modal {
+  z-index: 1050;
 }
 
 /* Modal and Buttons */

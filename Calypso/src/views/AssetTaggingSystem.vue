@@ -24,6 +24,16 @@
         </div>
       </div>
     </div>
+  
+    <!-- Log Dialog Section -->
+    <div class="log-dialog mt-4">
+      <h4>Logs</h4>
+      <ul class="log-list">
+        <li v-for="(log, index) in logs" :key="index">{{ log }}</li>
+      </ul>
+    </div>
+  
+    <!-- Condition Section -->
     <div class="condition mt-4 text-center">
       <select v-model="selectedCondition" class="form-control mt-3">
         <option disabled>Conditions</option>
@@ -32,6 +42,7 @@
         </option>
       </select>
     </div>
+  
     <!-- Modal for adjusting BLE Beacon settings -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
@@ -76,6 +87,7 @@ export default {
         { mac: 'fce8c0426458', type: 'BLE Beacon', isOnline: true, lastUpdated: new Date() }
       ],
       outOfRangeTags: [],
+      logs: [], // Array to store out-of-range logs
       showModal: false,
       bleBeacon1Status: 'On',
       bleBeacon2Status: 'On',
@@ -105,52 +117,40 @@ export default {
       fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/AssetTagging/data')
         .then(response => response.json())
         .then(data => {
-          console.log("Data received:", data);
           const sensorData = data.data;
 
           sensorData.forEach(sensor => {
             const rssi = sensor.rssi;
             const mac = sensor.mac;
 
-            console.log(`Processing sensor with MAC: ${mac}, RSSI: ${rssi}`);
-
             const existingSensor = this.allSensors.find(s => s.mac === mac);
 
             if (!existingSensor) {
               // Add new sensor
               if (this.allSensors.length < 28) {
-                console.log(`Adding new sensor: ${mac}`);
                 this.allSensors.push({ mac, rssi, lastUpdated: new Date() });
               }
             } else {
               // Update existing sensor
-              console.log(`Updating sensor: ${mac}`);
               existingSensor.rssi = rssi;
               existingSensor.lastUpdated = new Date();
             }
 
             if (rssi < -90) {
-              console.log(`RSSI below threshold for MAC: ${mac}. Checking again in 20 seconds...`);
               setTimeout(() => {
                 // Check if the RSSI is still below -90 after 20 seconds
                 if (rssi < -90) {
-                  console.log(`RSSI still below threshold for MAC: ${mac}. Adding to out-of-range.`);
                   this.addToOutOfRange(mac);
                 }
               }, 20000);
             } else {
               // Immediately remove from out of range if RSSI is greater than -90
-              console.log(`RSSI above threshold for MAC: ${mac}. Removing from out-of-range.`);
               this.removeFromOutOfRange(mac);
             }
           });
 
-          // Log the contents of the allSensors array
-          console.log("Current allSensors array:", this.allSensors);
-
           // When 28 sensors are filled, switch to checking every 30 seconds
           if (this.allSensors.length >= 28) {
-            console.log("28 sensors reached. Switching to 30-second intervals.");
             clearInterval(this.interval);
             this.interval = setInterval(this.fetchData, 30000);
           }
@@ -160,19 +160,21 @@ export default {
     addToOutOfRange(mac) {
       const tag = this.allSensors.find(d => d.mac === mac);
       if (tag && !this.outOfRangeTags.find(t => t.mac === mac)) {
-        console.log(`Adding MAC: ${mac} to out-of-range.`);
         this.outOfRangeTags.push({
           mac: tag.mac,
           lastUpdated: new Date(),
         });
+        this.addLog(`MAC ${mac} out-of-range at ${this.formatDate(new Date())}`);
       }
     },
     removeFromOutOfRange(mac) {
-      console.log(`Removing MAC: ${mac} from out-of-range.`);
       this.outOfRangeTags = this.outOfRangeTags.filter(tag => tag.mac !== mac);
     },
     formatDate(date) {
       return new Date(date).toLocaleString();
+    },
+    addLog(message) {
+      this.logs.unshift(message); // Adds the log message to the top of the logs array
     },
   },
   mounted() {
@@ -233,6 +235,26 @@ h2 {
 
 .tag-name {
   font-weight: bold;
+}
+
+.log-dialog {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 150px; /* Set a maximum height */
+  overflow-y: auto; /* Enable scrolling if the logs exceed max height */
+}
+
+.log-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.log-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid #ccc;
 }
 
 .condition p {

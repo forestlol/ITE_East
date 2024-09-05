@@ -4,10 +4,12 @@
     <div class="row">
       <div class="col-md-6">
         <div class="relation-section">
-          <h4>Sensor Detection</h4>
-          <div class="sensor-detection-diagram position-relative">
-            <img src="@/assets/Smart Pest Control Algo.png" alt="Sensor Detection Diagram" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust Condition</button>
+          <h4>Livecam</h4>
+          <div class="sensor-detection-diagram position-relative" style="height:88%">
+            <!-- Hyperbeam Session Button -->
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="startHyperbeamSession">Start
+              Hyperbeam Session</button>
+            <iframe id="hyperbeamIframe" allow="autoplay" style="border: 0; width:100%; height:100%" src=""></iframe>
           </div>
         </div>
       </div>
@@ -19,7 +21,8 @@
 
             <!-- Magnetic Sensors -->
             <div v-for="sensor in magneticSensors" :key="sensor.devEUI" class="magnetic-sensor-icon"
-              :style="{ top: sensor.top, left: sensor.left }" @mouseover="showSensorInfo(sensor)" @mouseleave="hideSensorInfo(sensor)">
+              :style="{ top: sensor.top, left: sensor.left }" @mouseover="showSensorInfo(sensor)"
+              @mouseleave="hideSensorInfo(sensor)">
               <img src="@/assets/Magnetic Sensor.png" alt="Magnetic Sensor Icon" class="icon-image">
               <div class="sensor-info" v-if="sensor.showInfo">
                 <h5>Magnetic Sensor</h5>
@@ -113,7 +116,6 @@ export default {
       magneticLockStatus: 'On',
       cameraStatus: 'On',
       magneticSensors: [],
-      // Conditions Data
       conditions: [
         'Conditions',
         'If PIR sensor motion detected, then magnetic lock turn on, camera turn on',
@@ -130,18 +132,17 @@ export default {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/Magnetic');
         const data = response.data;
 
-        // Set the top and left positions individually for each sensor
         this.magneticSensors = [
           {
-            ...data['24e124141e151801'], // Assuming this is the first sensor's key
-            top: '24%', // Set the individual top position
-            left: '69%', // Set the individual left position
+            ...data['24e124141e151801'],
+            top: '24%',
+            left: '69%',
             showInfo: false
           },
           {
-            ...data['24e124141e151546'], // Assuming this is the second sensor's key
-            top: '24%', // Set the individual top position
-            left: '65%', // Set the individual left position
+            ...data['24e124141e151546'],
+            top: '24%',
+            left: '65%',
             showInfo: false
           }
         ];
@@ -156,7 +157,6 @@ export default {
       this.showModal = false;
     },
     saveConditions() {
-      // Save the conditions
       alert(`PIR Sensor: ${this.pirSensorStatus}, Magnetic Lock: ${this.magneticLockStatus}, Camera: ${this.cameraStatus}`);
       this.closeModal();
     },
@@ -169,12 +169,22 @@ export default {
     hideSensorInfo(sensor) {
       sensor.showInfo = false;
     },
+    // Function to create and start a Hyperbeam session
+    async startHyperbeamSession() {
+      try {
+        const response = await axios.post('http://localhost:3000/create-session');
+        const embedUrl = response.data.embed_url;
+
+        // Dynamically set iframe source
+        document.getElementById('hyperbeamIframe').src = embedUrl;
+      } catch (error) {
+        console.error('Error starting Hyperbeam session:', error);
+      }
+    },
   },
   mounted() {
-    // Fetch the magnetic sensor data when the component is mounted
     this.fetchMagneticSensorData();
 
-    // Set the default condition to the first one in the list
     if (this.conditions.length > 0) {
       this.selectedCondition = this.conditions[0];
       this.updateCondition();
@@ -282,10 +292,6 @@ h2 {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1040;
-}
-
-.modal {
-  display: none;
 }
 
 .modal.d-block {
