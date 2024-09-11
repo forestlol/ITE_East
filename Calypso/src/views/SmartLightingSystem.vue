@@ -31,10 +31,7 @@
             </div>
             <div v-for="(sensor, index) in currentSensors" :key="index" class="sensor-icon"
               :style="{ top: sensor.top, left: sensor.left }" @click="toggleModal(sensor)">
-              <!-- Apply square-bar class only for B05-11-12_empty_V3.jpg and the first two sensors -->
-              <div :class="(selectedImage === 'B05-11-12_empty_V3.jpg' && index < 2) ? 'square-bar' : 'vertical-bar'">
-              </div>
-              <!-- Always show the status dot -->
+              <img :src="require('@/assets/lighting.png')" alt="Lighting Icon" class="lighting-icon" />
               <span :class="['status-dot', sensor.isOnline ? 'online' : 'offline']"></span>
             </div>
           </div>
@@ -54,7 +51,6 @@
     </div>
 
     <!-- Modal Dialog -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -68,7 +64,7 @@
             <button @click="setZoneState(false, currentSensor)" class="btn btn-danger mb-3">OFF</button>
 
             <!-- Sliders for B05-11/12 -->
-            <div v-if="selectedImage === 'B05-11-12_empty_V3.jpg'" class="zone-control">
+            <div v-if="selectedImage === 'B05-11-12_full_empty.png'" class="zone-control">
               <h5>{{ currentSensor.name }} Control</h5>
               <label>Color Temperature (Level 1): {{ currentSensor.level1 }}</label>
               <input type="range" v-model="currentSensor.level1" min="0" max="100" step="100" />
@@ -94,43 +90,47 @@ export default {
   data() {
     return {
       devices: [],
-      selectedImage: 'B05-07_empty_V3.jpg',
+      selectedImage: 'B05-07_empty.png',
       images: [
-        { value: 'B05-07_empty_V3.jpg', label: 'B05-07' },
-        { value: 'B05-08_empty_V3.jpg', label: 'B05-08' },
-        { value: 'B05-09_empty_V3.jpg', label: 'B05-09' },
-        { value: 'B05-11-12_empty_V3.jpg', label: 'B05-11/12' }
+        { value: 'B05-07_empty.png', label: 'B05-07' },
+        { value: 'B05-08_empty_light.png', label: 'B05-08' },
+        { value: 'B05-09_full_lighting.png', label: 'B05-09' },
+        { value: 'B05-11-12_full_empty.png', label: 'B05-11/12' }
       ],
       sensors: {
-        'B05-07_empty_V3.jpg': [
-          { top: '40%', left: '35%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' },
-          { top: '40%', left: '40%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' },
-          { top: '40%', left: '45%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' },
-          { top: '40%', left: '50%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' },
-          { top: '40%', left: '55%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' },
-          { top: '40%', left: '60%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }
+        'B05-07_empty.png': [
+          { top: '47%', left: '50%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' },
+          { top: '40%', left: '45%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' },
+          { top: '35%', left: '40%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' },
+          { top: '30%', left: '35%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' },
+          { top: '25%', left: '30%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' },
+          { top: '17%', left: '35%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }
         ],
-        'B05-08_empty_V3.jpg': [
-          { top: '40%', left: '30%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
-          { top: '40%', left: '35%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
-          { top: '40%', left: '40%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
-          { top: '40%', left: '45%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
-          { top: '40%', left: '50%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
-          { top: '40%', left: '55%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
+        'B05-08_empty_light.png': [
+          { top: '48%', left: '53%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
+          { top: '51%', left: '45%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
+          { top: '45%', left: '40%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
+          { top: '39%', left: '35%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+          { top: '33%', left: '31%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
+          { top: '27%', left: '26%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
         ],
-        'B05-09_empty_V3.jpg': [
-          { top: '40%', left: '30%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' },
-          { top: '40%', left: '35%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' },
-          { top: '40%', left: '40%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' },
-          { top: '40%', left: '45%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' },
-          { top: '40%', left: '50%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' },
-          { top: '40%', left: '55%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }
+        'B05-09_full_lighting.png': [
+          { top: '50%', left: '51%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' },
+          { top: '46%', left: '44%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' },
+          { top: '42%', left: '37%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' },
+          { top: '37%', left: '31%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' },
+          { top: '32%', left: '25%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' },
+          { top: '23%', left: '29%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }
         ],
-        'B05-11-12_empty_V3.jpg': [
-          { top: '55%', left: '67%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001704', level1: 0, level2: 0 },
-          { top: '32%', left: '67%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000166B', level1: 0, level2: 0 },
-          { top: '44%', left: '73%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001713', level1: 0, level2: 0 },
-          { top: '44%', left: '78%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
+        'B05-11-12_full_empty.png': [
+          { top: '38%', left: '63%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001704', level1: 0, level2: 0 },
+          { top: '28%', left: '56%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000166B', level1: 0, level2: 0 },
+          { top: '42%', left: '47%', name: 'Zone 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000170F', level1: 0, level2: 0 },
+          { top: '38%', left: '52%', name: 'Zone 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000173B', level1: 0, level2: 0 },
+          { top: '25%', left: '65%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001713', level1: 0, level2: 0 },
+          { top: '21%', left: '69.5%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
+          { top: '50%', left: '36.5%', name: 'Zone 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001716', level1: 0, level2: 0 },
+          { top: '46%', left: '42%', name: 'Zone 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001711', level1: 0, level2: 0 },
         ],
       },
       showModal: false,
@@ -155,6 +155,7 @@ export default {
     closeModal() {
       this.showModal = false;
     },
+    // Function to send switch command for specific sensors
     async sendSwitchCommand(deviceEUI, switchStates) {
       try {
         console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates);
@@ -164,7 +165,6 @@ export default {
         });
         if (response && response.data) {
           console.log('Switch command response:', response.data);
-          // Assuming that if switchStates are all 1, the device should be considered online
           const sensor = this.currentSensors.find(s => s.deviceEUI === deviceEUI);
           if (sensor) {
             sensor.isOnline = switchStates.every(state => state === 1);
@@ -176,59 +176,81 @@ export default {
         console.error('Error sending switch command:', error);
       }
     },
+    // Function to toggle all devices ON or OFF
     async toggleAllDevices() {
-      if (this.selectedImage === 'B05-11-12_empty_V3.jpg') {
-        // Handle B05-11/12 logic
-        const zones = this.currentSensors;
-        for (const zone of zones) {
-          await this.setZoneState(this.allOn, zone);
+      if (['B05-07_empty.png', 'B05-08_empty_light.png', 'B05-09_full_lighting.png'].includes(this.selectedImage)) {
+        // Use sendSwitchCommand for B05-07, B05-08, and B05-09
+        const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];  // 1 for ON, 0 for OFF
+        for (const sensor of this.currentSensors) {
+          await this.sendSwitchCommand(sensor.deviceEUI, switchStates);  // Send command for each sensor
         }
       } else {
-        // Handle B05-07, B05-08, B05-09 logic
-        const sensors = this.currentSensors;
-        for (const sensor of sensors) {
-          sensor.isOnline = this.allOn;
-          const switchStates = Array(3).fill(this.allOn ? 1 : 0);
-          await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+        // For other floorplans, use the default API for turning devices ON/OFF
+        const apiUrl = this.allOn
+          ? `https://lumani.rshare.io/device/on`
+          : `https://lumani.rshare.io/device/off`;
+
+        const deviceIds = this.currentSensors.reduce((acc, sensor, index) => {
+          acc[`deviceId${index + 1}`] = sensor.deviceEUI;  // Construct deviceId1, deviceId2, ...
+          return acc;
+        }, {});
+
+        try {
+          const response = await axios.post(apiUrl, deviceIds);
+          console.log('All devices state response:', response.data);
+
+          // Update the online status of each sensor based on the action
+          this.currentSensors.forEach(sensor => sensor.isOnline = this.allOn);
+        } catch (error) {
+          console.error('Error setting all devices state:', error);
         }
       }
     },
+    // Function to handle zone state changes (ON/OFF)
     async setZoneState(state, sensor) {
-      const apiUrl = this.selectedImage === 'B05-11-12_empty_V3.jpg' ?
-        (state ? 'https://lumani.rshare.io/device/on' : 'https://lumani.rshare.io/device/off') :
-        null;
+      if (['B05-07_empty.png', 'B05-08_empty_light.png', 'B05-09_full_lighting.png'].includes(this.selectedImage)) {
+        // Send switch command using sendSwitchCommand for B05-07, B05-08, and B05-09
+        const switchStates = state ? [1, 1, 1] : [0, 0, 0];  // Use 1 for ON and 0 for OFF
+        await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      } else {
+        // For other floorplans, use the default API for turning devices ON/OFF
+        const apiUrl = state
+          ? `https://lumani.rshare.io/device/on`
+          : `https://lumani.rshare.io/device/off`;
 
-      const payload = {
-        deviceId: sensor.deviceEUI,
-        switchStates: Array(3).fill(state ? 1 : 0) // Assuming 3 switches, you can adjust as needed
-      };
+        try {
+          const response = await axios.post(apiUrl, { deviceId: sensor.deviceEUI });
+          console.log('Individual device state response:', response.data);
 
-      try {
-        if (apiUrl) {
-          console.log('Sending zone state:', payload, 'to:', apiUrl);
-          const response = await axios.post(apiUrl, payload);
-          console.log('Zone state response:', response.data);
-        } else if (this.selectedImage === 'B05-07_empty_V3.jpg' || this.selectedImage === 'B05-08_empty_V3.jpg' || this.selectedImage === 'B05-09_empty_V3.jpg') {
-          await this.sendSwitchCommand(sensor.deviceEUI, payload.switchStates);
+          // Update the sensor status locally
+          sensor.isOnline = state;
+        } catch (error) {
+          console.error('Error setting individual device state:', error);
         }
-      } catch (error) {
-        console.error('Error setting zone state:', error);
       }
     },
+    // Function to update zone dimming for B05-11/12
     async updateZone(sensor) {
+      const apiUrl = `https://lumani.rshare.io/device/dim`;
+
+      // Prepare the JSON payload with the deviceId and dimming levels
       const payload = {
         deviceId: sensor.deviceEUI,
-        level1: sensor.level1,
-        level2: sensor.level2
+        level1: sensor.level1,  // The current level1 (color temperature or brightness)
+        level2: sensor.level2   // The current level2 (dimming level)
       };
-      console.log('Sending zone update with payload:', payload);
 
       try {
-        const response = await axios.post('https://lumani.rshare.io/device/dim', payload);
-        console.log('Zone update response:', response.data);
+        // Send the POST request to update the dimming levels
+        const response = await axios.post(apiUrl, payload);
+        console.log('Zone dimming response:', response.data);
+
+        // Handle any additional actions after the update (e.g., UI updates)
       } catch (error) {
-        console.error('Error updating zone:', error);
+        console.error('Error updating zone dimming:', error);
       }
+
+      // Close the modal after sending the update
       this.closeModal();
     },
     getImagePath(image) {
@@ -249,6 +271,7 @@ export default {
 <style scoped>
 .container-fluid {
   width: 100%;
+  padding-bottom: 10%;
 }
 
 h2 {
@@ -295,22 +318,6 @@ h2 {
   z-index: 1;
 }
 
-.vertical-bar {
-  width: 10px;
-  height: 200px;
-  background-color: #f39c12;
-  border-radius: 2px;
-  transition: background-color 0.3s ease;
-}
-
-.square-bar {
-  width: 300px !important;
-  height: 95px;
-  background-color: #f39c12;
-  border-radius: 2px;
-  transition: background-color 0.3s ease;
-}
-
 .status-dot {
   position: absolute;
   top: -4px;
@@ -354,24 +361,6 @@ h2 {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1050;
   width: 500px;
-}
-
-.modal-header,
-.modal-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-body {
-  padding: 20px 20px;
-}
-
-.btn-close {
-  border: none;
-  background: none;
-  font-size: 1.5rem;
-  cursor: pointer;
 }
 
 .device-status-card {

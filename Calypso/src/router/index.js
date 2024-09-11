@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import OverviewPage from '@/views/OverviewPage.vue';
 import WaterMeterReadingPage from '@/views/WaterMeterReadingPage.vue';
-import IAQDevicesReadingPage from '@/views/IAQDevicesReadingPage.vue';
 import BMSReadingPage from '@/views/BMSReadingPage.vue';
 import FireAlarmSystem from '@/views/FireAlarmSystem.vue';
 import PowerMeterReadingPage from '@/views/PowerMeterReadingPage.vue';
@@ -13,7 +12,6 @@ import SmartSecuritySystem from '@/views/SmartSecuritySystem.vue';
 import SmartAirQualitySystem from '@/views/SmartAirQualitySystem.vue';
 import AssetTaggingSystem from '@/views/AssetTaggingSystem.vue';
 import SmartLightingSystem from '@/views/SmartLightingSystem.vue';
-// import HybridAirconSystem from '@/views/HybridAirconSystem.vue';
 import AlarmsNotificationsPage from '@/views/AlarmsNotificationsPage.vue';
 import FaultCallTicket from '@/views/FaultCallTicket.vue';
 import IndoorAirQuality from '@/views/IndoorAirQuality.vue';
@@ -40,11 +38,6 @@ const routes = [
     path: '/water-meter-reading',
     name: 'WaterMeterReadingPage',
     component: WaterMeterReadingPage,
-  },
-  {
-    path: '/iaq-devices-reading',
-    name: 'IAQDevicesReadingPage',
-    component: IAQDevicesReadingPage,
   },
   {
     path: '/bms-reading',

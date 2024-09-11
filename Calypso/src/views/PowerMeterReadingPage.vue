@@ -1,51 +1,59 @@
 <template>
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Smart Energy Management System</h2>
-    <div class="row">
-      <div class="col-md-8">
-        <div class="view-container">
-          <h4 class="text-center mb-4">Overview</h4>
-          <div class="grid-container">
-            <img :src="currentImage" alt="Smart Energy Overview" class="grid-image">
-            <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to Main</button>
-            
-            <!-- Total Active Power hover -->
-            <div v-if="currentImageIndex === 0" class="total-active-power" :style="{ top: '39%', left: '17%' }">
-              <p style="font-size: 0.7rem;">Total Active Power: <br> {{ totalValues.p }} kW</p>
-            </div>
-            
-            <!-- Boxes overlay for the first page -->
-            <div class="boxes-overlay" v-if="currentImageIndex === 0">
-              <div v-for="(box, index) in currentBoxes" :key="index"
-                :class="['box', 'first-page-box']"
-                :style="{ top: box.top, left: box.left }"
-                @click="handleBoxClick(index)" @mouseover="showTotalPopup($event)" @mouseleave="hidePopup()"> 
-              </div>
-            </div>
+    <div class="view-container">
+      <h4 class="text-center mb-4">Overview</h4>
+      <div class="grid-container">
+        <img :src="currentImage" alt="Smart Energy Overview" class="grid-image">
+        <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to
+          Main</button>
 
-            <!-- Boxes overlay for the second page -->
-            <div class="boxes-overlay" v-if="currentImageIndex !== 0">
-              <div v-for="(box, index) in currentBoxes" :key="index"
-                :class="['box', 'second-page-box']"
-                :style="{ top: box.top, left: box.left }"
-                @mouseover="showPopup(box, $event)" @mouseleave="hidePopup()"
-                @click="handleBoxClick(index)">
-              </div>
+        <!-- Total Active Power hover -->
+        <div v-if="currentImageIndex === 0" class="total-active-power" :style="{ top: '39%', left: '25.6%' }">
+          <div class="grid-container-active-power">
+            <div class="power-item">
+              <p>Total Power:</p>
+              <p>{{ totalValues.p }} kW</p>
+            </div>
+            <div class="power-item">
+              <p>Total Current:</p>
+              <p>{{ totalValues.ia }} A</p>
+            </div>
+            <div class="power-item">
+              <p>Total Power Factor:</p>
+              <p>{{ totalValues.pf }}</p>
+            </div>
+            <div class="power-item">
+              <p>Total Voltage:</p>
+              <p>{{ totalValues.ua }} V</p>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="chart-wrapper">
-          <h4 class="text-center mb-4">Chart</h4>
-          <ChartComponent :data="chartData"></ChartComponent>
+
+
+
+        <!-- Boxes overlay for the first page -->
+        <div class="boxes-overlay" v-if="currentImageIndex === 0">
+          <div v-for="(box, index) in floorSelectionBoxes" :key="index" :class="['box', 'first-page-box']"
+            :style="{ top: box.top, left: box.left }" @click="handleBoxClick(index)" @mouseover="showTotalPopup($event)"
+            @mouseleave="hidePopup()">
+          </div>
+        </div>
+
+        <!-- Boxes overlay for the second page -->
+        <div class="boxes-overlay" v-if="currentImageIndex !== 0">
+          <div v-for="(box, index) in currentBoxes" :key="index" :class="['box', 'second-page-box']"
+            :style="{ top: box.top, left: box.left }" @mouseover="showPopup(box, $event)" @mouseleave="hidePopup()"
+            @click="handleBoxClick(index)">
+          </div>
         </div>
       </div>
     </div>
+
     <div class="link-button mt-4">
       <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Energy Management</button>
     </div>
-    
+
     <!-- Dedicated Popup for Totals -->
     <div v-if="totalPopupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">
       <p><strong>Import Energy:</strong> {{ totalValues.epi }} kWh</p>
@@ -61,7 +69,6 @@
 
     <!-- Original Popup for Page 2 -->
     <div v-if="popupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">
-      <p><strong>Channel:</strong> {{ popupData.ch || 0 }}</p>
       <p><strong>Import Energy:</strong> {{ popupData.epi || 0 }} kWh</p>
       <p><strong>Export Energy:</strong> {{ popupData.epe || 0 }} kWh</p>
       <p><strong>Energy Quality Count:</strong> {{ popupData.eqc || 0 }}</p>
@@ -77,21 +84,15 @@
 
 <script>
 import axios from 'axios';
-import ChartComponent from '@/components/ChartComponent.vue';
-import OverviewImage from '@/assets/SmartEnergyMain.jpg';
-import B0511_12 from '@/assets/Smart energy.jpeg';
 
 export default {
   name: 'PowerMeterReadingPage',
-  components: {
-    ChartComponent
-  },
   data() {
     return {
       currentImageIndex: 0,
       images: [
-        OverviewImage,
-        B0511_12
+        require('@/assets/SmartEnergyMain.jpg'),
+        require('@/assets/Smart energy.jpeg')
       ],
       boxes: [],
       totalValues: {
@@ -122,7 +123,6 @@ export default {
       },
       popupX: 0,
       popupY: 0,
-      chartData: [], // Ensure this is initialized as an array
       floorSelectionBoxes: [
         { label: 'B05-11/12', top: '6%', left: '17%' }
       ]
@@ -133,15 +133,21 @@ export default {
       return this.images[this.currentImageIndex];
     },
     currentBoxes() {
-      return this.currentImageIndex === 0 ? this.floorSelectionBoxes : this.boxes;
+      if (this.currentImageIndex === 0) {
+        return this.floorSelectionBoxes;
+      } else {
+        return this.boxes.map((box) => ({
+          ...box,
+          width: '7.5%',  // Add dynamic width for second-page-box
+          height: '15%'   // Add dynamic height for second-page-box
+        }));
+      }
     }
   },
   methods: {
     async fetchData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
-
-        console.log('API Response:', response.data);
 
         this.totalValues = {
           ch: 0,
@@ -160,11 +166,9 @@ export default {
           const position = this.getBoxPosition(index);
 
           if (!position) {
-            console.error(`No position found for index ${index}`);
             return null;
           }
 
-          // Summing totals with `N/A` values treated as 0
           this.totalValues.ch += parseFloat(item.ch) || 0;
           this.totalValues.epe += parseFloat(item.epe) || 0;
           this.totalValues.epi += parseFloat(item.epi) || 0;
@@ -195,12 +199,9 @@ export default {
           };
         }).filter(box => box !== null);
 
-        // Round totals to two decimal places
         Object.keys(this.totalValues).forEach(key => {
           this.totalValues[key] = parseFloat(this.totalValues[key]).toFixed(2);
         });
-
-        console.log('Total Values:', this.totalValues);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -209,34 +210,34 @@ export default {
 
     getBoxPosition(index) {
       const positions = [
-        { top: '168px', left: '50px' },
-        { top: '168px', left: '114px' },
-        { top: '168px', left: '178px' },
-        { top: '168px', left: '239px' },
-        { top: '168px', left: '300px' },
-        { top: '168px', left: '364px' },
-        { top: '168px', left: '427px' },
-        { top: '168px', left: '488px' },
-        { top: '168px', left: '549px' },
-        { top: '168px', left: '610px' },
-        { top: '238px', left: '50px' },
-        { top: '238px', left: '114px' },
-        { top: '238px', left: '178px' },
-        { top: '238px', left: '239px' },
-        { top: '238px', left: '300px' },
-        { top: '238px', left: '364px' },
-        { top: '238px', left: '427px' },
-        { top: '238px', left: '488px' },
-        { top: '238px', left: '549px' },
-        { top: '238px', left: '610px' },
-        { top: '311px', left: '50px' },
-        { top: '311px', left: '114px' },
-        { top: '311px', left: '178px' },
-        { top: '311px', left: '239px' },
-        { top: '311px', left: '300px' },
-        { top: '311px', left: '364px' },
-        { top: '311px', left: '427px' },
-        { top: '311px', left: '488px' },
+        { top: '41%', left: '7%' },
+        { top: '41%', left: '16%' },
+        { top: '41%', left: '24.5%' },
+        { top: '41%', left: '33%' },
+        { top: '41%', left: '41.5%' },
+        { top: '41%', left: '50%' },
+        { top: '41%', left: '59%' },
+        { top: '41%', left: '67.5%' },
+        { top: '41%', left: '76%' },
+        { top: '41%', left: '84%' },
+        { top: '58.4%', left: '7%' },
+        { top: '58.4%', left: '16%' },
+        { top: '58.4%', left: '24.5%' },
+        { top: '58.4%', left: '33%' },
+        { top: '58.4%', left: '41.5%' },
+        { top: '58.4%', left: '50%' },
+        { top: '58.4%', left: '59%' },
+        { top: '58.4%', left: '67.5%' },
+        { top: '58.4%', left: '76%' },
+        { top: '58.4%', left: '84%' },
+        { top: '76%', left: '7%' },
+        { top: '76%', left: '16%' },
+        { top: '76%', left: '24.5%' },
+        { top: '76%', left: '33%' },
+        { top: '76%', left: '41.5%' },
+        { top: '76%', left: '50%' },
+        { top: '76%', left: '59%' },
+        { top: '76%', left: '67.5%' },
       ];
 
       if (index >= positions.length) {
@@ -255,22 +256,14 @@ export default {
     },
 
     showTotalPopup(event) {
-      this.totalPopupVisible = true; // Show the totals popup
+      this.totalPopupVisible = true;
       this.popupX = event.clientX + 15;
       this.popupY = event.clientY + 15;
     },
 
     hidePopup() {
       this.popupVisible = false;
-      this.totalPopupVisible = false; // Hide the totals popup
-    },
-
-    updateChart(box) {
-      this.chartData = [
-        { label: 'Voltage', value: box.data.ua },
-        { label: 'Current', value: box.data.ia },
-        { label: 'Power', value: box.data.p },
-      ];
+      this.totalPopupVisible = false;
     },
 
     navigateTo3DLandscape() {
@@ -310,6 +303,7 @@ export default {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  width: 100%;
 }
 
 .grid-container {
@@ -322,49 +316,35 @@ export default {
   height: auto;
 }
 
-.grid-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.grid-line.horizontal {
-  width: 100%;
-  height: 1px;
-  background-color: rgba(0, 0, 0, 0.1);
-  position: absolute;
-}
-
-.grid-line.vertical {
-  height: 100%;
-  width: 1px;
-  background-color: rgba(0, 0, 0, 0.1);
-  position: absolute;
-}
-
 .total-active-power {
   position: absolute;
-  padding: 5px;
   border-radius: 3px;
   text-align: center;
   font-weight: bold;
   color: black;
+  width: 16%;
+  height: 10%;
+  transform: translateX(-50%);
 }
 
-.chart-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.grid-container-active-power {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  /* Space between items */
 }
+
+.power-item {
+  text-align: left;
+  font-size: 0.6rem;
+  /* Smaller font size to fit the content */
+}
+
+.power-item p {
+  margin: 0;
+  /* Remove margin to save space */
+}
+
 
 .link-button {
   display: flex;
@@ -379,40 +359,29 @@ export default {
   right: 10px;
 }
 
-.box.disable-hover {
+/* First-page box styling */
+.first-page-box {
+  position: absolute;
+  width: 15%;
+  height: 43%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  pointer-events: auto;
+  z-index: 20;
 }
 
-.boxes-container {
+/* Second-page box styling */
+.second-page-box {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.box {
-  position: absolute;
-  width: 8%;
+  width: 7.5%;
   height: 15%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  pointer-events: auto;
-}
-
-.first-page-box {
-  width: 15%;
-  height: 43%;
-}
-
-.second-page-box {
-  width: 8%;
-  height: 15%;
 }
 
 .popup {

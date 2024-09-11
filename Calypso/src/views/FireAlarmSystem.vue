@@ -5,8 +5,42 @@
       <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Schematic</button>
       <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Zones</button>
     </div>
+
     <div v-if="currentView === 'relation'" class="map-container">
+      <!-- Fire Command Center Image (fire-alarm-finder.png) -->
+      <div class="fire-command-center" :style="{ top: fireCommandCenterPosition.top, left: fireCommandCenterPosition.left }">
+        <img src="@/assets/fire-alarm-finder.png" alt="Fire Command Center" class="fire-command-center-image" />
+      </div>
+
+      <!-- Fire Alarm Images with SAP Labels and Zones (Hover to show status) -->
+      <div
+        v-for="(position, index) in fireAlarmPositions"
+        :key="index"
+        class="fire-alarm-container"
+        :style="{ top: position.top, left: position.left }"
+        @mouseenter="hoveredZone = index"
+        @mouseleave="hoveredZone = null"
+      >
+        <!-- Fire Alarm Image -->
+        <img src="@/assets/fire-alarm.png" alt="Fire Alarm" class="fire-alarm-image" />
+        
+        <!-- SAP Label and Zone Information -->
+        <div class="fire-alarm-labels">
+          <p class="sap-label">SAP-{{ index + 1 }}</p>
+          <p class="zone-label">Zone {{ index + 1 }} (8 Zones)</p>
+        </div>
+
+        <!-- Show Zone Status on Hover -->
+        <div v-if="hoveredZone === index" class="zone-status-popup">
+          <p><strong>Zone {{ index + 1 }}</strong></p>
+          <p>Status: <span :class="zoneStatuses[index] === 'Offline' ? 'text-danger' : 'text-success'">{{ zoneStatuses[index] }}</span></p>
+          <p>Last Updated: {{ lastUpdatedTimes[index] }}</p>
+        </div>
+      </div>
+
       <img src="@/assets/ite_firealarm_relation.png" alt="Floor Plan" class="map-image">
+
+      <!-- Alarm Statuses -->
       <div
         v-for="(alarm, index) in sortedAlarms"
         :key="index"
@@ -19,6 +53,7 @@
         <span :class="{'online': alarm.status === 'ON', 'offline': alarm.status === 'OFF'}"></span>
       </div>
     </div>
+
     <div v-if="currentView === 'devices'" class="devices-grid">
       <div
         v-for="(alarm, index) in sortedAlarms"
@@ -39,7 +74,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: 'FireAlarmSystem',
@@ -47,7 +81,21 @@ export default {
     return {
       currentView: 'relation',
       hoveredAlarm: null,
+      hoveredZone: null, // Added to track which zone is being hovered
       alarms: [],
+      fireCommandCenterPosition: {
+        top: '9%', // Adjust the top position of the fire command center
+        left: '12.5%', // Adjust the left position of the fire command center
+      },
+      // Positions for 6 fire alarms
+      fireAlarmPositions: [
+        { top: '9%', left: '73.3%' },   // Fire Alarm 1
+        { top: '9%', left: '52.5%' },   // Fire Alarm 2
+        { top: '9%', left: '31%' },  // Fire Alarm 3
+        { top: '56%', left: '73.3%' },  // Fire Alarm 4
+        { top: '56%', left: '52.5%' },  // Fire Alarm 5
+        { top: '56%', left: '31%' },  // Fire Alarm 6
+      ],
       alarmPositions: [
         { top: '41.2%', left: '84.2%' },
         { top: '41.2%', left: '63.3%' },
@@ -56,6 +104,16 @@ export default {
         { top: '87.9%', left: '63.3%' },
         { top: '87.9%', left: '42.3%' },
       ],
+      // Sample statuses and last updated times for each zone
+      zoneStatuses: ['Offline', 'Offline', 'Offline', 'Offline', 'Offline', 'Offline'],
+      lastUpdatedTimes: [
+        '08/23/2024 19:58:55',
+        '08/23/2024 19:58:56',
+        '08/23/2024 19:58:57',
+        '08/23/2024 19:58:57',
+        '08/23/2024 19:58:58',
+        '08/23/2024 19:58:58'
+      ]
     };
   },
   async created() {
@@ -89,7 +147,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .container {
   max-width: 1200px;
@@ -134,6 +191,51 @@ export default {
   width: 100%;
   height: auto;
 }
+.fire-command-center {
+  position: absolute; /* Allow positioning of the fire-alarm-finder */
+}
+.fire-command-center-image {
+  width: 73%; /* Adjust the size of the fire command center image */
+}
+
+.fire-alarm-container {
+  position: absolute; /* Position for each fire alarm and its labels */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.fire-alarm-image {
+  width: 50%; /* Adjust size of the fire alarm image */
+}
+.fire-alarm-labels {
+  margin-top: 5px;
+}
+.sap-label {
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0;
+}
+.zone-label {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.zone-status-popup {
+  position: absolute;
+  top: 100%; /* Adjust so it appears below the fire alarm */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  padding: 10px;
+  background-color: black;
+  color:white;
+  border: 1px solid lightgray;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  z-index: 10;
+}
+
 .alarm-status {
   position: absolute;
   width: 28px;

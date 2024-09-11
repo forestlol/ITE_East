@@ -323,7 +323,6 @@ export default {
 }
 
 .content {
-  padding: 80px 20px 20px 20px;
   /* Added padding-top to account for the fixed navbar */
   margin-top: 60px;
   /* Add margin-top to avoid overlapping with the navbar */

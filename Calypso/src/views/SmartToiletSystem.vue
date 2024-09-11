@@ -3,8 +3,8 @@
     <h2 class="text-center mb-4">Smart Washroom System</h2>
     <div class="row justify-content-center">
       <div class="col-md-8">
-        <div class="map-section">
-          <h4>Floorplan</h4>
+        <div class="map-section position-relative">
+          <h4>B05 Toilet</h4>
           <div class="map-container">
             <img src="@/assets/Sub System and Icons/V2/smart washroom system_V2.jpg" alt="Map View" class="map-image">
             <!-- Multiple Icons on the Floorplan -->
@@ -30,9 +30,47 @@
                 </template>
               </div>
             </div>
+
+            <!-- Button to Set Threshold at Bottom Right of Floorplan -->
+            <div class="threshold-button">
+              <button @click="openThresholdModal" class="btn btn-primary">Set Threshold</button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Modal to Set Threshold -->
+    <div v-if="showThresholdModal" class="modal-overlay" @click="closeThresholdModal"></div>
+    <div v-if="showThresholdModal" class="modal d-block" style="z-index: 1050;">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center">
+            <h5 class="modal-title">Set People Counter Threshold</h5>
+            <button type="button" class="btn-close position-absolute top-0 end-0"
+              @click="closeThresholdModal">&times;</button>
+          </div>
+          <div class="modal-body text-center">
+            <form @submit.prevent="saveThreshold">
+              <div class="mb-3">
+                <label for="thresholdInput" class="form-label">Threshold</label>
+                <input type="number" min="1" step="1" class="form-control" id="thresholdInput" v-model="threshold"
+                  placeholder="Enter threshold" required />
+              </div>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts Display -->
+    <div class="overview-alerts mt-4">
+      <ul>
+        <li v-for="alert in getStoredAlerts()" :key="alert.timestamp">
+          {{ alert.timestamp }} - {{ alert.message }}
+        </li>
+      </ul>
     </div>
 
     <div class="link-button mt-4">
@@ -54,6 +92,8 @@ export default {
       hoveredIndex: null,
       tooltipX: 0,
       tooltipY: 0,
+      threshold: parseInt(localStorage.getItem('peopleCounterThreshold')) || 20, // Default threshold is 20
+      showThresholdModal: false, // Modal visibility for setting threshold
       icons: [
         { top: '40.6%', left: '35%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
         { top: '57.6%', left: '59.6%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
@@ -61,6 +101,7 @@ export default {
         { top: '64.6%', left: '90%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
         { top: '45%', left: '50.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', waterFlow: 15, waterConsumption: 1200 },
       ],
+      notifications: [], // Store notifications in the state
     };
   },
   methods: {
@@ -110,6 +151,26 @@ export default {
       // Store the new values as old values for the next comparison
       icon.oldPeriodIn = newIn;
       icon.oldPeriodOut = newOut;
+
+      // Check if the number of people IN exceeds the threshold and send an alert
+      if (newIn > this.threshold) {
+        this.sendAlert(`People Counter ${index + 1} exceeded the threshold with ${newIn} people.`);
+      }
+    },
+    sendAlert(message) {
+      // Send a notification and store it in the state and local storage
+      const timestamp = new Date().toLocaleString();
+      const alert = { message, timestamp };
+      
+      // Add the alert to the notifications array
+      this.notifications.push(alert);
+
+      // Save the alert to local storage
+      const storedAlerts = JSON.parse(localStorage.getItem('alerts')) || [];
+      storedAlerts.push(alert);
+      localStorage.setItem('alerts', JSON.stringify(storedAlerts));
+
+      console.log('Alert sent:', message);
     },
     updateOdorData(index, newData) {
       const icon = this.icons[index];
@@ -129,8 +190,23 @@ export default {
     hideValue() {
       this.hoveredIndex = null;
     },
+    openThresholdModal() {
+      this.showThresholdModal = true;
+    },
+    closeThresholdModal() {
+      this.showThresholdModal = false;
+    },
+    saveThreshold() {
+      // Save the threshold to local storage and close the modal
+      localStorage.setItem('peopleCounterThreshold', this.threshold);
+      console.log('Threshold saved:', this.threshold);
+      this.closeThresholdModal();
+    },
     navigateTo3DLandscape() {
       window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=92';
+    },
+    getStoredAlerts() {
+      return JSON.parse(localStorage.getItem('alerts')) || [];
     },
   },
   mounted() {
@@ -205,6 +281,13 @@ h2 {
   font-size: 12px;
 }
 
+/* Button to Set Threshold */
+.threshold-button {
+  position: absolute;
+  bottom: 30px;
+  right: 10px;
+}
+
 .link-button {
   display: flex;
   justify-content: center;
@@ -219,7 +302,6 @@ h2 {
   font-size: 1.25rem;
   text-align: center;
 }
-
 
 /* Pulsating Ring */
 @keyframes pulsate {
@@ -250,5 +332,43 @@ h2 {
   z-index: 999;
   animation: pulsate 1s ease-out infinite;
   pointer-events: none;
+}
+
+/* Modal and overlay styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
+}
+
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  width: 400px;
+}
+
+.modal-header .btn-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 </style>

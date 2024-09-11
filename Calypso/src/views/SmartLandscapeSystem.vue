@@ -5,8 +5,12 @@
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button"
-          role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+        <button class="nav-link active" id="layout-tab" data-bs-toggle="tab" data-bs-target="#layout" type="button"
+          role="tab" aria-controls="layout" aria-selected="true">Layout</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button"
+          role="tab" aria-controls="overview" aria-selected="false">Overview</button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="sensors-tab" data-bs-toggle="tab" data-bs-target="#sensors" type="button"
@@ -14,10 +18,20 @@
       </li>
     </ul>
 
+
     <!-- Tab Content -->
     <div class="tab-content" id="myTabContent">
+      <!-- Layout Tab -->
+      <div class="tab-pane fade show active" id="layout" role="tabpanel" aria-labelledby="layout-tab">
+        <div class="map-section position-relative">
+          <h4>Floorplan View</h4>
+          <div class="map-container position-relative">
+            <img src="@/assets/Sub System and Icons/V2/smart Landscape systemV2.png" alt="Map View" class="map-image">
+          </div>
+        </div>
+      </div>
       <!-- Overview Tab -->
-      <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+      <div class="tab-pane fade show" id="overview" role="tabpanel" aria-labelledby="overview-tab">
         <div class="row">
           <div class="col-md-6">
             <div class="relation-section">
@@ -35,7 +49,11 @@
                     </template>
                     <template v-else>
                       <span class="point-label">{{ formatLabel(point.label) }}</span>
+                      <!-- Add the status dot for the valve based on its status -->
+                      <div v-if="point.type === 'Valve'"
+                        :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
                     </template>
+
                     <span v-if="hoveredIndex === index && point.type !== 'Valve'" class="value-tooltip">
                       <h5>{{ point.type === 'sensor' ? `Sensor ${point.number}` : point.label }}</h5>
                       <template v-if="point.type === 'sensor'">
@@ -64,26 +82,27 @@
                 <img src="@/assets/Sub System and Icons/V2/smart Landscape systemV2.png" alt="Map View"
                   class="map-image">
 
-                <!-- Toggle Switches for ALL ON 1, 2, 3 -->
+                <!-- Toggle Switches for MAIN PUMP, ALL VALVES, DOSAGE PUMP -->
                 <div class="toggle-switch-container vertical-toggle">
-                  <!-- ALL ON 1 -->
+                  <!-- MAIN PUMP -->
                   <div class="toggle-switch">
-                    <input type="checkbox" id="allOnToggle1" v-model="isAllOn1" @change="toggleAllSwitches1">
-                    <label for="allOnToggle1">{{ isAllOn1 ? 'ALL OFF 1' : 'ALL ON 1' }}</label>
+                    <input type="checkbox" id="mainPumpToggle" v-model="isMainPumpOn" @change="toggleMainPump">
+                    <label for="mainPumpToggle">{{ isMainPumpOn ? 'MAIN PUMP OFF' : 'MAIN PUMP ON' }}</label>
                   </div>
 
-                  <!-- ALL ON 2 -->
+                  <!-- ALL VALVES -->
                   <div class="toggle-switch">
-                    <input type="checkbox" id="allOnToggle2" v-model="isAllOn2" @change="toggleAllSwitches2">
-                    <label for="allOnToggle2">{{ isAllOn2 ? 'ALL OFF 2' : 'ALL ON 2' }}</label>
+                    <input type="checkbox" id="allValvesToggle" v-model="areAllValvesOn" @change="toggleAllValves">
+                    <label for="allValvesToggle">{{ areAllValvesOn ? 'ALL VALVES OFF' : 'ALL VALVES ON' }}</label>
                   </div>
 
-                  <!-- ALL ON 3 -->
+                  <!-- DOSAGE PUMP -->
                   <div class="toggle-switch">
-                    <input type="checkbox" id="allOnToggle3" v-model="isAllOn3" @change="toggleAllSwitches3">
-                    <label for="allOnToggle3">{{ isAllOn3 ? 'ALL OFF 3' : 'ALL ON 3' }}</label>
+                    <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn" @change="toggleDosagePump">
+                    <label for="dosagePumpToggle">{{ isDosagePumpOn ? 'DOSAGE PUMP OFF' : 'DOSAGE PUMP ON' }}</label>
                   </div>
                 </div>
+
 
                 <!-- Icons for devices -->
                 <div v-for="(icon, index) in icons" :key="index" class="icon-container"
@@ -240,6 +259,12 @@ export default {
   },
   data() {
     return {
+      isMainPumpOn: false,    // New variable for Main Pump status
+      areAllValvesOn: false,  // New variable for All Valves status
+      isDosagePumpOn: false,  // New variable for Dosage Pump status
+      switchStatesOutdoor1: Array(8).fill(false), // Switches 1-8
+      switchStatesOutdoor2: Array(8).fill(false), // Switches 9-16
+      switchStatesOutdoor3: Array(3).fill(false), // Switches 17-19
       devices: [
         { id: 1, name: '7 in 1 Sensor', isOnline: true },
         { id: 2, name: 'Rainfall Sensor', isOnline: true },
@@ -257,26 +282,26 @@ export default {
       ],
       selectedCondition: "Conditions",
       relationPoints: [
-        { number: 1, type: 'sensor', x: 15, y: 20, data: { temperature: 25, soilMoisture: 60, pH: 6.8, ec: 1.2, n: 20, p: 5, k: 10, batteryVoltage: 3.5 } },
-        { number: 2, type: 'sensor', x: 21, y: 20, data: { temperature: 26, soilMoisture: 65, pH: 6.7, ec: 1.3, n: 21, p: 6, k: 11, batteryVoltage: 3.6 } },
-        { number: 3, type: 'sensor', x: 27.6, y: 20, data: { temperature: 27, soilMoisture: 70, pH: 6.9, ec: 1.4, n: 22, p: 7, k: 12, batteryVoltage: 3.7 } },
-        { number: 4, type: 'sensor', x: 34, y: 20, data: { temperature: 28, soilMoisture: 75, pH: 7.0, ec: 1.5, n: 23, p: 8, k: 13, batteryVoltage: 3.8 } },
-        { number: 5, type: 'sensor', x: 15, y: 31, data: { temperature: 29, soilMoisture: 80, pH: 7.1, ec: 1.6, n: 24, p: 9, k: 14, batteryVoltage: 3.9 } },
-        { number: 6, type: 'sensor', x: 21, y: 31, data: { temperature: 30, soilMoisture: 85, pH: 7.2, ec: 1.7, n: 25, p: 10, k: 15, batteryVoltage: 4.0 } },
-        { number: 7, type: 'sensor', x: 27.6, y: 31, data: { temperature: 31, soilMoisture: 90, pH: 7.3, ec: 1.8, n: 26, p: 11, k: 16, batteryVoltage: 4.1 } },
-        { number: 8, type: 'sensor', x: 34, y: 31, data: { temperature: 32, soilMoisture: 95, pH: 7.4, ec: 1.9, n: 27, p: 12, k: 17, batteryVoltage: 4.2 } },
-        { number: 9, type: 'sensor', x: 15, y: 42, data: { temperature: 33, soilMoisture: 60, pH: 6.5, ec: 2.0, n: 28, p: 13, k: 18, batteryVoltage: 4.3 } },
-        { number: 10, type: 'sensor', x: 21, y: 42, data: { temperature: 34, soilMoisture: 65, pH: 6.6, ec: 2.1, n: 29, p: 14, k: 19, batteryVoltage: 4.4 } },
-        { number: 11, type: 'sensor', x: 27.6, y: 42, data: { temperature: 35, soilMoisture: 70, pH: 6.7, ec: 2.2, n: 30, p: 15, k: 20, batteryVoltage: 4.5 } },
-        { number: 12, type: 'sensor', x: 34, y: 42, data: { temperature: 36, soilMoisture: 75, pH: 6.8, ec: 2.3, n: 31, p: 16, k: 21, batteryVoltage: 4.6 } },
-        { number: 13, type: 'sensor', x: 14.7, y: 53, data: { temperature: 37, soilMoisture: 80, pH: 6.9, ec: 2.4, n: 32, p: 17, k: 22, batteryVoltage: 4.7 } },
-        { number: 14, type: 'sensor', x: 21, y: 53, data: { temperature: 38, soilMoisture: 85, pH: 7.0, ec: 2.5, n: 33, p: 18, k: 23, batteryVoltage: 4.8 } },
-        { number: 15, type: 'sensor', x: 27.6, y: 53, data: { temperature: 39, soilMoisture: 90, pH: 7.1, ec: 2.6, n: 34, p: 19, k: 24, batteryVoltage: 4.9 } },
-        { number: 16, type: 'sensor', x: 34, y: 53, data: { temperature: 40, soilMoisture: 95, pH: 7.2, ec: 2.7, n: 35, p: 20, k: 25, batteryVoltage: 5.0 } },
-        { number: 17, type: 'sensor', x: 14.7, y: 63.5, data: { temperature: 41, soilMoisture: 60, pH: 7.3, ec: 2.8, n: 36, p: 21, k: 26, batteryVoltage: 5.1 } },
-        { number: 18, type: 'sensor', x: 21, y: 63.5, data: { temperature: 42, soilMoisture: 65, pH: 7.4, ec: 2.9, n: 37, p: 22, k: 27, batteryVoltage: 5.2 } },
-        { number: 19, type: 'sensor', x: 27.6, y: 63.5, data: { temperature: 43, soilMoisture: 70, pH: 7.5, ec: 3.0, n: 38, p: 23, k: 28, batteryVoltage: 5.3 } },
-        { number: 20, type: 'sensor', x: 34, y: 63.5, data: { temperature: 44, soilMoisture: 75, pH: 7.6, ec: 3.1, n: 39, p: 24, k: 29, batteryVoltage: 5.4 } },
+        { number: 1, type: 'sensor', x: 15, y: 20, data: { temperature: 25, soilMoisture: 60, pH: 6.8, ec: 1.2, n: 20, p: 5, k: 10, batteryVoltage: 3.5 }, status: 'Off' },
+        { number: 2, type: 'sensor', x: 21, y: 20, data: { temperature: 26, soilMoisture: 65, pH: 6.7, ec: 1.3, n: 21, p: 6, k: 11, batteryVoltage: 3.6 }, status: 'Off' },
+        { number: 3, type: 'sensor', x: 27.6, y: 20, data: { temperature: 27, soilMoisture: 70, pH: 6.9, ec: 1.4, n: 22, p: 7, k: 12, batteryVoltage: 3.7 }, status: 'Off' },
+        { number: 4, type: 'sensor', x: 34, y: 20, data: { temperature: 28, soilMoisture: 75, pH: 7.0, ec: 1.5, n: 23, p: 8, k: 13, batteryVoltage: 3.8 }, status: 'Off' },
+        { number: 5, type: 'sensor', x: 15, y: 31, data: { temperature: 29, soilMoisture: 80, pH: 7.1, ec: 1.6, n: 24, p: 9, k: 14, batteryVoltage: 3.9 }, status: 'Off' },
+        { number: 6, type: 'sensor', x: 21, y: 31, data: { temperature: 30, soilMoisture: 85, pH: 7.2, ec: 1.7, n: 25, p: 10, k: 15, batteryVoltage: 4.0 }, status: 'Off' },
+        { number: 7, type: 'sensor', x: 27.6, y: 31, data: { temperature: 31, soilMoisture: 90, pH: 7.3, ec: 1.8, n: 26, p: 11, k: 16, batteryVoltage: 4.1 }, status: 'Off' },
+        { number: 8, type: 'sensor', x: 34, y: 31, data: { temperature: 32, soilMoisture: 95, pH: 7.4, ec: 1.9, n: 27, p: 12, k: 17, batteryVoltage: 4.2 }, status: 'Off' },
+        { number: 9, type: 'sensor', x: 15, y: 42, data: { temperature: 33, soilMoisture: 60, pH: 6.5, ec: 2.0, n: 28, p: 13, k: 18, batteryVoltage: 4.3 }, status: 'Off' },
+        { number: 10, type: 'sensor', x: 21, y: 42, data: { temperature: 34, soilMoisture: 65, pH: 6.6, ec: 2.1, n: 29, p: 14, k: 19, batteryVoltage: 4.4 }, status: 'Off' },
+        { number: 11, type: 'sensor', x: 27.6, y: 42, data: { temperature: 35, soilMoisture: 70, pH: 6.7, ec: 2.2, n: 30, p: 15, k: 20, batteryVoltage: 4.5 }, status: 'Off' },
+        { number: 12, type: 'sensor', x: 34, y: 42, data: { temperature: 36, soilMoisture: 75, pH: 6.8, ec: 2.3, n: 31, p: 16, k: 21, batteryVoltage: 4.6 }, status: 'Off' },
+        { number: 13, type: 'sensor', x: 14.7, y: 53, data: { temperature: 37, soilMoisture: 80, pH: 6.9, ec: 2.4, n: 32, p: 17, k: 22, batteryVoltage: 4.7 }, status: 'Off' },
+        { number: 14, type: 'sensor', x: 21, y: 53, data: { temperature: 38, soilMoisture: 85, pH: 7.0, ec: 2.5, n: 33, p: 18, k: 23, batteryVoltage: 4.8 }, status: 'Off' },
+        { number: 15, type: 'sensor', x: 27.6, y: 53, data: { temperature: 39, soilMoisture: 90, pH: 7.1, ec: 2.6, n: 34, p: 19, k: 24, batteryVoltage: 4.9 }, status: 'Off' },
+        { number: 16, type: 'sensor', x: 34, y: 53, data: { temperature: 40, soilMoisture: 95, pH: 7.2, ec: 2.7, n: 35, p: 20, k: 25, batteryVoltage: 5.0 }, status: 'Off' },
+        { number: 17, type: 'sensor', x: 14.7, y: 63.5, data: { temperature: 41, soilMoisture: 60, pH: 7.3, ec: 2.8, n: 36, p: 21, k: 26, batteryVoltage: 5.1 }, status: 'Off' },
+        { number: 18, type: 'sensor', x: 21, y: 63.5, data: { temperature: 42, soilMoisture: 65, pH: 7.4, ec: 2.9, n: 37, p: 22, k: 27, batteryVoltage: 5.2 }, status: 'Off' },
+        { number: 19, type: 'sensor', x: 27.6, y: 63.5, data: { temperature: 43, soilMoisture: 70, pH: 7.5, ec: 3.0, n: 38, p: 23, k: 28, batteryVoltage: 5.3 }, status: 'Off' },
+        { number: 20, type: 'sensor', x: 34, y: 63.5, data: { temperature: 44, soilMoisture: 75, pH: 7.6, ec: 3.1, n: 39, p: 24, k: 29, batteryVoltage: 5.4 }, status: 'Off' },
       ],
       hoveredIndex: null,
       tooltipX: 0,
@@ -290,12 +315,6 @@ export default {
         { time: '7:00 AM', duration: 20 },
         { time: '1:00 PM', duration: 20 }
       ],
-      mainPumpStatus: 'Off',
-      dosingPumpStatus: 'Off',
-      solenoidValveStatus: 'Off',
-      switchStatesOutdoor1: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 1st
-      switchStatesOutdoor2: Array(8).fill(false), // Initialize all switches to OFF for Outdoor 2nd
-      switchStatesOutdoor3: Array(3).fill(false), // Initialize all switches to OFF for Outdoor 3rd
       icons: [
         { x: 11, y: 62, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
         { x: 8, y: 62, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
@@ -484,18 +503,22 @@ export default {
         }
       }
     },
-    toggleAllSwitches1() {
-      // Handle ALL ON 1 for Switch 1 to 8
-      this.setAllSwitches(this.isAllOn1, '24e124756e049564', 1, 8);
+    toggleMainPump() {
+      // Toggle Main Pump (Switch 1 on device 24e124756e049564)
+      this.setAllSwitches(this.isMainPumpOn, '24e124756e049564', 1, 1);
     },
-    toggleAllSwitches2() {
-      // Handle ALL ON 2 for Switch 9 to 16
-      this.setAllSwitches(this.isAllOn2, '24e124756e049516', 9, 16);
+    toggleAllValves() {
+      // Toggle All Valves (Switches 2-18 across three devices)
+      this.setAllSwitches(this.areAllValvesOn, '24e124756e049564', 2, 8);
+      this.setAllSwitches(this.areAllValvesOn, '24e124756e049516', 9, 16);
+      this.setAllSwitches(this.areAllValvesOn, '24E124756E049454', 17, 18);
     },
-    toggleAllSwitches3() {
-      // Handle ALL ON 3 for Switch 17 to 19
-      this.setAllSwitches(this.isAllOn3, '24E124756E049454', 17, 19);
+    toggleDosagePump() {
+      // Toggle Dosage Pump (Switch 19 on device 24E124756E049454)
+      this.setAllSwitches(this.isDosagePumpOn, '24E124756E049454', 19, 19);
     },
+
+
     setAllSwitches(state, deviceEUI, startSwitch, endSwitch) {
       let switchStates = [];
 
@@ -533,6 +556,7 @@ export default {
         }
       });
     },
+
     toggleSwitchInModal(state, icon) {
       icon.isOn = state; // Toggle the state of the icon in the modal
 
@@ -950,7 +974,7 @@ h2 {
   top: 10px;
   left: 10px;
   display: flex;
-  align-items: center;
+  align-items: left;
   flex-direction: column;
   /* Align vertically */
 }

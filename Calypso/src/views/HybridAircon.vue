@@ -20,13 +20,6 @@
             <div class="slider-controls">
               <div class="slider-control">
                 <label class="switch">
-                  <input type="checkbox" v-model="allFreshAirFanOn" @change="toggleAllFreshAirFans">
-                  <span class="slider round"></span>
-                </label>
-                <span>{{ allFreshAirFanOn ? 'Fresh Air Fans All OFF' : 'Fresh Air Fans All ON' }}</span>
-              </div>
-              <div class="slider-control">
-                <label class="switch">
                   <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
                   <span class="slider round"></span>
                 </label>
@@ -34,11 +27,12 @@
               </div>
               <div class="slider-control">
                 <label class="switch">
-                  <input type="checkbox" v-model="allAirconOn" @change="toggleAllAircons">
+                  <input type="checkbox" :checked="allAirconOn" @change="toggleAllAircons" ref="airconCheckbox">
                   <span class="slider round"></span>
                 </label>
                 <span>{{ allAirconOn ? 'Aircons All OFF' : 'Aircons All ON' }}</span>
               </div>
+
             </div>
 
             <!-- Sensors -->
@@ -48,12 +42,13 @@
               <span class="status-dot" :class="sensor.isOnline ? 'online' : 'offline'"></span>
             </div>
 
-            <!-- Aircons (no @click) -->
+            <!-- Aircons (opens modal for each aircon) -->
             <div v-for="(aircon, index) in airconBoxes" :key="index" class="aircon-box"
-              :style="{ top: aircon.top, left: aircon.left }">
+              :style="{ top: aircon.top, left: aircon.left }" @click="openAirconDialog(aircon)">
               <img src="@/assets/aircon-icon.png" alt="Aircon Icon" class="icon-image">
               <span class="status-dot" :class="aircon.isOnline ? 'online' : 'offline'"></span>
             </div>
+
           </div>
         </div>
       </div>
@@ -107,6 +102,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
@@ -117,7 +113,6 @@ export default {
       showModal: false,
       modalTitle: '',
       currentType: '',
-      allFreshAirFanOn: false,
       allDampenerOn: false,
       allAirconOn: false,
       devices: [
@@ -127,10 +122,8 @@ export default {
         { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: true, lastUpdated: '2024-05-29 14:30:00' }
       ],
       sensors: [
-        { id: 1, top: '63%', left: '42%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 1', isOnline: false },
-        { id: 2, top: '62%', left: '77%', type: 'freshAirFan', deviceEUI: '24E124756E049153', name: 'Fresh Air Fan 2', isOnline: false },
-        { id: 3, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
-        { id: 4, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
+        { id: 1, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
+        { id: 2, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
       ],
       airconBoxes: [
         { top: '76%', left: '37%', showButtons: false, name: 'FCU 1-1', isOnline: false },
@@ -151,13 +144,17 @@ export default {
     };
   },
   methods: {
+    openAirconDialog(aircon) {
+      this.modalTitle = aircon.name;
+      this.currentType = 'aircon';
+      this.showModal = true;
+    },
     async sendSwitchCommand(deviceEUI, switchStates) {
       const payload = {
         deviceEui: deviceEUI,
         switchStates: switchStates
       };
       const targetUrl = 'https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558';
-      console.log('Sending payload:', payload);
       try {
         const response = await axios.post(targetUrl, payload);
         console.log('Switch command sent successfully', response.data);
@@ -166,54 +163,60 @@ export default {
       }
     },
     async setSwitch(state, deviceType) {
-      let switchStates = Array(8).fill(0); // Default all switches off
+      let switchStates = Array(8).fill(0);
 
-      if (deviceType === 'freshAirFan') {
+      if (deviceType === 'dampener') {
         const sensor = this.sensors.find(sensor => sensor.name === this.modalTitle);
         if (sensor) {
-          sensor.isOnline = state; // Update the isOnline state
-          switchStates[0] = state ? 1 : 0; // Set the state in the switchStates array
-          this.sendSwitchCommand(sensor.deviceEUI, switchStates); // Send the command
-        }
-      } else if (deviceType === 'dampener') {
-        const sensor = this.sensors.find(sensor => sensor.name === this.modalTitle);
-        if (sensor) {
-          sensor.isOnline = state; // Update the isOnline state
-          switchStates[2] = state ? 1 : 0; // Set the state in the switchStates array
-          this.sendSwitchCommand(sensor.deviceEUI, switchStates); // Send the command
+          sensor.isOnline = state;
+          switchStates[2] = state ? 1 : 0;
+          this.sendSwitchCommand(sensor.deviceEUI, switchStates);
         }
       }
 
-      this.closeModal(); // Close the modal after the action
+      this.closeModal();
     },
     async sendAirconCommand(state) {
-      console.log(`Attempting to send aircon command: ${state ? 'on' : 'off'} for all aircons`); // Log the action
       const payload = {
         state: state ? 'on' : 'off'
       };
-      const targetUrl = `https://aircon-api.rshare.io/aircon/control/master`; // Assuming the endpoint is the same for all aircons
-      console.log('Sending aircon command:', payload);
+      const targetUrl = `https://aircon.rshare.io/aircon/control/master`;
+
       try {
         const response = await axios.post(targetUrl, payload);
         console.log(`Aircons turned ${state ? 'on' : 'off'} successfully`, response.data);
-        this.updateAirconStates(state); // Update the UI state after the command
+        this.updateAirconStates(state);
       } catch (error) {
         console.error(`Error turning aircons ${state ? 'on' : 'off'}:`, error);
       }
     },
     sendAirconState(state, airconId) {
-      console.log(`Set Aircon State: ${state ? 'on' : 'off'} for ${airconId}`);
-      this.airconBoxes.forEach(aircon => {
-        if (aircon.name === airconId) {
-          aircon.isOnline = state;
-        }
-      });
-      this.sendAirconCommand(state);
-    },
-    updateAirconStates(state) {
-      this.airconBoxes.forEach(aircon => {
-        aircon.isOnline = state;
-      });
+      let airconIndex;
+
+      // Determine the aircon ID and corresponding index
+      if (airconId === 'FCU 1-1') airconIndex = 1;
+      else if (airconId === 'FCU 1-2') airconIndex = 2;
+      else if (airconId === 'FCU 2-1') airconIndex = 3;
+      else if (airconId === 'FCU 2-2') airconIndex = 4;
+
+      const apiUrl = `https://aircon.rshare.io/aircon/${airconIndex}`;
+      const payload = {
+        state: state ? 'on' : 'off'
+      };
+
+      axios.post(apiUrl, payload)
+        .then(response => {
+          console.log(`Aircon ${airconId} turned ${state ? 'on' : 'off'} successfully`, response.data);
+          // Update the UI state
+          this.airconBoxes.forEach(aircon => {
+            if (aircon.name === airconId) {
+              aircon.isOnline = state;
+            }
+          });
+        })
+        .catch(error => {
+          console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
+        });
     },
     toggleButtons(sensor) {
       this.modalTitle = sensor.name;
@@ -224,36 +227,56 @@ export default {
       this.showModal = false;
     },
     getSensorIcon(type) {
-      switch (type) {
-        case 'freshAirFan':
-          return require('@/assets/fresh-air-fan-icon.png');
-        case 'dampener':
-          return require('@/assets/dampener-icon.png');
-        default:
-          return require('@/assets/default-icon.png');
+      if (type === 'dampener') {
+        return require('@/assets/dampener-icon.png');
+      } else {
+        return require('@/assets/default-icon.png');
       }
     },
     updateCondition() {
       this.displayedCondition = this.selectedCondition;
     },
-    toggleAllFreshAirFans() {
-      this.setAllDevicesState('freshAirFan', this.allFreshAirFanOn);
-    },
     toggleAllDampeners() {
       this.setAllDevicesState('dampener', this.allDampenerOn);
     },
     toggleAllAircons() {
-      this.setAllDevicesState('aircon', this.allAirconOn);
+      // Disable checkbox to prevent double-clicking during API call
+      this.$refs.airconCheckbox.disabled = true;
+
+      // Determine the new state to toggle to
+      const newState = !this.allAirconOn;
+
+      // Prepare the payload for the API request
+      const payload = {
+        state: newState ? 'on' : 'off'
+      };
+
+      // Send the request to the API
+      axios.post('https://aircon.rshare.io/aircon/control/master', payload)
+        .then(response => {
+          console.log(`All aircons turned ${newState ? 'on' : 'off'} successfully`, response.data);
+
+          // Only update the UI state after the API call is successful
+          this.allAirconOn = newState;
+          this.updateAirconStates(newState);
+        })
+        .catch(error => {
+          console.error(`Error turning all aircons ${newState ? 'on' : 'off'}:`, error);
+          // Optionally, handle errors here
+        })
+        .finally(() => {
+          // Re-enable the checkbox after API call completes
+          this.$refs.airconCheckbox.disabled = false;
+        });
+    },
+    // Method to update the status of all aircon boxes in the UI
+    updateAirconStates(state) {
+      this.airconBoxes.forEach(aircon => {
+        aircon.isOnline = state;
+      });
     },
     setAllDevicesState(deviceType, state) {
-      if (deviceType === 'freshAirFan') {
-        this.sensors.forEach(sensor => {
-          if (sensor.type === 'freshAirFan') {
-            sensor.isOnline = state;
-            this.setSwitch(state, 'freshAirFan');
-          }
-        });
-      } else if (deviceType === 'dampener') {
+      if (deviceType === 'dampener') {
         this.sensors.forEach(sensor => {
           if (sensor.type === 'dampener') {
             sensor.isOnline = state;
@@ -266,7 +289,7 @@ export default {
         });
         this.sendAirconCommand(state);
       }
-    },
+    }
   },
   mounted() {
     if (this.conditions.length > 0) {
@@ -276,6 +299,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 /* Basic styling */

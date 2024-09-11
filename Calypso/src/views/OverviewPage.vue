@@ -1,6 +1,49 @@
 <template>
   <div class="overview-container">
-    <div class="summary-be">
+
+    <!-- Title and Announcement Bar -->
+    <div class="container-fluid title-bar">
+      <div class="row align-items-center">
+        <div class="col-6">
+          <h1 class="title">INTEGRATED OPERATION CENTRE</h1>
+        </div>
+        <div class="col-6 text-end">
+          <div class="announcement-bar">
+            Announcement Message Bar
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Map Hierarchy Moved to the Top -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="map-hierarchy">
+            <h3>Map of Area or Sub-System Hierarchy Selection</h3>
+            <div class="map-content">
+              <div class="image-container">
+                <img src="@/assets/V3/B05V3.png" alt="ITE East Floor Plan" class="img-fluid w-100">
+
+                <!-- Manually Positioned Boxes on Top of the Image -->
+                <div class="box" id="box1" @click="goToPageBox('box1')">Box 1</div>
+                <div class="box" id="box2" @click="goToPageBox('box2')">Box 2</div>
+                <div class="box" id="box3" @click="goToPageBox('box3')">Box 3</div>
+                <div class="box" id="box4" @click="goToPageBox('box4')">Box 4</div>
+                <div class="box" id="box5" @click="goToPageBox('box5')">Box 5</div>
+                <div class="box" id="box6" @click="goToPageBox('box6')">Box 6</div>
+                <div class="box" id="box7" @click="goToPageBox('box7')">Box 7</div>
+                <div class="box" id="box8" @click="goToPageBox('box8')">Box 8</div>
+                <div class="box" id="box9" @click="goToPageBox('box9')">Box 9</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="summary-be">
       <h3>System Healthcheck</h3>
       <div class="summary-content">
         <div class="progress-bars">
@@ -9,210 +52,88 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="map-hierarchy">
-      <h3>Map of Area or Sub-System Hierarchy Selection</h3>
-      <div class="map-content">
-        <img src="@/assets/V3/B05V3.jpg" alt="ITE East Floor Plan" class="img-fluid fixed-size">
-      </div>
-    </div>
-    <div class="summary-subsystems">
-      <h3>Summary of Different Sub-Systems</h3>
-      <div class="subsystems-container">
-        <button class="scroll-button left" @click="scrollLeft">&lt;</button>
-        <div class="subsystems-content">
-          <div class="subsystem-card" v-for="(subsystem, index) in displayedSubsystems" :key="index">
-            <h4 v-if="subsystem.name === 'Fire Alarm System Overview'">
-              {{ currentFireAlarmIndex === 0 ? subsystem.name : fireAlarms[currentFireAlarmIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Air Quality System Overview'">
-              {{ currentIAQDeviceIndex === 0 ? subsystem.name : iaqDevices[currentIAQDeviceIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Energy Management System Overview'">
-              {{ currentPowerMeterIndex === 0 ? subsystem.name : powerMeters[currentPowerMeterIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Asset Tagging System Overview'">
-              {{ currentWaterMeterIndex === 0 ? subsystem.name : waterMeters[currentWaterMeterIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Landscape Overview'">
-              {{ currentSmartLandscapeIndex === 0 ? subsystem.name : smartLandscape[currentSmartLandscapeIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Washroom System Overview'">
-              {{ currentSmartToiletIndex === 0 ? subsystem.name : smartToilet[currentSmartToiletIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Building Management System (JCS) Overview'">
-              {{ currentBMSIndex === 0 ? subsystem.name : bms[currentBMSIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Pest Control System Overview'">
-              {{ currentSmartPestControlIndex === 0 ? subsystem.name :
-                smartPestControl[currentSmartPestControlIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Security System Overview'">
-              {{ currentSmartSecurityIndex === 0 ? subsystem.name : smartSecurity[currentSmartSecurityIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Smart Lighting System Overview'">
-              {{ currentSmartLightingIndex === 0 ? subsystem.name : smartLighting[currentSmartLightingIndex].name }}
-            </h4>
-            <h4 v-else-if="subsystem.name === 'Hybrid Air System Overview'">
-              {{ currentHybridAirIndex === 0 ? subsystem.name : hybridAir[currentHybridAirIndex].name }}
-            </h4>
-            <div v-if="subsystem.name === 'Fire Alarm System Overview'">
-              <SemiCircleProgressBar v-if="currentFireAlarmIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ fireAlarms[currentFireAlarmIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': fireAlarms[currentFireAlarmIndex].status === 'Online', 'status-offline': fireAlarms[currentFireAlarmIndex].status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ fireAlarms[currentFireAlarmIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Air Quality System Overview'">
-              <SemiCircleProgressBar v-if="currentIAQDeviceIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Avg Temp: {{ iaqDevices[currentIAQDeviceIndex].avgTemp }}°C</p>
-                <p>Avg Humidity: {{ iaqDevices[currentIAQDeviceIndex].avgHumidity }}%</p>
-                <p>Avg Pressure: {{ iaqDevices[currentIAQDeviceIndex].avgPressure }} hPa</p>
-                <p>Avg CO2: {{ iaqDevices[currentIAQDeviceIndex].avgCO2 }} ppm</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Energy Management System Overview'">
-              <SemiCircleProgressBar v-if="currentPowerMeterIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Avg kWh: {{ powerMeters[currentPowerMeterIndex].avgKwh }}</p>
-                <p>Total kWh: {{ powerMeters.currentPowerMeterIndex.totalKwh }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Asset Tagging System Overview'">
-              <SemiCircleProgressBar v-if="currentWaterMeterIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Avg Flow Rate: {{ waterMeters[currentWaterMeterIndex].avgFlowRate }} L/min</p>
-                <p>Avg Usage: {{ waterMeters[currentWaterMeterIndex].avgUsage }} L</p>
-                <p>Avg Pressure: {{ waterMeters[currentWaterMeterIndex].avgPressure }} kPa</p>
-                <p>Avg Temperature: {{ waterMeters[currentWaterMeterIndex].avgTemperature }}°C</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Landscape Overview'">
-              <SemiCircleProgressBar v-if="currentSmartLandscapeIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ smartLandscape[currentSmartLandscapeIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': smartLandscape[currentSmartLandscapeIndex].status === 'Online', 'status-offline': smartLandscape[currentSmartLandscapeIndex].status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ smartLandscape[currentSmartLandscapeIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Washroom System Overview'">
-              <SemiCircleProgressBar v-if="currentSmartToiletIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ smartToilet[currentSmartToiletIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': smartToilet[currentSmartToiletIndex].status === 'Online', 'status-offline': smartToilet[currentSmartToiletIndex].status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ smartToilet[currentSmartToiletIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Building Management System (JCS) Overview'">
-              <SemiCircleProgressBar v-if="currentBMSIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Connection: {{ bms[currentBMSIndex].connection }}</p>
-                <p>Value: {{ bms[currentBMSIndex].value }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Pest Control System Overview'">
-              <SemiCircleProgressBar v-if="currentSmartPestControlIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ smartPestControl[currentSmartPestControlIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': smartPestControl[currentSmartPestControlIndex].status === 'Online', 'status-offline': smartPestControl.currentSmartPestControlIndex.status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ smartPestControl[currentSmartPestControlIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Security System Overview'">
-              <SemiCircleProgressBar v-if="currentSmartSecurityIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ smartSecurity[currentSmartSecurityIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': smartSecurity[currentSmartSecurityIndex].status === 'Online', 'status-offline': smartSecurity.currentSmartSecurityIndex.status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ smartSecurity[currentSmartSecurityIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Smart Lighting System Overview'">
-              <SemiCircleProgressBar v-if="currentSmartLightingIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ smartLighting[currentSmartLightingIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': smartLighting[currentSmartLightingIndex].status === 'Online', 'status-offline': smartLighting[currentSmartLightingIndex].status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ smartLighting[currentSmartLightingIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div v-if="subsystem.name === 'Hybrid Air System Overview'">
-              <SemiCircleProgressBar v-if="currentHybridAirIndex === 0" :percentage="subsystem.operational" />
-              <div v-else>
-                <p>Status: {{ hybridAir[currentHybridAirIndex].status }}
-                  <span
-                    :class="['status-dot', { 'status-online': hybridAir[currentHybridAirIndex].status === 'Online', 'status-offline': hybridAir[currentHybridAirIndex].status === 'Offline' }]"></span>
-                </p>
-                <p>Last Updated: {{ hybridAir[currentHybridAirIndex].lastUpdated }}</p>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div class="card-pagination">
-                <button @click="prevItem(subsystem.name)" :disabled="!canPrevItem(subsystem.name)">&lt;</button>
-                <p>{{ getCurrentIndex(subsystem.name) + 1 }}/{{ getTotalPages(subsystem.name) }}</p>
-                <button @click="nextItem(subsystem.name)" :disabled="!canNextItem(subsystem.name)">&gt;</button>
-              </div>
-              <router-link :to="subsystem.link" class="see-more">View Details</router-link>
-            </div>
+    </div> -->
+
+    <!-- Sub-System Cards Container with Background -->
+    <div class="subsystems-container">
+      <button class="scroll-button left" @click="scrollLeft">&lt;</button>
+      <div class="subsystems-content">
+        <div v-for="(subsystem, index) in displayedSubsystems" :key="index" class="subsystem-card">
+          <div class="subsystem-header">
+            <span class="subsystem-title">{{ subsystem.name }}</span>
+            <span class="subsystem-info"><i class="fas fa-smile status-icon"></i></span>
           </div>
-        </div>
-        <button class="scroll-button right" @click="scrollRight">&gt;</button>
-      </div>
-      <div class="page-indicators">
-        <span v-for="page in totalPages" :key="page" :class="{ 'active': page === currentPage + 1 }">•</span>
+        <button class="go-button" @click="goToPage(subsystem.link)">Go</button>
       </div>
     </div>
-    <div class="additional-cards">
-      <div class="additional-card auto-scroll-feed">
-        <h4>Alarm & Notification</h4>
-        <router-link to="/alarms-notifications" class="view-all-link">View All</router-link>
-        <div class="feed-wrapper">
-          <div class="feed-content">
-            <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
-              <p>{{ feed.message }}</p>
-              <small>{{ feed.time }}</small>
-            </div>
+    <button class="scroll-button right" @click="scrollRight">&gt;</button>
+
+    <!-- Page Indicators Positioned at the Bottom -->
+    <div class="page-indicators">
+      <span v-for="page in totalPages" :key="page" :class="{ 'active': page === currentPage + 1 }">•</span>
+    </div>
+  </div>
+
+  <div class="additional-cards">
+    <div class="additional-card auto-scroll-feed">
+      <h4>Alarm & Notification</h4>
+      <router-link to="/alarms-notifications" class="view-all-link">View All</router-link>
+      <div class="feed-wrapper">
+        <div class="feed-content">
+          <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
+            <p>{{ feed.message }}</p>
+            <small>{{ feed.time }}</small>
           </div>
         </div>
       </div>
-      <div class="additional-card quick-links">
-        <h4>Fault Call / Ticket</h4>
-        <router-link to="/quick-links" class="view-all-link">View All</router-link>
-        <div class="links-content">
-          <div v-for="(fault, index) in faults" :key="index"
-            :class="['quick-link-item', fault.status === 'work_completed' ? 'completed' : 'pending']">
-            {{ fault.fault_number }} – {{ fault.trade_name }} [{{ fault.type_name }}]
-          </div>
+    </div>
+    <div class="additional-card quick-links">
+      <h4>Fault Call / Ticket</h4>
+      <router-link to="/quick-links" class="view-all-link">View All</router-link>
+      <div class="links-content">
+        <!-- Table Headers -->
+        <div class="fault-row fault-header">
+          <span class="fault-column">ID</span>
+          <span class="fault-column">Description</span>
+          <span class="fault-column">Status</span>
+        </div>
+        <!-- Iterate over the faults and render each one -->
+        <div v-for="(fault, index) in faults" :key="index" :class="['fault-row', getFaultClass(fault.latest_status)]">
+          <span class="fault-column">{{ fault.fault_number }}</span>
+          <span class="fault-column">{{ fault.trade_name }}</span>
+          <span class="fault-column">{{ fault.latest_status ? fault.latest_status : 'Pending' }}</span>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Modal Dialog -->
+  <div v-if="isModalVisible" class="modal-overlay" @click.self="closeModal">
+    <div class="modal-content">
+      <h2>{{ selectedTitle }}</h2>
+      <span class="modal-close" @click="closeModal">&times;</span>
+      <p>This is your modal content.</p>
+      <!-- <img src="path-to-your-image.png" alt="Map" style="width: 100%; height: auto;"> -->
+    </div>
+  </div>
+
+  </div>
 </template>
 
 <script>
-import SemiCircleProgressBar from '@/components/SemiCircleProgressBar.vue';
-import CircularProgressBar from '@/components/CircularProgressBar.vue';
+// import SemiCircleProgressBar from '@/components/SemiCircleProgressBar.vue';
+// import CircularProgressBar from '@/components/CircularProgressBar.vue';
 
 export default {
   name: 'OverviewPage',
   components: {
-    SemiCircleProgressBar,
-    CircularProgressBar,
+    // SemiCircleProgressBar,
+    // CircularProgressBar,
   },
   data() {
     return {
+      isModalVisible: false, // Controls modal visibility
+      selectedTitle: '',     // Holds the title of the clicked room
       selectedArea: null,
       currentPage: 0, // Index for the current page of sub-systems
       currentFireAlarmIndex: 0,
@@ -232,15 +153,15 @@ export default {
         { label: 'Device Operational', value: 100 },
       ],
       subsystemData: [
-        { name: 'Fire Alarm System Overview', type: 'semi-circle', operational: 100, link: '/fire-alarm-system' },
-        { name: 'Smart Landscape Overview', type: 'semi-circle', operational: 100, link: '/smart-landscape-system' },
-        { name: 'Building Management System (JCS) Overview', type: 'semi-circle', operational: 100, link: '/bms-reading' },
-        { name: 'Smart Washroom System Overview', type: 'semi-circle', operational: 100, link: '/smart-toilet-system' },
-        { name: 'Smart Energy Management System Overview', type: 'semi-circle', operational: 100, link: '/power-meter-reading' },
-        { name: 'Smart Pest Control System Overview', type: 'semi-circle', operational: 100, link: '/smart-pest-control-system' },
-        { name: 'Asset Tagging System Overview', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
-        { name: 'Smart Lighting System Overview', type: 'semi-circle', operational: 100, link: '/smart-lighting-system' },
-        { name: 'Hybrid Air System Overview', type: 'semi-circle', operational: 100, link: '/hybrid-aircon-system' },
+        { name: 'FAS', type: 'semi-circle', operational: 100, link: '/fire-alarm-system' },
+        { name: 'SMS', type: 'semi-circle', operational: 100, link: '/smart-landscape-system' },
+        { name: 'BMS', type: 'semi-circle', operational: 100, link: '/bms-reading' },
+        { name: 'SWS', type: 'semi-circle', operational: 100, link: '/smart-toilet-system' },
+        { name: 'SEMS', type: 'semi-circle', operational: 100, link: '/power-meter-reading' },
+        { name: 'SPCS', type: 'semi-circle', operational: 100, link: '/smart-pest-control-system' },
+        { name: 'ATS', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
+        { name: 'SLS', type: 'semi-circle', operational: 100, link: '/smart-lighting-system' },
+        { name: 'HAS', type: 'semi-circle', operational: 100, link: '/hybrid-aircon' },
       ],
       fireAlarms: [
         { name: 'Fire Alarm System Overview', operational: 100 },
@@ -334,15 +255,39 @@ export default {
   },
   computed: {
     displayedSubsystems() {
-      // Show 4 subsystems per page
-      const start = this.currentPage * 4;
-      return this.subsystemData.slice(start, start + 4);
+      // Display 4 subsystems per page
+      const start = this.currentPage * 8;
+      return this.subsystemData.slice(start, start + 8);
     },
     totalPages() {
-      return Math.ceil(this.subsystemData.length / 4);
+      return Math.ceil(this.subsystemData.length / 8);
     }
   },
   methods: {
+    goToPageBox(box) {
+      switch (box) {
+        case 'box1':
+          this.$router.push('/smart-toilet-system');
+          break;
+        case 'box6':
+          this.$router.push('/smart-landscape-system');
+          break;
+        default:
+          console.log('No action for this box.');
+          break;
+      }
+    },
+    goToPage(link) {
+      this.$router.push(link);
+    },
+    showModal(title) {
+      this.selectedTitle = title;
+      this.isModalVisible = true;
+    },
+    // Function to close the modal
+    closeModal() {
+      this.isModalVisible = false;
+    },
     scrollLeft() {
       if (this.currentPage > 0) {
         this.currentPage--;
@@ -587,10 +532,20 @@ export default {
       try {
         const response = await fetch('https://octopus-app-afr3m.ondigitalocean.app/api/Faults');
         const data = await response.json();
-        console.log(data); // Add this line to check the fetched data
-        this.faults = data.slice(0, 3); // Only take the first 3 items
+        console.log('Fetched Faults Data:', data); // Check fetched data
+        this.faults = data.slice(0, 5); // Only take the first 5 items
       } catch (error) {
         console.error('Error fetching faults:', error);
+      }
+    },
+    getFaultClass(status) {
+      console.log(status);
+      if (status === 'work_completed') {
+        return 'work_completed'; // Green background
+      } else if (status === 'site_reached') {
+        return 'site_reached'; // Yellow background
+      } else {
+        return 'pending'; // Red background
       }
     },
   },
@@ -638,13 +593,15 @@ export default {
 
 /* Completed status - green background */
 .quick-link-item.completed {
-  background-color: #90ee90; /* Light green */
+  background-color: #90ee90;
+  /* Light green */
   color: black;
 }
 
 /* Pending status - orange background */
 .quick-link-item.pending {
-  background-color: #ff9900; /* Orange */
+  background-color: #ff9900;
+  /* Orange */
   color: white;
 }
 
@@ -675,16 +632,8 @@ export default {
 }
 
 .overview-container {
-  background-color: #d6ecfa;
-  display: grid;
-  grid-template-columns: 3fr 3fr;
-  /* Makes the left column wider */
-  grid-template-areas:
-    "summary-be map-hierarchy"
-    "summary-subsystems map-hierarchy"
-    "summary-subsystems additional-cards";
-  grid-gap: 20px;
   padding: 20px;
+  background-color: #d6ecfa;
 }
 
 .summary-be {
@@ -710,23 +659,24 @@ export default {
 }
 
 .map-hierarchy {
-  grid-area: map-hierarchy;
   background: #f8f9fa;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
   border: 2px solid #d3d3d3;
-  /* Updated border color */
+  /* Make sure it takes up full width */
+  width: 100%;
 }
 
 .additional-cards {
-  grid-area: additional-cards;
   display: flex;
-  justify-content: flex-end;
-  /* Aligns items to the right */
+  justify-content: space-between;
+  padding-top: 1%;
   gap: 20px;
-  height: 250px;
+  /* Responsive behavior */
 }
+
 
 .additional-card {
   background: white;
@@ -830,6 +780,12 @@ export default {
   /* Make the parent div the positioning context */
 }
 
+.map-content img {
+  width: 100%;
+  /* Ensures the image scales responsively */
+  height: auto;
+}
+
 .summary-content,
 .map-content,
 .subsystems-content {
@@ -838,20 +794,29 @@ export default {
 }
 
 .subsystems-container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #d3d3d3;
   display: flex;
   justify-content: center;
-  /* Center align the cards */
   align-items: center;
   position: relative;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-top: 3%;
+  padding-bottom: 3%;
+  white-space: nowrap;
 }
 
 .subsystems-content {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  overflow-x: auto;
+  grid-template-columns: repeat(4, 2fr);
+  gap: 1%;
+  padding-left: 3%;
+  padding-right: 3%;
   scroll-behavior: smooth;
-  padding-left: 5%;
+  width:100%;
 }
 
 .subsystem-card {
@@ -859,20 +824,39 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  text-align: center;
+  text-align: left;  /* Align text to the left */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border: 2px solid #d3d3d3;
-  /* Updated border color */
-  width: 93%;
-  /* Fixed width */
-  height: 96%;
-  /* Fixed height */
+  width: 100%;
   box-sizing: border-box;
-  /* Ensures padding and border are included in the width and height */
 }
+
+.subsystem-card h4 {
+  color: black;
+  text-align: center;
+  line-height: 1.3;
+  font-size: 1.5em;
+  /* Increase font size */
+  /* Adjust line height for better spacing */
+  height: 3em;
+  /* Ensures the title takes up enough space for two lines */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.status-icon {
+  color: green;
+  /* Make the smiley icon green */
+}
+
 
 .scroll-button {
   background: none;
@@ -884,19 +868,16 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  padding: 0 0px;
-  /* Add padding to the left and right */
 }
 
 .scroll-button.left {
   left: 0px;
-  /* Adjust as needed */
 }
 
 .scroll-button.right {
   right: 0px;
-  /* Adjust as needed */
 }
+
 
 .subsystem-card h4 {
   color: black;
@@ -976,19 +957,18 @@ export default {
   text-decoration: underline;
 }
 
+/* Page Indicators Positioned at the Bottom */
 .page-indicators {
   position: absolute;
-  bottom: -3px;
-  /* Adjust as needed */
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 10px;
+  width: 100%;
   text-align: center;
 }
 
 .page-indicators span {
-  display: inline-block;
   font-size: 24px;
   color: #ccc;
+  margin: 0 5px;
 }
 
 .page-indicators span.active {
@@ -1007,4 +987,326 @@ export default {
 .view-all-link:hover {
   color: #0056b3;
 }
+
+/* Styles for the Title Bar */
+.title-bar {
+  padding: 20px 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .subsystems-content {
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns for tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .subsystems-content {
+    grid-template-columns: repeat(1, 1fr);
+    /* 1 column for mobile */
+  }
+
+
+  .additional-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .subsystems-content {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .title-bar .row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .title,
+  .announcement-bar {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+}
+
+.fault-item {
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  margin-bottom: 10px;
+  color: black;
+  /* Default color for text */
+}
+
+.site_reached {
+  background-color: yellow;
+  color: black;
+  /* Adjust text color for better readability on yellow background */
+}
+
+
+.work-completed {
+  background-color: lightgreen;
+  color: black;
+}
+
+.pending {
+  background-color: red;
+}
+
+.fault-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-radius: 5px;
+}
+
+.fault-column {
+  flex: 1;
+  padding: 0 10px;
+  text-align: left;
+  /* Adjust as needed */
+}
+
+.fault-header {
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+.announcement-bar {
+  background-color: #ff6f6f;
+  /* Match the red background color from your image */
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+/* Absolute positioning for boxes on the image */
+.box {
+  position: absolute;
+  /* Slightly transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  width: 100px;
+  /* Adjust width */
+  height: 100px;
+  /* Adjust height */
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* General layout styles */
+.overview-container {
+  padding: 20px;
+}
+
+.title-bar {
+  padding: 20px 0;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.announcement-bar {
+  background-color: #ff6f6f;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+.map-hierarchy {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #d3d3d3;
+}
+
+/* Modal Overlay Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Ensures it is above other content */
+}
+
+/* Modal Content Styling */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 60vw;
+  /* Sets the width to 60% of the viewport */
+  max-width: 900px;
+  /* Max width so it doesn't stretch too large */
+  height: auto;
+  max-height: 80vh;
+  /* Max height to ensure it doesn't overflow */
+  overflow: auto;
+  /* Allows scrolling if the content is too large */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Adds shadow for depth */
+  position: relative;
+}
+
+/* Close Button Styling */
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Positioning for each box */
+#box1 {
+  top: 58%;
+  left: 6%;
+  width: 8%;
+  height: 30%;
+}
+
+#box2 {
+  top: 8%;
+  left: 11%;
+  width: 16%;
+  height: 18%;
+}
+
+#box3 {
+  top: 5%;
+  left: 27%;
+  width: 16%;
+  height: 21%;
+}
+
+#box4 {
+  top: 5%;
+  left: 43%;
+  width: 15%;
+  height: 21%;
+}
+
+#box5 {
+  top: 8%;
+  left: 65%;
+  width: 8%;
+  height: 18%;
+}
+
+#box6 {
+  top: 26%;
+  left: 16%;
+  width: 56%;
+  height: 21%;
+}
+
+#box7 {
+  top: 47%;
+  left: 25%;
+  width: 10%;
+  height: 30%;
+}
+
+#box8 {
+  top: 47%;
+  left: 35%;
+  width: 9%;
+  height: 30%;
+}
+
+#box9 {
+  top: 47%;
+  left: 44%;
+  width: 10%;
+  height: 30%;
+}
+
+/* Close Button Styling */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #ff0000;
+  /* Red when hovered over */
+}
+
+.subsystem-header {
+  display: flex;
+  justify-content: space-between; /* Title on the left, Smiley on the right */
+  align-items: center;
+}
+
+.subsystem-title {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.subsystem-info {
+  color: green; /* Ensure the smiley is green */
+  font-size: 2em;
+}
+
+.go-button {
+  margin-top: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.go-button:hover {
+  background-color: #0056b3;
+}
+
 </style>

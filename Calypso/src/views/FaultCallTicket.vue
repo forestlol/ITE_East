@@ -54,7 +54,9 @@ export default {
     getRowClass(status) {
       if (status === 'work_completed') {
         return 'work_completed'; // Green background
-      } else {
+      } else if(status === "site_reached")
+        return 'site_reached'
+      else {
         return 'pending'; // Orange background
       }
     },
@@ -136,8 +138,13 @@ export default {
 }
 
 .quick-link-item.pending {
-  background-color: #ff9900; /* Orange background for pending status */
+  background-color: red; /* Orange background for pending status */
   color: white;
+}
+
+.quick-link-item.site_reached {
+  background-color: yellow; /* Orange background for pending status */
+  color: black;
 }
 
 .view-all-link {

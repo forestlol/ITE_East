@@ -226,11 +226,15 @@ h2 {
   padding: 0;
   margin: 0;
   text-align: left;
+  background-color: red;
+  color: black;
 }
 
 .out-of-range-item {
   padding: 10px 0;
   border-bottom: 1px solid #ccc;
+  background-color: red;
+  color: black;
 }
 
 .tag-name {

@@ -1,99 +1,166 @@
 <template>
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Indoor Air Quality System</h2>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="relation-section">
-          <h4>Sensor Detection</h4>
-          <div class="sensor-detection-diagram">
-            <div class="image-container">
-              <img src="@/assets/IAQ Pic.jpg" alt="Relation View" class="relation-image">
-              <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="changeImage(box.id)"
-                :style="{ top: box.top, left: box.left }"></div>
-              <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data"
-                :style="{ top: sensor.top, left: sensor.left }">
-                <div class="sensor-row">
-                  <p class="co2">
-                    <b>CO2</b>
-                  </p>
-                  <p class="pressure">
-                    <b>Pressure</b>
-                  </p>
-                </div>
-                <div class="sensor-row">
-                  <p class="co2">
-                    {{ sensor.co2 }} ppm
-                  </p>
-                  <p class="pressure">
-                    {{ sensor.pressure }}
-                  </p>
-                </div>
-                <div class="sensor-row">
-                  <p class="temperature-humidity">
-                    <i class="fas fa-thermometer-half"></i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <i class="fas fa-tint ml-3"></i>&nbsp;&nbsp;
-                    <b style="font-size:0.5rem;">PM2.5</b>&nbsp;
-                    <b class="ml-3" style="font-size:0.5rem;">PM10</b>
-                  </p>
-                </div>
-                <div class="sensor-row" style="font-size:0.7rem;">
-                  <p class="temperature-humidity">
-                    {{ parseFloat(sensor.temperature).toFixed(1) }}°C
-                    {{ parseFloat(sensor.humidity).toFixed(1) }}%&nbsp;
-                    {{ sensor.pm2_5 }}&nbsp;&nbsp;
-                    {{ sensor.pm10 }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div class="sensor-detection-diagram">
+      <div class="image-container">
+        <img src="@/assets/IAQ Pic.jpg" alt="Relation View" class="relation-image" style="width: 100%;">
+
+        <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="openDialog(box.id)"
+          :style="{ top: box.top, left: box.left }">
+          <button class="btn btn-secondary btn-plus">+</button>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="map-section">
-          <h4>Floorplan</h4>
-          <div class="map-container" @mousedown="startPan" @mousemove="pan" @mouseup="endPan" @mouseleave="endPan"
-            @wheel="onWheel">
-            <img :src="currentImage" alt="Map View" class="map-image"
-              :style="{ transform: `scale(${zoomLevel}) translate(${translateX}px, ${translateY}px)` }">
-            <div class="zoom-controls">
-              <button class="btn btn-secondary" @click="zoomIn">+</button>
-              <button class="btn btn-secondary" @click="zoomOut">-</button>
-            </div>
+        <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data"
+          :style="{ top: sensor.top, left: sensor.left }">
+          <div class="sensor-row">
+            <p class="co2">
+              <b>CO2</b>
+            </p>
+            <p class="pressure">
+              <b>Pressure</b>
+            </p>
+          </div>
+          <div class="sensor-row">
+            <p class="co2">
+              {{ sensor.co2 }} ppm
+            </p>
+            <p class="pressure">
+              {{ sensor.pressure }}
+            </p>
+          </div>
+          <div class="sensor-row">
+
+          </div>
+          <div class="sensor-row">
+
+          </div>
+          <div class="sensor-row">
+
+          </div>
+          <div class="sensor-row">
+            <p class="temperature-humidity">
+              <i class="fas fa-thermometer-half"></i>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <i
+                class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <b style="font-size:0.5rem;">PM2.5</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <b class="ml-3" style="font-size:0.5rem;">PM10</b>
+            </p>
+          </div>
+
+          <div class="sensor-row" style="font-size:0.7rem;">
+            <p class="temperature-humidity">
+              {{ parseFloat(sensor.temperature).toFixed(1)
+              }}°C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {{ parseFloat(sensor.humidity).toFixed(1) }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {{ sensor.pm2_5 }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {{ sensor.pm10 }}
+            </p>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Custom Modal -->
+    <div v-if="showDialog" class="modal-overlay" @click="closeDialog">
+      <div class="modal-content" @click.stop>
+        <button class="close-btn" @click="closeDialog">&times;</button>
+        <h4>Information</h4>
+
+        <!-- Updated Section: Selected Sensor Data in 2x3 Grid with Faces -->
+        <div v-if="getSelectedSensorData(selectedBoxId)" class="sensor-details">
+          <h5>Sensor Data for Floor: {{ getFloorName(selectedBoxId) }}</h5>
+          <div class="sensor-grid">
+            <!-- CO2 Sensor -->
+            <div class="sensor-box">
+              <p><b>CO2:</b></p>
+              <p>{{ getSelectedSensorData(selectedBoxId).co2 }} ppm</p>
+              <div class="face-indicator">
+                <i :class="getFaceClass(getSelectedSensorData(selectedBoxId).co2, 'co2')" class="modal-face-icon"></i>
+              </div>
+            </div>
+            <!-- Temperature Sensor -->
+            <div class="sensor-box">
+              <p><b>Temperature:</b></p>
+              <p>{{ getSelectedSensorData(selectedBoxId).temperature }}°C</p>
+              <div class="face-indicator">
+                <i :class="getFaceClass(getSelectedSensorData(selectedBoxId).temperature, 'temperature')"
+                  class="modal-face-icon"></i>
+              </div>
+            </div>
+            <!-- Humidity Sensor -->
+            <div class="sensor-box">
+              <p><b>Humidity:</b></p>
+              <p>{{ getSelectedSensorData(selectedBoxId).humidity }}%</p>
+              <div class="face-indicator">
+                <i :class="getFaceClass(getSelectedSensorData(selectedBoxId).humidity, 'humidity')"
+                  class="modal-face-icon"></i>
+              </div>
+            </div>
+            <!-- PM2.5 Sensor -->
+            <div class="sensor-box">
+              <p><b>PM2.5:</b></p>
+              <p>{{ getSelectedSensorData(selectedBoxId).pm2_5 }} µg/m³</p>
+              <div class="face-indicator">
+                <i :class="getFaceClass(getSelectedSensorData(selectedBoxId).pm2_5, 'pm2_5')"
+                  class="modal-face-icon"></i>
+              </div>
+            </div>
+            <!-- PM10 Sensor -->
+            <div class="sensor-box">
+              <p><b>PM10:</b></p>
+              <p>{{ getSelectedSensorData(selectedBoxId).pm10 }} µg/m³</p>
+              <div class="face-indicator">
+                <i :class="getFaceClass(getSelectedSensorData(selectedBoxId).pm10, 'pm10')" class="modal-face-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <img :src="getCurrentFloorplanImage(selectedBoxId)" alt="Selected Floorplan" class="floorplan-image">
+
+        <!-- Wrapper div with v-if -->
+        <div v-if="selectedBoxId === 1 || selectedBoxId === 2">
+          <!-- Fan Icons for B05-11 and B05-12 -->
+          <div v-for="fan in fans" :key="fan.id" class="fresh-air-fan-icon" :style="{ top: fan.top, left: fan.left }"
+            @click="openFanDialog(fan)">
+            <img src="@/assets/fresh-air-fan-icon.png" alt="Fan Icon" class="icon-image" />
+            <span class="status-dot" :class="fan.isOn ? 'online' : 'offline'"></span>
+          </div>
+        </div>
+
+
+        <!-- Custom Modal for Fan Control -->
+        <div v-if="showModal" class="modal-overlay" @click="closeModal">
+          <div class="modal-content" @click.stop>
+            <button class="close-btn" @click="closeModal">&times;</button>
+            <h4>{{ selectedFan.name }}</h4>
+            <div class="button-group">
+              <button class="btn btn-primary" @click="sendFanCommand(selectedFan, true)">ON</button>
+              <button class="btn btn-danger" @click="sendFanCommand(selectedFan, false)">OFF</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import Floorplan1 from '@/assets/Sub System and Icons/V2/B05-07_Smart_IAQ_systems_V2.jpg';
-import Floorplan2 from '@/assets/Sub System and Icons/V2/B05-08_Smart_IAQ_system_V2.jpg';
-import Floorplan3 from '@/assets/Sub System and Icons/V2/B05-09_Smart_IAQ_System_V2.jpg';
-import Floorplan4 from '@/assets/Sub System and Icons/V2/B05-11-12_Indoor Air Quality System.jpg';
-import Floorplan5 from '@/assets/Sub System and Icons/V2/B05 13-14_IAQ system.jpg';
-import Floorplan6 from '@/assets/Sub System and Icons/V2/B05 15-16_ IAQ_system.jpg';
-import Floorplan7 from '@/assets/Sub System and Icons/V2/B05-18_Smart_IAQ_system.jpg';
 
 export default {
   name: 'IndoorAirQuality',
   data() {
     return {
-      currentImage: Floorplan4,
-      selectedFloorplan: 1,
-      floorplans: [
-        { id: 1, name: '11', image: Floorplan4 },
-        { id: 2, name: '12', image: Floorplan4 },
-        { id: 3, name: '13/14', image: Floorplan5 },
-        { id: 4, name: '15/16', image: Floorplan6 },
-        { id: 5, name: '18', image: Floorplan7 },
-        { id: 6, name: '7', image: Floorplan1 },
-        { id: 7, name: '8', image: Floorplan2 },
-        { id: 8, name: '9', image: Floorplan3 }
+      sensors: [], // Your sensors data
+      fans: [
+        { id: 1, name: 'Fresh Air Fan 1 (B05-11)', deviceEUI: '24E124756E049153', isOn: false, top: '80%', left: '40%' },
+        { id: 2, name: 'Fresh Air Fan 2 (B05-12)', deviceEUI: '24E124756E049153', isOn: false, top: '78%', left: '75%' }
       ],
-      sensors: [],
+      selectedFan: null,
+      showModal: false,
       boxes: [
         { id: 1, top: '26%', left: '19%' },
         { id: 2, top: '26%', left: '40%' },
@@ -104,26 +171,67 @@ export default {
         { id: 7, top: '74%', left: '61%' },
         { id: 8, top: '74%', left: '81%' }
       ],
-      zoomLevel: 1,
-      translateX: 0,
-      translateY: 0,
-      isPanning: false,
-      startX: 0,
-      startY: 0,
-      lastX: 0,
-      lastY: 0,
-      animationFrame: null,
-      tooltip: {
-        visible: false,
-        top: '0px',
-        left: '0px'
-      }
+      floorplans: [
+        { id: 1, name: 'B05-11', image: require('@/assets/Sub System and Icons/V2/B05-11-12_Indoor Air Quality System.jpg') },
+        { id: 2, name: 'B05-12', image: require('@/assets/Sub System and Icons/V2/B05-11-12_Indoor Air Quality System.jpg') },
+        { id: 3, name: 'B05-13/14', image: require('@/assets/Sub System and Icons/V2/B05 13-14_IAQ system.jpg') },
+        { id: 4, name: 'B05-15/16', image: require('@/assets/Sub System and Icons/V2/B05 15-16_ IAQ_system.jpg') },
+        { id: 5, name: 'B05-18', image: require('@/assets/Sub System and Icons/V2/B05-18_Smart_IAQ_system.jpg') },
+        { id: 6, name: 'B05-07', image: require('@/assets/Sub System and Icons/V2/B05-07_Smart_IAQ_systems_V2.jpg') },
+        { id: 7, name: 'B05-08', image: require('@/assets/Sub System and Icons/V2/B05-08_Smart_IAQ_system_V2.jpg') },
+        { id: 8, name: 'B05-09', image: require('@/assets/Sub System and Icons/V2/B05-09_Smart_IAQ_System_V2.jpg') }
+      ],
+      showDialog: false,
+      selectedBoxId: null
     };
   },
   mounted() {
     this.fetchSensorData();
   },
   methods: {
+    openFanDialog(fan) {
+      this.selectedFan = fan;
+      this.showModal = true;
+    },
+
+    // Close modal
+    closeModal() {
+      this.showModal = false;
+    },
+
+    // Send command to both fans at once
+    async sendFanCommand(fan, turnOn) {
+      const payload = {
+        deviceEui: fan.deviceEUI,
+        switchStates: turnOn ? [1, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0, 0]
+      };
+
+      try {
+        // Send the command for the current fan (either Fresh Air Fan 1 or 2)
+        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', payload);
+        console.log(`${fan.name} turned ${turnOn ? 'ON' : 'OFF'}`, response.data);
+
+        // Update the state of both fans (if one fan is turned on/off, the other should too)
+        this.fans.forEach(f => {
+          f.isOn = turnOn;  // Set the state of both fans to ON/OFF
+        });
+
+        this.closeModal(); // Close the modal after the action
+      } catch (error) {
+        console.error(`Error turning ${turnOn ? 'ON' : 'OFF'} ${fan.name}:`, error);
+      }
+    },
+
+    // Method to toggle both fans at once
+    toggleAllFans() {
+      this.fans.forEach(fan => {
+        fan.isOn = !fan.isOn;  // Toggle the state of both fans
+        this.sendFanCommand(fan, fan.isOn);  // Send the command for each fan
+      });
+    },
+    getSelectedSensorData(boxId) {
+      return this.sensors.find(sensor => sensor.id === boxId);
+    },
     async fetchSensorData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
@@ -139,8 +247,8 @@ export default {
             pm2_5: data['24e124710d480176'].pm2_5,
             pm10: data['24e124710d480176'].pm10,
             pressure: data['24e124710d480176'].pressure,
-            top: '6%',
-            left: '10.6%'
+            top: '8%',
+            left: '11.6%'
           },
           {
             id: 2,
@@ -151,8 +259,8 @@ export default {
             pm2_5: data['24e124710d480413'].pm2_5,
             pm10: data['24e124710d480413'].pm10,
             pressure: data['24e124710d480413'].pressure,
-            top: '6%',
-            left: '31.3%'
+            top: '8%',
+            left: '32.3%'
           },
           {
             id: 3,
@@ -163,8 +271,8 @@ export default {
             pm2_5: data['24e124710d480081'].pm2_5,
             pm10: data['24e124710d480081'].pm10,
             pressure: data['24e124710d480081'].pressure,
-            top: '6%',
-            left: '52%'
+            top: '8%',
+            left: '53%'
           },
           {
             id: 4,
@@ -175,8 +283,8 @@ export default {
             pm2_5: data['24e124710d481996'].pm2_5,
             pm10: data['24e124710d481996'].pm10,
             pressure: data['24e124710d481996'].pressure,
-            top: '6%',
-            left: '72.7%'
+            top: '8%',
+            left: '73.7%'
           },
           {
             id: 5,
@@ -187,8 +295,8 @@ export default {
             pm2_5: data['24e124710d480413'].pm2_5,
             pm10: data['24e124710d480413'].pm10,
             pressure: data['24e124710d480413'].pressure,
-            top: '54%',
-            left: '10.6%'
+            top: '55%',
+            left: '11.6%'
           },
           {
             id: 6,
@@ -199,8 +307,8 @@ export default {
             pm2_5: data['24e124710d482090'].pm2_5,
             pm10: data['24e124710d482090'].pm10,
             pressure: data['24e124710d482090'].pressure,
-            top: '54%',
-            left: '31.3%'
+            top: '55%',
+            left: '32.3%'
           },
           {
             id: 7,
@@ -211,8 +319,8 @@ export default {
             pm2_5: data['24e124710d482388'].pm2_5,
             pm10: data['24e124710d482388'].pm10,
             pressure: data['24e124710d482388'].pressure,
-            top: '54%',
-            left: '52%'
+            top: '55%',
+            left: '53%'
           },
           {
             id: 8,
@@ -223,8 +331,8 @@ export default {
             pm2_5: data['24e124710d482648'].pm2_5,
             pm10: data['24e124710d482648'].pm10,
             pressure: data['24e124710d482648'].pressure,
-            top: '54%',
-            left: '72.7%'
+            top: '55%',
+            left: '73.7%'
           }
         ];
       } catch (error) {
@@ -232,76 +340,67 @@ export default {
       }
     },
 
-    getSmileyClass(co2) {
-      if (co2 <= 600) return 'fa-smile text-success';
-      if (co2 <= 1000) return 'fa-meh text-warning';
-      return 'fa-frown text-danger';
+    openDialog(boxId) {
+      this.selectedBoxId = boxId;
+      console.log(this.getCurrentFloorplanImage(boxId)); // Check what is returned here
+      this.showDialog = true;
     },
 
-    showTooltip(index, event) {
-      console.log('Hovering on box:', index);
-      this.tooltip.visible = true;
-      this.tooltip.top = `${event.clientY + 10}px`;
-      this.tooltip.left = `${event.clientX + 10}px`;
+    closeDialog() {
+      this.showDialog = false;
     },
-    hideTooltip() {
-      this.tooltip.visible = false;
-    },
-    zoomIn() {
-      this.zoomLevel = Math.min(this.zoomLevel + 0.1, 2);
-    },
-    zoomOut() {
-      this.zoomLevel = Math.max(this.zoomLevel - 0.1, 1);
-    },
-    onWheel(event) {
-      event.preventDefault();
-      const delta = Math.sign(event.deltaY) * -0.1;
-      this.zoomLevel = Math.min(Math.max(this.zoomLevel + delta, 1), 2);
-    },
-    startPan(event) {
-      this.isPanning = true;
-      this.startX = event.clientX - this.translateX;
-      this.startY = event.clientY - this.translateY;
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-    },
-    pan(event) {
-      if (!this.isPanning) return;
 
-      const dx = event.clientX - this.lastX;
-      const dy = event.clientY - this.lastY;
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-
-      this.translateX += dx / this.zoomLevel;
-      this.translateY += dy / this.zoomLevel;
-
-      if (!this.animationFrame) {
-        this.animationFrame = requestAnimationFrame(this.updatePan);
-      }
-    },
-    updatePan() {
-      this.$forceUpdate();
-      this.animationFrame = null;
-    },
-    endPan() {
-      this.isPanning = false;
-      if (this.animationFrame) {
-        cancelAnimationFrame(this.animationFrame);
-        this.animationFrame = null;
-      }
-    },
-    getCurrentFloorplanImage(id) {
-      const floorplan = this.floorplans.find(fp => fp.id === id);
-      return floorplan ? floorplan.image : '';
-    },
-    changeImage(boxId) {
+    getCurrentFloorplanImage(boxId) {
       const floorplan = this.floorplans.find(fp => fp.id === boxId);
       if (floorplan) {
-        this.currentImage = floorplan.image;
+        return floorplan.image; // Ensure this is the correct path and dynamically loaded with require()
+      } else {
+        return ''; // Fallback in case no image is found
       }
-    }
+    },
+
+    getFloorName(boxId) {
+      const floorplan = this.floorplans.find(fp => fp.id === boxId);
+      return floorplan ? floorplan.name : '';
+    },
+
+    getFaceClass(value, type) {
+      let goodLimit, badLimit;
+
+      switch (type) {
+        case 'co2':
+          goodLimit = 1000;
+          badLimit = 1500;
+          break;
+        case 'temperature':
+          goodLimit = 25.5; // Acceptable range is 22.5°C to 25.5°C
+          badLimit = 27.5;
+          break;
+        case 'humidity':
+          goodLimit = 70; // Acceptable range is < 70%
+          badLimit = 71;
+          break;
+        case 'pm2_5':
+          goodLimit = 35; // Acceptable range < 35 µg/m³
+          badLimit = 75;
+          break;
+        case 'pm10':
+          goodLimit = 100; // Acceptable range < 100 µg/m³
+          badLimit = 150;
+          break;
+        default:
+          goodLimit = 0;
+          badLimit = 0;
+      }
+
+      if (value < goodLimit) {
+        return 'fas fa-smile text-success modal-face-icon'; // Green smiley face for good values
+      } else if (value >= goodLimit && value < badLimit) {
+        return 'fas fa-meh text-warning modal-face-icon'; // Orange neutral face for moderate values
+      } else {
+        return 'fas fa-frown text-danger modal-face-icon'; // Red frown face for bad values
+      }
+    },
   }
 };
 </script>
@@ -310,106 +409,105 @@ export default {
 .container-fluid {
   width: 100%;
   padding: 2rem;
-  margin-bottom: 5rem;
 }
 
-h2 {
-  font-size: 2rem;
-  font-weight: bold;
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.relation-section,
-.map-section {
-  background-color: #f8f9fa;
-  padding: 20px;
+.sensor-box {
+  background-color: #f0f0f0;
+  padding: 10px;
   border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  height: 100%;
 }
 
-.relation-image,
-.map-image {
-  width: 100%;
-  height: auto;
-  transition: transform 0.1s ease-out;
+.sensor-box p {
+  margin: 5px 0;
+  font-size: 0.9rem;
 }
 
-.map-container {
-  overflow: hidden;
-  height: 100%;
+
+.sensor-detection-diagram {
   position: relative;
-  cursor: grab;
-}
-
-.map-container:active {
-  cursor: grabbing;
-}
-
-.zoom-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.zoom-controls .btn {
-  margin: 2px 0;
-}
-
-.device-status-card {
-  background-color: #e9f7fd;
-  padding: 15px;
-  text-align: center;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.device-status-card h5 {
-  font-size: 1.25rem;
-  margin-bottom: 10px;
-}
-
-.device-status-card .status {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.text-success {
-  color: #28a745 !important;
-}
-
-.text-danger {
-  color: #dc3545 !important;
+  width: 100%;
 }
 
 .image-container {
   position: relative;
+  width: 88%;
 }
 
-.system-image {
-  width: 100%;
-  height: auto;
+.clickable-box {
+  width: 19%;
+  /* Smaller width */
+  height: 45%;
+  /* Smaller height */
+  cursor: pointer;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  /* Add a high z-index to bring the boxes to the front */
+}
+
+
+.btn-plus {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
 }
 
 .sensor-data {
-  width: 17%;
-  height: 25%;
+  width: 15%;
+  /* Adjust to fit smaller cards */
+  height: 20%;
   position: absolute;
-  padding: 10px;
+  padding: 8px;
   color: black;
   border-radius: 5px;
   text-align: left;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   white-space: nowrap;
-  pointer-events: none;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 40%;
+  text-align: center;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.floorplan-image {
+  width: 100%;
 }
 
 .sensor-row {
@@ -417,50 +515,90 @@ h2 {
   justify-content: space-between;
 }
 
-.icon-text {
-  display: flex;
-  align-items: center;
-}
-
-.icon-text i {
-  margin-right: 5px;
-}
-
-.sensor-data p {
-  margin: 0;
-}
-
-.smiley-icon {
-  margin-left: 10px;
-}
-
-.fa-smile {
+.text-success {
   color: #28a745;
 }
 
-.fa-meh {
-  color: #ffcc00;
-}
-
-.fa-frown {
+.text-danger {
   color: #dc3545;
 }
 
-.clickable-box {
-  width: 155px;
-  height: 209px;
-  cursor: pointer;
-  position: absolute;
-  transform: translate(-50%, -50%);
+.text-warning {
+  color: #ffc107;
 }
 
-.tooltip {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 10px;
+.sensor-details {
+  background-color: #f7f7f7;
+  padding: 15px;
+  margin-top: 20px;
   border-radius: 5px;
-  pointer-events: none;
-  white-space: nowrap;
+}
+
+.sensor-details h5 {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.sensor-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.sensor-row p {
+  margin: 0;
+}
+
+.modal-content {
+  max-width: 90%;
+  padding: 20px;
+}
+
+.floorplan-image {
+  margin-top: 10px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.face-indicator {
+  display: flex;
+  justify-content: center;
+  padding-top: 5px;
+}
+
+.modal-face-icon {
+  font-size: 1.5rem;
+  /* Adjust icon size specifically for the modal */
+}
+
+.fresh-air-fan-icon {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 5;
+  /* To make sure it stays on top */
+}
+
+.icon-image {
+  width: 100%;
+  height: 100%;
+}
+
+.status-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
 }
 </style>
