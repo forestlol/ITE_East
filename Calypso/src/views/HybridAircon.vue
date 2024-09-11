@@ -320,7 +320,7 @@ h2 {
 
 .relation-section,
 .map-section {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -391,7 +391,7 @@ h2 {
 }
 
 .device-status-card {
-  background-color: #e9f7fd;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   text-align: center;
   border-radius: 5px;

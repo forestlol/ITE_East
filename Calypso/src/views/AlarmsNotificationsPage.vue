@@ -33,7 +33,7 @@
     max-width: 1200px;
     min-height: 100vh; /* Ensures the container covers the full viewport height */
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
@@ -50,7 +50,7 @@
     max-height: 80vh;
     overflow-y: auto;
     padding: 10px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
@@ -58,7 +58,7 @@
     width: 8px;
   }
   .alarm-notification-list::-webkit-scrollbar-track {
-    background: #f8f9fa;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
   }
   .alarm-notification-list::-webkit-scrollbar-thumb {
@@ -67,7 +67,7 @@
     border: 2px solid #f8f9fa;
   }
   .feed-item {
-    background-color: #f8f9fa;
+    background-color: rgba(255, 255, 255, 0.1);
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -79,11 +79,11 @@
   .feed-item p {
     margin-bottom: 5px;
     font-size: 1rem;
-    color: #333;
+    color: white;
   }
   .feed-item small {
     font-size: 0.875rem;
-    color: #777;
+    color: white;
   }
   </style>
   

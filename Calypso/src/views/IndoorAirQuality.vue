@@ -601,4 +601,8 @@ export default {
 .offline {
   background-color: red;
 }
+
+.modal-content{
+  color:black;
+}
 </style>

@@ -74,8 +74,8 @@ export default {
 
 .additional-card.quick-links {
   flex: 1;
-  background: white;
-  color: black;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -104,7 +104,7 @@ export default {
   justify-content: space-between;
   width: 100%;
   font-weight: bold;
-  background-color: #f0f0f0; /* Optional: Add background to the header row */
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 10px; /* Add padding for a cleaner look */
   border-radius: 5px; /* Rounded corners for the header */
 }

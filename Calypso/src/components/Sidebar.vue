@@ -160,33 +160,33 @@ export default {
 <style scoped>
 .app-container {
   display: flex;
+  background-image: url('@/assets/background.jpg');
 }
 
 .sidebar {
   width: 200px;
-  /* Sidebar is expanded by default */
   transition: width 0.3s;
   height: 100vh;
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1); /* Transparent sidebar */
   position: fixed;
   top: 0;
   left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-right: 2px solid #ccc;
+  border-right: 2px solid rgba(255, 255, 255, 0.2); /* Transparent border */
   z-index: 1000;
 }
 
 .sidebar:not(.expanded) {
   width: 60px;
-  /* Width of collapsed sidebar */
 }
 
 .sidebar-header {
   padding: 20px;
   display: flex;
   justify-content: center;
+  color: white; /* White text */
 }
 
 .sidebar-nav {
@@ -205,44 +205,59 @@ export default {
   align-items: center;
   width: 100%;
   padding: 10px;
-  color: #555;
+  color: white; /* Default white text */
   text-decoration: none;
+  background-color: transparent; /* Transparent background */
   transition: background-color 0.3s, color 0.3s;
   justify-content: flex-start;
   padding-left: 20px;
 }
 
+/* Collapsed sidebar adjustments */
 .sidebar:not(.expanded) .nav-link {
   justify-content: center;
   padding-left: 0;
 }
 
-.nav-link:hover {
-  background-color: lightgrey;
-  color: black;
-}
-
+/* Default icon and text color */
 .nav-link i,
 .nav-link .icon-image {
   margin-right: 10px;
+  color: white; /* Default icon color */
+  filter: brightness(0) saturate(100%) invert(100%); /* Default image icon as white */
 }
 
 .icon-image {
   width: 20px;
-  /* Adjust this to the desired width */
   height: 20px;
-  /* Adjust this to the desired height */
   margin-right: 10px;
   object-fit: contain;
-  /* Ensures the icon fits within the specified dimensions */
 }
 
-
-.sidebar:not(.expanded) .nav-link i,
-.sidebar:not(.expanded) .nav-link .icon-image {
-  margin-right: 0;
+/* Hover effect for links */
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* Lighter hover effect */
+  color: white; /* White text on hover */
 }
 
+/* Active state: Blue icon, white text */
+.nav-link.active .nav-text,
+.nav-link.active i,
+.nav-link.active .icon-image {
+  color: white; /* White text for active link */
+  /* Blue color for active image icon */
+}
+
+.active-icon {
+  color: #007bff !important; /* Force blue color for active FontAwesome icons */
+}
+
+.sidebar-nav .nav-item .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2); /* Light background when active */
+  color: lightblue; /* White text when active */
+}
+
+/* Text visibility in collapsed sidebar */
 .nav-text {
   display: inline;
 }
@@ -251,13 +266,12 @@ export default {
   display: none;
 }
 
-.active-icon {
-  color: #007bff;
-  /* Blue color for FontAwesome icons */
-  filter: brightness(0) saturate(100%) invert(29%) sepia(87%) saturate(2979%) hue-rotate(191deg) brightness(92%) contrast(102%);
-  /* Blue filter for images */
+.sidebar:not(.expanded) .nav-link i,
+.sidebar:not(.expanded) .nav-link .icon-image {
+  margin-right: 0;
 }
 
+/* Toggle button styling */
 .toggle-button {
   background: none;
   border: none;
@@ -265,56 +279,55 @@ export default {
   margin-top: auto;
   margin-bottom: 20px;
   padding: 10px;
+  color: white; /* White text */
 }
 
 .main-content {
   flex-grow: 1;
   transition: margin-left 0.3s;
-  margin-left: 200px;
-  /* Adjusted for expanded sidebar width */
+  margin-left: 200px; /* Adjusted for expanded sidebar width */
+  background-color: rgba(0, 0, 0, 0.1); /* Transparent main content */
+  color: white; /* White text in the content */
 }
 
 .sidebar:not(.expanded)~.main-content {
-  margin-left: 60px;
-  /* Adjusted for collapsed sidebar width */
+  margin-left: 60px; /* Adjusted for collapsed sidebar width */
 }
 
 .navbar {
   height: 60px;
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #ccc;
+  background-color: rgba(0, 0, 0, 0.1); /* Transparent navbar */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2); /* Transparent border */
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% - 200px);
-  /* Adjusted for expanded sidebar width */
+  width: calc(100% - 200px); /* Adjusted for expanded sidebar width */
   transition: width 0.3s;
   position: fixed;
   top: 0;
-  left: 200px;
-  /* Adjusted for expanded sidebar width */
+  left: 200px; /* Adjusted for expanded sidebar width */
   z-index: 999;
-  /* Ensure the navbar is above other content */
+  color: white; /* White text in the navbar */
 }
 
 .sidebar:not(.expanded)~.main-content .navbar {
-  width: calc(100% - 60px);
-  /* Adjusted for collapsed sidebar width */
-  left: 60px;
-  /* Adjusted for collapsed sidebar width */
+  width: calc(100% - 60px); /* Adjusted for collapsed sidebar width */
+  left: 60px; /* Adjusted for collapsed sidebar width */
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
   gap: 20px;
+  color: white; /* White text */
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: white; /* White text */
 }
 
 .weather-icon {
@@ -324,19 +337,19 @@ export default {
 
 .content {
   /* Added padding-top to account for the fixed navbar */
-  margin-top: 60px;
+  padding-top: 8%;
   /* Add margin-top to avoid overlapping with the navbar */
   transition: margin-left 0.3s;
+  color: white; /* White text in the content area */
 }
 
 .sidebar:not(.expanded)~.main-content .content {
-  margin-left: 60px;
-  /* Adjusted for collapsed sidebar width */
+  margin-left: 60px; /* Adjusted for collapsed sidebar width */
 }
 
-/* General topbar button styling remains the same */
+/* General topbar button styling */
 .topbar-button {
-  background-color: #007bff;
+  background-color: rgba(255, 255, 255, 0.1); /* Transparent button */
   color: white;
   padding: 5px 10px;
   border-radius: 5px;
@@ -346,17 +359,15 @@ export default {
 }
 
 .topbar-button:hover {
-  background-color: #0056b3;
+  background-color: rgba(255, 255, 255, 0.2); /* Slightly more visible on hover */
 }
 
-/* Specific style for the Control Tower button */
 .control-tower-button {
-  background-color: #343a40;
-  /* Darker color for the Control Tower button */
+  background-color: rgba(52, 58, 64, 0.7); /* Darker transparent background for Control Tower button */
 }
 
 .control-tower-button:hover {
-  background-color: #1d2124;
-  /* Even darker on hover */
+  background-color: rgba(29, 33, 36, 0.7); /* Darker hover effect */
 }
+
 </style>

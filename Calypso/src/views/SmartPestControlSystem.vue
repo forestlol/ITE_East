@@ -172,7 +172,7 @@ export default {
     // Function to create and start a Hyperbeam session
     async startHyperbeamSession() {
       try {
-        const response = await axios.post('http://localhost:3000/create-session');
+        const response = await axios.post('https://cctv.rshare.io/create-session');
         const embedUrl = response.data.embed_url;
 
         // Dynamically set iframe source
@@ -211,7 +211,7 @@ h2 {
 
 .relation-section,
 .map-section {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -258,7 +258,7 @@ h2 {
 }
 
 .device-status-card {
-  background-color: #e9f7fd;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   text-align: center;
   border-radius: 5px;

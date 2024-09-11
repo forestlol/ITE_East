@@ -286,7 +286,7 @@ h2 {
 
 .relation-section,
 .map-section {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

@@ -29,10 +29,8 @@ export default {
 }
 
 .main-content {
-  background-color: #d6ecfa;
   flex: 1;
   transition: margin-left 0.3s;
-  padding: 20px;
   margin-left: 60px; /* Default sidebar width */
 }
 

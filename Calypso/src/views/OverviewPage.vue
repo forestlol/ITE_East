@@ -559,8 +559,8 @@ export default {
 /* CSS code remains the same */
 .additional-card.quick-links {
   flex: 1;
-  background: white;
-  color: black;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -631,11 +631,6 @@ export default {
   color: #0056b3;
 }
 
-.overview-container {
-  padding: 20px;
-  background-color: #d6ecfa;
-}
-
 .summary-be {
   grid-area: summary-be;
   background: #f8f9fa;
@@ -659,7 +654,6 @@ export default {
 }
 
 .map-hierarchy {
-  background: #f8f9fa;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -679,8 +673,8 @@ export default {
 
 
 .additional-card {
-  background: white;
-  color: black;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -726,7 +720,8 @@ export default {
 }
 
 .feed-item {
-  background: rgb(231, 231, 231);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
@@ -794,7 +789,7 @@ export default {
 }
 
 .subsystems-container {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 10px;
   border: 2px solid #d3d3d3;
@@ -820,7 +815,7 @@ export default {
 }
 
 .subsystem-card {
-  color: black;
+  color: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -832,31 +827,6 @@ export default {
   width: 100%;
   box-sizing: border-box;
 }
-
-.subsystem-card h4 {
-  color: black;
-  text-align: center;
-  line-height: 1.3;
-  font-size: 1.5em;
-  /* Increase font size */
-  /* Adjust line height for better spacing */
-  height: 3em;
-  /* Ensures the title takes up enough space for two lines */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  white-space: normal;
-  word-break: break-word;
-}
-
-.status-icon {
-  color: green;
-  /* Make the smiley icon green */
-}
-
 
 .scroll-button {
   background: none;
@@ -880,7 +850,7 @@ export default {
 
 
 .subsystem-card h4 {
-  color: black;
+  color: white;
   text-align: center;
   line-height: 1.3;
   /* Adjust line height for better spacing */
@@ -996,7 +966,7 @@ export default {
 .title {
   font-size: 24px;
   font-weight: bold;
-  color: #000;
+  color: white;
   margin: 0;
   text-align: center;
 }
@@ -1079,7 +1049,7 @@ export default {
 }
 
 .fault-header {
-  background-color: #f0f0f0;
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
 }
 
@@ -1141,7 +1111,7 @@ export default {
 }
 
 .map-hierarchy {
-  background: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 10px;
   border: 2px solid #d3d3d3;
@@ -1290,7 +1260,7 @@ button:hover {
 }
 
 .subsystem-info {
-  color: green; /* Ensure the smiley is green */
+  color: limegreen; /* Ensure the smiley is green */
   font-size: 2em;
 }
 

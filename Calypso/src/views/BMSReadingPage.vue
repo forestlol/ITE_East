@@ -319,6 +319,7 @@ export default {
   border-radius: 3px;
   font-weight: bold;
   transform: translate(-50%, -50%); /* Center the sensor value on the position */
+  color:black;
 }
 
 
@@ -344,7 +345,7 @@ export default {
 
 .sensor-item {
   border: 1px solid lightgrey;
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
