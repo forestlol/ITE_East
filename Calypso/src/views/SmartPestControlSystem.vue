@@ -17,18 +17,18 @@
         <div class="map-section">
           <h4>Floorplan</h4>
           <div class="map-container">
-            <img src="@/assets/V3/B05-11-12_empty_V3.jpg" alt="Map View" class="map-image">
+            <img src="@/assets/V3/B05-11-12_full_pest.png" alt="Map View" class="map-image">
 
             <!-- Magnetic Sensors -->
             <div v-for="sensor in magneticSensors" :key="sensor.devEUI" class="magnetic-sensor-icon"
-              :style="{ top: sensor.top, left: sensor.left }" @mouseover="showSensorInfo(sensor)"
-              @mouseleave="hideSensorInfo(sensor)">
-              <img src="@/assets/Magnetic Sensor.png" alt="Magnetic Sensor Icon" class="icon-image">
+              :style="{ top: sensor.top, left: sensor.left, width: '24px', height: '24px', backgroundColor: 'transparent' }"
+              @mouseover="showSensorInfo(sensor)" @mouseleave="hideSensorInfo(sensor)">
               <div class="sensor-info" v-if="sensor.showInfo">
                 <h5>Magnetic Sensor</h5>
                 <p>Status: {{ sensor.magnet_status === '1' ? 'Closed' : 'Open' }}</p>
               </div>
             </div>
+
 
           </div>
         </div>
@@ -135,14 +135,14 @@ export default {
         this.magneticSensors = [
           {
             ...data['24e124141e151801'],
-            top: '24%',
-            left: '69%',
+            top: '19%',
+            left: '63%',
             showInfo: false
           },
           {
             ...data['24e124141e151546'],
-            top: '24%',
-            left: '65%',
+            top: '19%',
+            left: '66.2%',
             showInfo: false
           }
         ];
@@ -236,11 +236,9 @@ h2 {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: pointer;
-}
-
-.icon-image {
   width: 24px;
   height: 24px;
+  background-color: transparent; /* No icon, but clickable area remains */
 }
 
 .sensor-info {
@@ -255,6 +253,12 @@ h2 {
   text-align: center;
   white-space: nowrap;
   z-index: 10;
+}
+
+
+.icon-image {
+  width: 24px;
+  height: 24px;
 }
 
 .device-status-card {

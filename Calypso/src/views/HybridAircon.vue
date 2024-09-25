@@ -1,105 +1,117 @@
 <template>
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Hybrid Aircon System</h2>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="relation-section">
-          <h4>Sensor Detection</h4>
-          <div class="sensor-detection-diagram">
-            <img src="@/assets/Hybrid Aircon Algo.png" alt="Relation View" class="relation-image">
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="map-section">
-          <h4>Floorplan</h4>
-          <div class="map-container">
-            <img src="@/assets/Sub System and Icons/V2/B05-11-12_empty.jpg" alt="Map View" class="map-image">
 
-            <!-- Slider Controls -->
-            <div class="slider-controls">
-              <div class="slider-control">
-                <label class="switch">
-                  <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
-                  <span class="slider round"></span>
-                </label>
-                <span>{{ allDampenerOn ? 'Motorized Dampeners All OFF' : 'Motorized Dampeners All ON' }}</span>
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs justify-content-center">
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'schematics' }"
+          @click="setActiveTab('schematics')">Schematics</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'floorplan' }"
+          @click="setActiveTab('floorplan')">Floorplan</a>
+      </li>
+    </ul>
+
+    <!-- Schematics Tab -->
+    <div v-if="activeTab === 'schematics'" class="tab-content mt-4">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="relation-section">
+            <h4>Schematics</h4>
+            <div class="sensor-detection-diagram">
+              <img src="@/assets/Hybrid Aircon Algo.png" alt="Relation View" class="relation-image">
+            </div>
+
+            <!-- Condition Dropdown -->
+            <div class="row mt-4 condition-dropdown">
+              <div class="col-12 text-center">
+                <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
+                  <option v-for="(condition, index) in conditions" :key="index" :value="condition">
+                    {{ condition }}
+                  </option>
+                </select>
               </div>
-              <div class="slider-control">
-                <label class="switch">
-                  <input type="checkbox" :checked="allAirconOn" @change="toggleAllAircons" ref="airconCheckbox">
-                  <span class="slider round"></span>
-                </label>
-                <span>{{ allAirconOn ? 'Aircons All OFF' : 'Aircons All ON' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floorplan Tab -->
+    <div v-if="activeTab === 'floorplan'" class="tab-content mt-4">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="map-section">
+            <h4>Floorplan</h4>
+            <div class="map-container">
+              <img src="@/assets/Sub System and Icons/V2/B05-11-12_full_FCU_DAMpers.png" alt="Map View"
+                class="map-image">
+
+              <!-- Sensors on the floorplan -->
+              <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
+                :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
+                <!-- Online/Offline Status Dot -->
+                <span class="status-dot" :class="sensor.isOnline ? 'online' : 'offline'"></span>
               </div>
 
+              <!-- Aircon Box on the floorplan -->
+              <div v-for="aircon in airconBoxes" :key="aircon.name" class="aircon-box"
+                :style="{ top: aircon.top, left: aircon.left }" @click="openAirconDialog(aircon)">
+                <!-- Online/Offline Status Dot -->
+                <span class="status-dot" :class="aircon.isOnline ? 'online' : 'offline'"></span>
+              </div>
+
+              <!-- Global and Individual Slider Controls -->
+              <div class="floorplan-controls">
+                <!-- Global Controls on the top-left -->
+                <div class="global-controls">
+                  <div class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" :checked="allAirconOn" @change="toggleAllAircons" ref="airconCheckbox">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ allAirconOn ? 'Turn All Aircons OFF' : 'Turn All Aircons ON' }}</span>
+                  </div>
+
+                  <div class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ allDampenerOn ? 'Turn All Dampeners OFF' : 'Turn All Dampeners ON' }}</span>
+                  </div>
+                </div>
+
+                <!-- Individual Controls on the top-right -->
+                <div class="individual-controls">
+                  <div v-for="sensor in sensors" :key="sensor.id" class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'ON' : 'OFF' }}</span>
+                  </div>
+
+                  <div v-for="aircon in airconBoxes" :key="aircon.name" class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" :checked="aircon.isOnline"
+                        @change="sendAirconState($event.target.checked, aircon.name)">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'ON' : 'OFF' }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <!-- Sensors -->
-            <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
-              :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
-              <img :src="getSensorIcon(sensor.type)" alt="Sensor Icon" class="icon-image">
-              <span class="status-dot" :class="sensor.isOnline ? 'online' : 'offline'"></span>
-            </div>
-
-            <!-- Aircons (opens modal for each aircon) -->
-            <div v-for="(aircon, index) in airconBoxes" :key="index" class="aircon-box"
-              :style="{ top: aircon.top, left: aircon.left }" @click="openAirconDialog(aircon)">
-              <img src="@/assets/aircon-icon.png" alt="Aircon Icon" class="icon-image">
-              <span class="status-dot" :class="aircon.isOnline ? 'online' : 'offline'"></span>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Device Status Cards -->
-    <div class="row mt-4">
-      <div class="col-md-3" v-for="device in devices" :key="device.id">
-        <div class="device-status-card">
-          <h5>{{ device.name }}</h5>
-          <p class="status" :class="{ 'text-success': device.isOnline, 'text-danger': !device.isOnline }">
-            {{ device.isOnline ? 'Online' : 'Offline' }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Condition Dropdown -->
-    <div class="row mt-4 condition-dropdown">
-      <div class="col-12 text-center">
-        <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
-          <option v-for="(condition, index) in conditions" :key="index" :value="condition">
-            {{ condition }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
-    <div v-if="showModal" class="modal d-block">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{ modalTitle }}</h5>
-            <button type="button" class="btn-close" @click="closeModal">×</button>
-          </div>
-          <div class="modal-body text-center">
-            <button v-if="currentType === 'aircon'" @click="sendAirconState(true, modalTitle)"
-              class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'aircon'" @click="sendAirconState(false, modalTitle)"
-              class="btn btn-danger">OFF</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
-              @click="setSwitch(true, currentType)" class="btn btn-primary">ON</button>
-            <button v-if="currentType === 'freshAirFan' || currentType === 'dampener'"
-              @click="setSwitch(false, currentType)" class="btn btn-danger">OFF</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+
 </template>
 
 
@@ -110,6 +122,7 @@ export default {
   name: 'HybridAircon',
   data() {
     return {
+      activeTab: 'floorplan',
       showModal: false,
       modalTitle: '',
       currentType: '',
@@ -119,20 +132,17 @@ export default {
         { id: 1, name: 'Indoor Air Quality Sensor', type: 'Indoor Air Quality Sensor', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         { id: 3, name: 'Air-Con System', type: 'Air-Con System', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
         { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
-        { id: 8, name: 'Fresh Air Fan', type: 'Fresh Air Fan', isOnline: true, lastUpdated: '2024-05-29 14:30:00' }
       ],
       sensors: [
-        { id: 1, top: '54%', left: '42%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
-        { id: 2, top: '38%', left: '47%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
+        { id: 1, top: '27%', left: '45%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
+        { id: 2, top: '44%', left: '39%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
       ],
       airconBoxes: [
-        { top: '76%', left: '37%', showButtons: false, name: 'FCU 1-1', isOnline: false },
-        { top: '75%', left: '46%', showButtons: false, name: 'FCU 1-2', isOnline: false },
-        { top: '73%', left: '59%', showButtons: false, name: 'FCU 2-1', isOnline: false },
-        { top: '72%', left: '71%', showButtons: false, name: 'FCU 2-2', isOnline: false }
+        { top: '66%', left: '38%', showButtons: false, name: 'FCU 1-1', isOnline: false },
+        { top: '65%', left: '47%', showButtons: false, name: 'FCU 1-2', isOnline: false },
+        { top: '65%', left: '58%', showButtons: false, name: 'FCU 2-1', isOnline: false },
+        { top: '65%', left: '72%', showButtons: false, name: 'FCU 2-2', isOnline: false }
       ],
-
-      // Conditions Data
       conditions: [
         'Conditions',
         'If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.',
@@ -140,28 +150,9 @@ export default {
         'If Motorized Dampener malfunctions, notify the maintenance team immediately.',
       ],
       selectedCondition: '',
-      displayedCondition: ''
     };
   },
   methods: {
-    openAirconDialog(aircon) {
-      this.modalTitle = aircon.name;
-      this.currentType = 'aircon';
-      this.showModal = true;
-    },
-    async sendSwitchCommand(deviceEUI, switchStates) {
-      const payload = {
-        deviceEui: deviceEUI,
-        switchStates: switchStates
-      };
-      const targetUrl = 'https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558';
-      try {
-        const response = await axios.post(targetUrl, payload);
-        console.log('Switch command sent successfully', response.data);
-      } catch (error) {
-        console.error('Error sending switch command:', error);
-      }
-    },
     async setSwitch(state, deviceType) {
       let switchStates = Array(8).fill(0);
 
@@ -173,36 +164,16 @@ export default {
           this.sendSwitchCommand(sensor.deviceEUI, switchStates);
         }
       }
-
-      this.closeModal();
-    },
-    async sendAirconCommand(state) {
-      const payload = {
-        state: state ? 'on' : 'off'
-      };
-      const targetUrl = `https://aircon.rshare.io/aircon/control/master`;
-
-      try {
-        const response = await axios.post(targetUrl, payload);
-        console.log(`Aircons turned ${state ? 'on' : 'off'} successfully`, response.data);
-        this.updateAirconStates(state);
-      } catch (error) {
-        console.error(`Error turning aircons ${state ? 'on' : 'off'}:`, error);
-      }
     },
     sendAirconState(state, airconId) {
       let airconIndex;
-
-      // Determine the aircon ID and corresponding index
       if (airconId === 'FCU 1-1') airconIndex = 1;
       else if (airconId === 'FCU 1-2') airconIndex = 2;
       else if (airconId === 'FCU 2-1') airconIndex = 3;
       else if (airconId === 'FCU 2-2') airconIndex = 4;
 
       const apiUrl = `https://aircon.rshare.io/aircon/${airconIndex}`;
-      const payload = {
-        state: state ? 'on' : 'off'
-      };
+      const payload = { state: state ? 'on' : 'off' };
 
       axios.post(apiUrl, payload)
         .then(response => {
@@ -218,63 +189,84 @@ export default {
           console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
         });
     },
-    toggleButtons(sensor) {
-      this.modalTitle = sensor.name;
-      this.currentType = sensor.type;
-      this.showModal = true;
+    toggleSensor(sensor) {
+      const newState = !sensor.isOnline;
+      const switchStates = newState ? [1, 1, 1, 1, 1, 1, 1, 1] : [0, 0, 0, 0, 0, 0, 0, 0];
+
+      // Send the switch command to update the backend
+      this.sendSwitchCommand(sensor.deviceEUI, switchStates)
+        .then((response) => {
+          if (response && response.success) {
+            // Only update the state if the backend confirms success
+            sensor.isOnline = newState;
+          } else {
+            console.warn('Failed to confirm sensor state change');
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to toggle sensor:', error);
+        });
     },
-    closeModal() {
-      this.showModal = false;
-    },
-    getSensorIcon(type) {
-      if (type === 'dampener') {
-        return require('@/assets/dampener-icon.png');
-      } else {
-        return require('@/assets/default-icon.png');
+
+    async sendSwitchCommand(deviceEUI, switchStates) {
+      const payload = {
+        deviceEui: deviceEUI,
+        switchStates: switchStates
+      };
+      const targetUrl = 'https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558';
+      try {
+        const response = await axios.post(targetUrl, payload);
+        console.log('Switch command sent successfully', response.data);
+      } catch (error) {
+        console.error('Error sending switch command:', error);
       }
     },
-    updateCondition() {
-      this.displayedCondition = this.selectedCondition;
-    },
+
     toggleAllDampeners() {
       this.setAllDevicesState('dampener', this.allDampenerOn);
     },
+
     toggleAllAircons() {
+      const newState = !this.allAirconOn;
+
       // Disable checkbox to prevent double-clicking during API call
       this.$refs.airconCheckbox.disabled = true;
 
-      // Determine the new state to toggle to
-      const newState = !this.allAirconOn;
-
-      // Prepare the payload for the API request
-      const payload = {
-        state: newState ? 'on' : 'off'
-      };
-
-      // Send the request to the API
-      axios.post('https://aircon.rshare.io/aircon/control/master', payload)
-        .then(response => {
-          console.log(`All aircons turned ${newState ? 'on' : 'off'} successfully`, response.data);
-
-          // Only update the UI state after the API call is successful
+      this.sendAirconCommand(newState)
+        .then(() => {
+          // Update the UI state after the API call is successful
           this.allAirconOn = newState;
           this.updateAirconStates(newState);
         })
         .catch(error => {
-          console.error(`Error turning all aircons ${newState ? 'on' : 'off'}:`, error);
-          // Optionally, handle errors here
+          console.error('Error toggling all aircons:', error);
         })
         .finally(() => {
           // Re-enable the checkbox after API call completes
           this.$refs.airconCheckbox.disabled = false;
         });
     },
-    // Method to update the status of all aircon boxes in the UI
+
+    async sendAirconCommand(state) {
+      const payload = { state: state ? 'on' : 'off' };
+      const targetUrl = 'https://aircon.rshare.io/aircon/control/master';
+
+      try {
+        const response = await axios.post(targetUrl, payload);
+        console.log('Aircons toggled successfully', response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error toggling aircons:', error);
+        throw error;
+      }
+    },
+
     updateAirconStates(state) {
       this.airconBoxes.forEach(aircon => {
         aircon.isOnline = state;
       });
     },
+
     setAllDevicesState(deviceType, state) {
       if (deviceType === 'dampener') {
         this.sensors.forEach(sensor => {
@@ -291,14 +283,9 @@ export default {
       }
     }
   },
-  mounted() {
-    if (this.conditions.length > 0) {
-      this.selectedCondition = this.conditions[0];
-      this.updateCondition();
-    }
-  }
 };
 </script>
+
 
 
 <style scoped>
@@ -328,6 +315,12 @@ h2 {
   height: 100%;
 }
 
+.map-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .relation-image,
 .map-image {
   width: 100%;
@@ -339,6 +332,7 @@ h2 {
   overflow: hidden;
   height: 100%;
   position: relative;
+  /* Makes sure the controls are relative to the map */
 }
 
 .sensor-icon {
@@ -459,13 +453,14 @@ h2 {
 /* Slider Controls Styling */
 .slider-controls {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   left: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* Slider control styling */
 .slider-control {
   display: flex;
   align-items: center;
@@ -560,6 +555,7 @@ input:checked+.slider:before {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1050;
   width: 300px;
+  color: black;
 }
 
 .modal-header {
@@ -594,5 +590,160 @@ input:checked+.slider:before {
 .btn-danger {
   width: 80px;
   margin: 0 10px;
+}
+
+/* Floorplan Control Layout */
+.floorplan-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  gap: 20px;
+  width: 100%;
+  margin-top: -50px;
+  /* This will pull the controls up */
+}
+
+/* Global Controls on the top-left */
+.global-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  top: 0px;
+  /* Move it to the top */
+  left: 10px;
+  /* Align to the left */
+  z-index: 10;
+}
+
+/* Individual Controls on the top-right */
+.individual-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  top: 0px;
+  /* Move it to the top */
+  right: 10px;
+  /* Align to the right */
+  z-index: 10;
+}
+
+.individual-slider-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Slider Switch Styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: green;
+}
+
+input:checked+.slider:before {
+  transform: translateX(14px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.sensor-icon {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.status-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
+}
+
+.floorplan-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.global-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.individual-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>

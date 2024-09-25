@@ -50,9 +50,9 @@
       </div>
     </div>
 
-    <div class="link-button mt-4">
+    <!-- <div class="link-button mt-4">
       <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Energy Management</button>
-    </div>
+    </div> -->
 
     <!-- Dedicated Popup for Totals -->
     <div v-if="totalPopupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">

@@ -4,13 +4,51 @@
     <!-- Title and Announcement Bar -->
     <div class="container-fluid title-bar">
       <div class="row align-items-center">
-        <div class="col-6">
-          <h1 class="title">INTEGRATED OPERATION CENTRE</h1>
-        </div>
-        <div class="col-6 text-end">
-          <div class="announcement-bar">
-            Announcement Message Bar
+        <div class="col-12 text-end">
+          <!-- Announcement bar with static and scrolling text -->
+          <div class="announcement-bar" @click="openMessageModal">
+            <!-- Left 20% Blue Section for Announcement Label -->
+            <div class="announcement-label">
+              Announcements
+            </div>
+
+            <!-- Right 80% Static Background with Scrolling Text -->
+            <div class="scrolling-container">
+              <div class="scrolling-text">
+                {{ latestAnnouncement }}
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modal for announcements -->
+    <div v-if="isModalVisible" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-content">
+        <h2>Announcements</h2>
+        <span class="modal-close" @click="closeModal">&times;</span>
+
+        <!-- Display announcements or "No news currently" if empty -->
+        <div class="messages-container">
+          <div v-if="messages.length === 0" class="no-news">
+            No news currently
+          </div>
+          <div v-for="(message, index) in messages" :key="index" class="message-item">
+            <div class="message-details">
+              <p>{{ message.message }}</p>
+              <small>{{ message.time }}</small>
+            </div>
+            <!-- Add delete button aligned to the right -->
+            <button class="delete-button" @click="removeMessage(index)">Delete</button>
+          </div>
+        </div>
+
+        <!-- Input field and save button at the bottom -->
+        <div class="message-input-section">
+          <input v-model="newMessage" placeholder="Enter your message" class="input-field" />
+          <button @click="saveMessage">Save Message</button>
         </div>
       </div>
     </div>
@@ -21,7 +59,6 @@
       <div class="row">
         <div class="col-12">
           <div class="map-hierarchy">
-            <h3>Map of Area or Sub-System Hierarchy Selection</h3>
             <div class="map-content">
               <div class="image-container">
                 <img src="@/assets/V3/B05V3.png" alt="ITE East Floor Plan" class="img-fluid w-100">
@@ -36,6 +73,9 @@
                 <div class="box" id="box7" @click="goToPageBox('box7')">Box 7</div>
                 <div class="box" id="box8" @click="goToPageBox('box8')">Box 8</div>
                 <div class="box" id="box9" @click="goToPageBox('box9')">Box 9</div>
+                <div class="box" id="box10" @click="goToPageBox('box10')">Box 10</div>
+                <div class="box" id="box11" @click="goToPageBox('box11')">Box 11</div>
+                <div class="box" id="box12" @click="goToPageBox('box12')">Box 12</div>
               </div>
             </div>
           </div>
@@ -54,69 +94,57 @@
       </div>
     </div> -->
 
-    <!-- Sub-System Cards Container with Background -->
     <div class="subsystems-container">
-      <button class="scroll-button left" @click="scrollLeft">&lt;</button>
       <div class="subsystems-content">
         <div v-for="(subsystem, index) in displayedSubsystems" :key="index" class="subsystem-card">
           <div class="subsystem-header">
+            <!-- Title in the center -->
             <span class="subsystem-title">{{ subsystem.name }}</span>
-            <span class="subsystem-info"><i class="fas fa-smile status-icon"></i></span>
+
+            <!-- Room number above the smiley face -->
+            <div class="subsystem-info">
+              <span class="subsystem-room">{{ subsystem.room }}</span>
+              <i class="fas fa-smile status-icon" :style="{ color: 'lightgreen' }"></i>
+            </div>
           </div>
-        <button class="go-button" @click="goToPage(subsystem.link)">Go</button>
+          <button class="go-button" @click="goToPage(subsystem.link)">Go</button>
+        </div>
       </div>
     </div>
-    <button class="scroll-button right" @click="scrollRight">&gt;</button>
 
-    <!-- Page Indicators Positioned at the Bottom -->
-    <div class="page-indicators">
-      <span v-for="page in totalPages" :key="page" :class="{ 'active': page === currentPage + 1 }">•</span>
-    </div>
-  </div>
 
-  <div class="additional-cards">
-    <div class="additional-card auto-scroll-feed">
-      <h4>Alarm & Notification</h4>
-      <router-link to="/alarms-notifications" class="view-all-link">View All</router-link>
-      <div class="feed-wrapper">
-        <div class="feed-content">
-          <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
-            <p>{{ feed.message }}</p>
-            <small>{{ feed.time }}</small>
+    <div class="additional-cards">
+      <div class="additional-card auto-scroll-feed">
+        <h4>Alarm & Notification</h4>
+        <router-link to="/alarms-notifications" class="view-all-link">View All</router-link>
+        <div class="feed-wrapper">
+          <div class="feed-content">
+            <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
+              <p>{{ feed.message }}</p>
+              <small>{{ feed.time }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="additional-card quick-links">
+        <h4>Fault Call / Ticket</h4>
+        <router-link to="/quick-links" class="view-all-link">View All</router-link>
+        <div class="links-content">
+          <!-- Table Headers -->
+          <div class="fault-row fault-header">
+            <span class="fault-column">ID</span>
+            <span class="fault-column">Description</span>
+            <span class="fault-column">Status</span>
+          </div>
+          <!-- Iterate over the faults and render each one -->
+          <div v-for="(fault, index) in faults" :key="index" :class="['fault-row', getFaultClass(fault.latest_status)]">
+            <span class="fault-column">{{ fault.fault_number }}</span>
+            <span class="fault-column">{{ fault.trade_name }}</span>
+            <span class="fault-column">{{ fault.latest_status ? fault.latest_status : 'Pending' }}</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="additional-card quick-links">
-      <h4>Fault Call / Ticket</h4>
-      <router-link to="/quick-links" class="view-all-link">View All</router-link>
-      <div class="links-content">
-        <!-- Table Headers -->
-        <div class="fault-row fault-header">
-          <span class="fault-column">ID</span>
-          <span class="fault-column">Description</span>
-          <span class="fault-column">Status</span>
-        </div>
-        <!-- Iterate over the faults and render each one -->
-        <div v-for="(fault, index) in faults" :key="index" :class="['fault-row', getFaultClass(fault.latest_status)]">
-          <span class="fault-column">{{ fault.fault_number }}</span>
-          <span class="fault-column">{{ fault.trade_name }}</span>
-          <span class="fault-column">{{ fault.latest_status ? fault.latest_status : 'Pending' }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Dialog -->
-  <div v-if="isModalVisible" class="modal-overlay" @click.self="closeModal">
-    <div class="modal-content">
-      <h2>{{ selectedTitle }}</h2>
-      <span class="modal-close" @click="closeModal">&times;</span>
-      <p>This is your modal content.</p>
-      <!-- <img src="path-to-your-image.png" alt="Map" style="width: 100%; height: auto;"> -->
-    </div>
-  </div>
-
   </div>
 </template>
 
@@ -132,8 +160,23 @@ export default {
   },
   data() {
     return {
+      announcementIndex: 0, // Add this to track the current announcement index
+      semsData: [], // Store SEMS sensor data
+      allSEMSSensorsWorking: false, // Flag to indicate if all SEMS sensors are working
+      spcsData: [], // Store SPCS sensor data
+      allSPCSSensorsWorking: false, // Flag to indicate if all SPCS sensors are working
+      swsData: [], // Store Smart Washroom sensor data
+      allSWSSensorsWorking: false, // Flag to indicate if all SWS sensors are working
+      atData: [], // Store Asset Tagging sensor data
+      allATSensorsWorking: false, // Flag to indicate if all AT sensors are working
+      bmsData: [], // Store BMS sensor data
+      allBMSSensorsWorking: false, // Flag to indicate if all sensors are working
+      fasSensors: [], // Store FAS sensor data
+      allSensorsWorking: false, // Flag to indicate if all sensors are working
+      newMessage: '', // Holds the input message
+      messages: [], // Stores messages
       isModalVisible: false, // Controls modal visibility
-      selectedTitle: '',     // Holds the title of the clicked room
+      selectedTitle: '', // Holds the title of the clicked room
       selectedArea: null,
       currentPage: 0, // Index for the current page of sub-systems
       currentFireAlarmIndex: 0,
@@ -153,15 +196,18 @@ export default {
         { label: 'Device Operational', value: 100 },
       ],
       subsystemData: [
-        { name: 'FAS', type: 'semi-circle', operational: 100, link: '/fire-alarm-system' },
-        { name: 'SMS', type: 'semi-circle', operational: 100, link: '/smart-landscape-system' },
-        { name: 'BMS', type: 'semi-circle', operational: 100, link: '/bms-reading' },
-        { name: 'SWS', type: 'semi-circle', operational: 100, link: '/smart-toilet-system' },
-        { name: 'SEMS', type: 'semi-circle', operational: 100, link: '/power-meter-reading' },
-        { name: 'SPCS', type: 'semi-circle', operational: 100, link: '/smart-pest-control-system' },
-        { name: 'ATS', type: 'semi-circle', operational: 100, link: '/asset-tagging-system' },
-        { name: 'SLS', type: 'semi-circle', operational: 100, link: '/smart-lighting-system' },
-        { name: 'HAS', type: 'semi-circle', operational: 100, link: '/hybrid-aircon' },
+        { name: 'Integrated Operation Centre', type: 'semi-circle', operational: 100, link: '/integrated-operation-centre', room: 'B05-11' },
+        { name: 'ICE (VDE) Room', type: 'semi-circle', operational: 100, link: '/ice-room', room: 'B05-12' },
+        { name: 'Smart Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/smart-vertical-transport-room', room: 'B05-13/14' },
+        { name: 'Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/vertical-transport-room', room: 'B05-15/16' },
+        { name: 'WSH Room', type: 'semi-circle', operational: 100, link: '/wsh-room', room: 'B05' },
+        { name: 'PPVC Training Zone', type: 'semi-circle', operational: 100, link: '/ppvc-training-zone', room: 'B05' },
+        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-07', room: 'B05-07' },
+        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-08', room: 'B05-08' },
+        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-09', room: 'B05-09' },
+        { name: 'Smart Washroom', type: 'semi-circle', operational: 100, link: '/smart-washroom-room', room: 'B05' },
+        { name: 'Smart Landscape', type: 'semi-circle', operational: 100, link: '/smart-landscape-room', room: 'B05' },
+        { name: 'Lift & Escalator Traning Zone', type: 'semi-circle', operational: 100, link: '/lift-escalator-training-zone', room: 'B05' },
       ],
       fireAlarms: [
         { name: 'Fire Alarm System Overview', operational: 100 },
@@ -254,23 +300,304 @@ export default {
     };
   },
   computed: {
+    // Get the current announcement based on the index
+    latestAnnouncement() {
+      if (this.messages.length > 0) {
+        return this.messages[this.announcementIndex].message;
+      }
+      return null; // Return null if no messages exist
+    },
     displayedSubsystems() {
       // Display 4 subsystems per page
-      const start = this.currentPage * 8;
-      return this.subsystemData.slice(start, start + 8);
+      const start = this.currentPage * 12;
+      return this.subsystemData.slice(start, start + 12);
     },
     totalPages() {
       return Math.ceil(this.subsystemData.length / 8);
     }
   },
+  mounted() {
+    this.loadMessages();  // Load stored messages on component mount
+    this.fetchFASData();  // Fetch the FAS data when the component mounts
+    this.startAnnouncementLoop(); // Start the announcement loop
+  },
   methods: {
+    // Remove a message at a specific index
+    removeMessage(index) {
+      this.messages.splice(index, 1);
+      localStorage.setItem('announcements', JSON.stringify(this.messages));
+    },
+    async fetchSEMSData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
+        const data = await response.json();
+
+        // Log the fetched data
+        console.log('Fetched SEMS Data:', data);
+
+        // Store the fetched data in the component's state
+        this.semsData = data;
+
+        // Check if all SEMS sensors are working
+        this.checkSEMSSensors();
+      } catch (error) {
+        console.error('Error fetching SEMS data:', error);
+      }
+    },
+    checkSEMSSensors() {
+      // Check if any sensor has an empty meterSN
+      const faultySensor = this.semsData.some(sensor => {
+        return !sensor.meterSN; // If meterSN is empty or undefined, it's considered faulty
+      });
+
+      // If there are no faulty sensors, set the flag to true
+      this.allSEMSSensorsWorking = !faultySensor;
+    },
+    async fetchSPCSData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/Magnetic');
+        const data = await response.json();
+
+        console.log('Fetched SPCS Data:', data); // Log the fetched data
+
+        // Store the fetched data (use Object.values to convert the object into an array)
+        this.spcsData = Object.values(data);
+
+        this.checkSPCSSensors(); // Call the method to check sensor status
+      } catch (error) {
+        console.error('Error fetching SPCS data:', error);
+      }
+    },
+
+    checkSPCSSensors() {
+      console.log('SPCS Sensor Data:', this.spcsData); // Log the sensor data for debugging
+
+      const faultySensor = this.spcsData.some(sensor => {
+        const battery = parseInt(sensor.battery); // Ensure battery is parsed as an integer
+        console.log(`Checking battery for ${sensor.deviceName}: ${battery}`); // Log the battery value
+        return battery === 0; // Check if the battery is 0
+      });
+
+      this.allSPCSSensorsWorking = !faultySensor; // Set the status based on sensor battery levels
+      console.log('All SPCS Sensors Working:', this.allSPCSSensorsWorking); // Log the final result
+    },
+    async fetchSWSData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/toilet');
+        const data = await response.json();
+
+        console.log('Fetched SWS Data:', data); // Log the fetched SWS data
+
+        // Store the fetched data
+        this.swsData = Object.values(data);
+
+        // Check battery levels for each sensor
+        this.checkSWSSensors();
+      } catch (error) {
+        console.error('Error fetching SWS data:', error);
+      }
+    },
+    checkSWSSensors() {
+      console.log('Checking SWS Sensors:', this.swsData);
+
+      // Ensure battery is checked as a number, not a string
+      const faultySensor = this.swsData.some(sensor => {
+        console.log(`Sensor ${sensor.deviceName} has battery ${sensor.battery}`);
+        return parseInt(sensor.battery) === 0; // Convert battery to number to avoid issues
+      });
+
+      console.log('Faulty Sensor:', faultySensor);
+
+      // Set the status based on whether any faulty sensor is found
+      this.allSWSSensorsWorking = !faultySensor;
+    },
+    async fetchATData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/AssetTagging/data');
+        const data = await response.json();
+
+        console.log('Fetched AT Data:', data); // Log the fetched AT data
+
+        // Ensure the data exists and has a 'data' array
+        if (data && Array.isArray(data.data)) {
+          this.atData = data.data;
+        } else {
+          console.warn('No valid AT data found.');
+          this.atData = [];
+        }
+
+        this.checkATSensors(); // Check if all AT sensors have valid readings
+      } catch (error) {
+        console.error('Error fetching AT data:', error);
+      }
+    },
+
+    checkATSensors() {
+      console.log('Checking AT Sensors:', this.atData); // Log the AT sensor data
+
+      // Ensure atData is an array before proceeding
+      if (!Array.isArray(this.atData) || this.atData.length === 0) {
+        this.allATSensorsWorking = false; // Assume sensors are faulty if none are available
+        return;
+      }
+
+      const faultySensor = this.atData.some(sensor => {
+        console.log('Checking AT sensor:', sensor); // Log each sensor being checked
+        // Check if any sensor has an invalid RSSI or battery voltage
+        return sensor.batt_vol < 2900;
+      });
+
+      console.log('Faulty Sensor:', faultySensor); // Log whether a faulty sensor was found
+
+      // If there are no faulty sensors, set the flag to true
+      this.allATSensorsWorking = !faultySensor;
+    },
+    async fetchBMSData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/Bacnet/api/get/all/east/latest/data');
+        const data = await response.json();
+
+        console.log('Fetched BMS Data:', data); // Log the fetched BMS data
+
+        // Ensure the data is an array
+        if (Array.isArray(data)) {
+          this.bmsData = data;
+        } else {
+          console.warn('No valid BMS data found.');
+          this.bmsData = [];
+        }
+
+        this.checkBMSSensors(); // Check if all BMS sensors have valid readings
+      } catch (error) {
+        console.error('Error fetching BMS data:', error);
+      }
+    },
+
+    checkBMSSensors() {
+      console.log('Checking BMS Sensors:', this.bmsData); // Log the BMS sensor data
+
+      // Ensure bmsData is an array before proceeding
+      if (!Array.isArray(this.bmsData) || this.bmsData.length === 0) {
+        this.allBMSSensorsWorking = false; // Assume sensors are faulty if none are available
+        return;
+      }
+
+      const faultySensor = this.bmsData.some(sensor => {
+        console.log('Checking BMS sensor:', sensor); // Log each sensor being checked
+        // Check if any sensor has an invalid status or a null/invalid value
+        return sensor.status !== 'OK' || sensor.value === null || sensor.value === undefined || sensor.value === 0;
+      });
+
+      console.log('Faulty Sensor:', faultySensor); // Log whether a faulty sensor was found
+
+      // If there are no faulty sensors, set the flag to true
+      this.allBMSSensorsWorking = !faultySensor;
+    },
+    async fetchFASData() {
+      try {
+        const response = await fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/FireAlarm/data/latest');
+        const data = await response.json();
+
+        console.log('Fetched FAS Data:', data); // Log the entire API response
+
+        // Ensure that sensors exist and are an array
+        if (data && Array.isArray(data.sensors)) {
+          this.fasSensors = data.sensors;
+        } else {
+          console.warn('No valid sensor data found.');
+          this.fasSensors = []; // Set to an empty array if no valid sensors
+        }
+
+        this.checkAllSensors(); // Check if all sensors have valid readings
+      } catch (error) {
+        console.error('Error fetching FAS data:', error);
+      }
+    },
+    checkAllSensors() {
+      console.log('FAS Sensors:', this.fasSensors); // Log the fetched sensor data
+      const faultySensor = this.fasSensors.some(sensor => {
+        console.log('Checking sensor:', sensor); // Log each sensor being checked
+        return sensor.status === null || sensor.status === '' || (sensor.status !== 'ON' && sensor.status !== 'OFF');
+      });
+      console.log('Faulty Sensor:', faultySensor); // Log whether a faulty sensor was found
+
+      this.allSensorsWorking = !faultySensor;
+    },
+    openMessageModal() {
+      console.log('Opening Modal'); // Add this for debugging
+      this.isModalVisible = true;
+    },
+    // Save the message along with the current time
+    // Save the message along with the current time
+    saveMessage() {
+      if (this.newMessage.trim() !== '') {
+        const messageObj = {
+          message: this.newMessage,
+          time: new Date().toLocaleString(),
+        };
+
+        // Save the message to messages array
+        this.messages.push(messageObj);
+
+        // Save the messages array to localStorage
+        localStorage.setItem('announcements', JSON.stringify(this.messages));
+
+        // Clear the input field after saving
+        this.newMessage = '';
+      }
+    },
+
+    // Method to load messages from localStorage
+    loadMessages() {
+      const storedMessages = localStorage.getItem('announcements');
+      if (storedMessages) {
+        this.messages = JSON.parse(storedMessages);
+      }
+    },
+
+    // Method to start looping through the announcements
+    startAnnouncementLoop() {
+      setInterval(() => {
+        if (this.messages.length > 1) {
+          this.announcementIndex = (this.announcementIndex + 1) % this.messages.length; // Cycle through the messages
+        }
+      }, 10000); // Change every 5 seconds, you can adjust the time
+    },
+
     goToPageBox(box) {
       switch (box) {
         case 'box1':
-          this.$router.push('/smart-toilet-system');
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=92', '_blank');
+          break;
+        case 'box2':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=107', '_blank');
+          break;
+        case 'box3':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=94', '_blank');
+          break;
+        case 'box5':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=93', '_blank');
           break;
         case 'box6':
-          this.$router.push('/smart-landscape-system');
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=91', '_blank');
+          break;
+        case 'box7':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=97', '_blank');
+          break;
+        case 'box8':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=98', '_blank');
+          break;
+        case 'box9':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=99', '_blank');
+          break;
+        case 'box10':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=95', '_blank');
+          break;
+        case 'box11':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=96', '_blank');
+          break;
+        case 'box12':
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=106', '_blank');
           break;
         default:
           console.log('No action for this box.');
@@ -551,6 +878,11 @@ export default {
   },
   created() {
     this.fetchFaults(); // Fetch fault data when the component is created
+    this.fetchBMSData(); // Fetch BMS data when the component is created
+    this.fetchATData(); // Fetch AT data when the component is created
+    this.fetchSWSData(); // Fetch SWS data when the component is created
+    this.fetchSPCSData(); // Fetch SPCS data when the component is created
+    this.fetchSEMSData();
   },
 };
 </script>
@@ -806,26 +1138,25 @@ export default {
 
 .subsystems-content {
   display: grid;
-  grid-template-columns: repeat(4, 2fr);
-  gap: 1%;
-  padding-left: 3%;
-  padding-right: 3%;
-  scroll-behavior: smooth;
-  width:100%;
+  grid-template-columns: repeat(6, 1fr);
+  /* Adjust the number of columns based on how many items per row */
+  grid-template-rows: repeat(2, auto);
+  /* Two rows */
+  gap: 1rem;
+  /* Space between cards */
+  padding: 2rem;
 }
 
 .subsystem-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   color: white;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: left;  /* Align text to the left */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 2px solid #d3d3d3;
-  width: 100%;
-  box-sizing: border-box;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .scroll-button {
@@ -1053,18 +1384,6 @@ export default {
   border-radius: 5px;
 }
 
-.announcement-bar {
-  background-color: #ff6f6f;
-  /* Match the red background color from your image */
-  padding: 10px 20px;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  display: inline-block;
-  text-align: center;
-  width: 100%;
-}
-
 .image-container {
   position: relative;
   width: 100%;
@@ -1086,6 +1405,7 @@ export default {
   /* Adjust height */
   opacity: 0;
   cursor: pointer;
+  background-color: grey;
 }
 
 /* General layout styles */
@@ -1099,14 +1419,6 @@ export default {
 
 .title {
   font-size: 24px;
-  font-weight: bold;
-}
-
-.announcement-bar {
-  background-color: #ff6f6f;
-  padding: 10px 20px;
-  border-radius: 5px;
-  color: white;
   font-weight: bold;
 }
 
@@ -1130,7 +1442,6 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  /* Ensures it is above other content */
 }
 
 /* Modal Content Styling */
@@ -1138,98 +1449,189 @@ export default {
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  text-align: center;
-  width: 60vw;
-  /* Sets the width to 60% of the viewport */
-  max-width: 900px;
-  /* Max width so it doesn't stretch too large */
-  height: auto;
-  max-height: 80vh;
-  /* Max height to ensure it doesn't overflow */
-  overflow: auto;
-  /* Allows scrolling if the content is too large */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  /* Adds shadow for depth */
+  width: 50vw;
+  max-width: 600px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 60vh;
+  color: black;
+  /* Ensure text is black */
 }
 
-/* Close Button Styling */
-button {
+.message-item p {
+  color: black;
+  /* Ensure message text is black */
+}
+
+.message-item small {
+  color: black;
+  /* Ensure timestamp is black */
+}
+
+.input-field {
+  color: black;
+  /* Ensure input text is black */
+}
+
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: red;
+}
+
+/* Messages container for displaying stored messages */
+.messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  /* Add margin so messages aren't too close to the button */
+  text-align: center;
+  /* Center the 'No news currently' text */
+}
+
+.message-item p {
+  margin: 0;
+}
+
+.message-item small {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.no-news {
+  color: #888;
+  font-size: 1.2rem;
+  font-style: italic;
   margin-top: 20px;
-  padding: 10px 20px;
+}
+
+/* Input section for new message */
+.message-input-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  /* Ensure spacing between messages and input */
+}
+
+.input-field {
+  flex-grow: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
   background-color: #007bff;
   color: white;
   border: none;
-  cursor: pointer;
+  padding: 10px;
   border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  /* Ensure it's a block-level element */
+  margin-top: 10px;
+  /* Add margin for separation */
 }
 
 button:hover {
   background-color: #0056b3;
 }
 
-/* Positioning for each box */
+
+/* Positioning for each box - Washroom*/
 #box1 {
-  top: 58%;
+  top: 69%;
   left: 6%;
-  width: 8%;
-  height: 30%;
+  width: 10%;
+  height: 23%;
 }
 
 #box2 {
-  top: 8%;
-  left: 11%;
-  width: 16%;
+  top: 48%;
+  left: 13%;
+  width: 11%;
   height: 18%;
 }
 
 #box3 {
-  top: 5%;
-  left: 27%;
-  width: 16%;
-  height: 21%;
+  top: 34%;
+  left: 11%;
+  width: 11%;
+  height: 14%;
 }
 
 #box4 {
-  top: 5%;
-  left: 43%;
-  width: 15%;
-  height: 21%;
+  top: 34%;
+  left: 22%;
+  width: 6%;
+  height: 14%;
 }
 
 #box5 {
-  top: 8%;
-  left: 65%;
-  width: 8%;
-  height: 18%;
+  top: 32%;
+  left: 28%;
+  width: 15%;
+  height: 11%;
 }
 
 #box6 {
-  top: 26%;
-  left: 16%;
-  width: 56%;
-  height: 21%;
+  top: 53%;
+  left: 29%;
+  width: 25%;
+  height: 9%;
 }
 
 #box7 {
-  top: 47%;
+  top: 62%;
   left: 25%;
   width: 10%;
-  height: 30%;
+  height: 21%;
 }
 
 #box8 {
-  top: 47%;
+  top: 61%;
   left: 35%;
   width: 9%;
-  height: 30%;
+  height: 20%;
 }
 
 #box9 {
-  top: 47%;
+  top: 60%;
   left: 44%;
   width: 10%;
-  height: 30%;
+  height: 19%;
+}
+
+#box10 {
+  top: 32%;
+  left: 43%;
+  width: 15%;
+  height: 10%;
+}
+
+#box11 {
+  top: 33%;
+  left: 65%;
+  width: 8%;
+  height: 9%;
+}
+
+#box12 {
+  top: 42%;
+  left: 33%;
+  width: 40%;
+  height: 10%;
 }
 
 /* Close Button Styling */
@@ -1250,33 +1652,247 @@ button:hover {
 
 .subsystem-header {
   display: flex;
-  justify-content: space-between; /* Title on the left, Smiley on the right */
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.subsystem-title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 
+.subsystem-room {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  text-align: center;
+  color: white;
+}
+
+.status-icon {
+  font-size: 2rem;
+  margin-top: 5px;
+}
+
 .subsystem-title {
-  font-size: 1.5em;
+  font-size: 1rem;
   font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .subsystem-info {
-  color: limegreen; /* Ensure the smiley is green */
-  font-size: 2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+.subsystem-info i {
+  font-size: 2rem;
+  /* Adjust the size of the smiley */
+  color: limegreen;
+}
+
+
 .go-button {
-  margin-top: 20px;
+  background-color: #ff9955;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.go-button:hover {
+  background-color: #e17e45;
+}
+
+
+.message-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.message-details {
+  flex-grow: 1;
+}
+
+.delete-button {
+  background-color: #ff4c4c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #ff0000;
+}
+
+.announcement-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.announcement-label {
+  width: 25%;
+  background-color: #3f48cc;
+  /* Blue color */
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Replace these styles in your existing CSS */
+.scrolling-container {
+  width: 74%;
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Semi-transparent static background */
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.scrolling-text {
+  white-space: nowrap;
+  display: inline-block;
+  position: relative;
+  animation: scroll-text 10s linear infinite;
+  /* Adjusted the animation duration */
+  color: white;
+  font-size: 16px;
+}
+
+/* Animation keyframes */
+@-moz-keyframes my-animation {
+  from {
+    -moz-transform: translateX(100%);
+  }
+
+  to {
+    -moz-transform: translateX(-100%);
+  }
+}
+
+@-webkit-keyframes my-animation {
+  from {
+    -webkit-transform: translateX(100%);
+  }
+
+  to {
+    -webkit-transform: translateX(-100%);
+  }
+}
+
+@keyframes my-animation {
+  from {
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+
+  to {
+    -moz-transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+
+/* Keyframes for smooth scrolling */
+@keyframes scroll-text {
+  0% {
+    transform: translateX(100%);
+    /* Start off-screen to the right */
+  }
+
+  100% {
+    transform: translateX(-100%);
+    /* Move off-screen to the left */
+  }
+}
+
+.scrolling-text::after {
+  content: ' ';
+  padding-left: 100%;
+  /* Adds space after the text for smooth looping */
+}
+
+
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50vw;
+  max-width: 600px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 60vh;
+  color: black;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.message-item {
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.input-field {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  flex-grow: 1;
+}
+
+button {
   background-color: #007bff;
   color: white;
   padding: 10px;
   border-radius: 5px;
-  border: none;
-  width: 100%;
   cursor: pointer;
 }
-
-.go-button:hover {
-  background-color: #0056b3;
-}
-
 </style>

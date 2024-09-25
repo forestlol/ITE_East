@@ -6,7 +6,7 @@
         <div class="map-section position-relative">
           <h4>B05 Toilet</h4>
           <div class="map-container">
-            <img src="@/assets/Sub System and Icons/V2/smart washroom system_V2.jpg" alt="Map View" class="map-image">
+            <img src="@/assets/Sub System and Icons/V2/smart washroom_full1.png" alt="Map View" class="map-image">
             <!-- Multiple Icons on the Floorplan -->
             <div v-for="(icon, index) in icons" :key="index" class="icon-container"
               :style="{ top: icon.top, left: icon.left }" @mouseenter="showValue(index, $event)"
@@ -73,9 +73,9 @@
       </ul>
     </div>
 
-    <div class="link-button mt-4">
+    <!-- <div class="link-button mt-4">
       <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Washroom</button>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -95,11 +95,11 @@ export default {
       threshold: parseInt(localStorage.getItem('peopleCounterThreshold')) || 20, // Default threshold is 20
       showThresholdModal: false, // Modal visibility for setting threshold
       icons: [
-        { top: '40.6%', left: '35%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
-        { top: '57.6%', left: '59.6%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
-        { top: '53.6%', left: '34.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
-        { top: '64.6%', left: '90%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
-        { top: '45%', left: '50.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', waterFlow: 15, waterConsumption: 1200 },
+        { top: '51%', left: '66%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
+        { top: '40.6%', left: '44%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
+        { top: '37.6%', left: '64.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
+        { top: '36%', left: '18%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
+        { top: '46%', left: '51.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', waterFlow: 15, waterConsumption: 1200 },
       ],
       notifications: [], // Store notifications in the state
     };
@@ -268,7 +268,9 @@ h2 {
 .icon-image {
   width: 100%;
   height: 100%;
+  visibility: hidden;
 }
+
 
 /* Tooltip for Sensor Value */
 .value-tooltip {

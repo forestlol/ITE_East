@@ -4,13 +4,13 @@
 
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
+      <!-- <li class="nav-item" role="presentation">
         <button class="nav-link active" id="layout-tab" data-bs-toggle="tab" data-bs-target="#layout" type="button"
           role="tab" aria-controls="layout" aria-selected="true">Layout</button>
-      </li>
+      </li> -->
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button"
-          role="tab" aria-controls="overview" aria-selected="false">Overview</button>
+        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button"
+          role="tab" aria-controls="overview" aria-selected="true">Overview</button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="sensors-tab" data-bs-toggle="tab" data-bs-target="#sensors" type="button"
@@ -22,16 +22,16 @@
     <!-- Tab Content -->
     <div class="tab-content" id="myTabContent">
       <!-- Layout Tab -->
-      <div class="tab-pane fade show active" id="layout" role="tabpanel" aria-labelledby="layout-tab">
+      <!-- <div class="tab-pane fade show active" id="layout" role="tabpanel" aria-labelledby="layout-tab">
         <div class="map-section position-relative">
           <h4>Floorplan View</h4>
           <div class="map-container position-relative">
-            <img src="@/assets/Sub System and Icons/V2/smart Landscape systemV2.png" alt="Map View" class="map-image">
+            <img src="@/assets/Sub System and Icons/V2/smart Landscape system_full.png" alt="Map View" class="map-image">
           </div>
         </div>
-      </div>
+      </div> -->
       <!-- Overview Tab -->
-      <div class="tab-pane fade show" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+      <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
         <div class="row">
           <div class="col-md-6">
             <div class="relation-section">
@@ -79,7 +79,7 @@
             <div class="map-section position-relative">
               <h4>Floorplan View</h4>
               <div class="map-container position-relative">
-                <img src="@/assets/Sub System and Icons/V2/smart Landscape systemV2.png" alt="Map View"
+                <img src="@/assets/Sub System and Icons/V2/smart Landscape system_full.png" alt="Map View"
                   class="map-image">
 
                 <!-- Toggle Switches for MAIN PUMP, ALL VALVES, DOSAGE PUMP -->
@@ -233,7 +233,7 @@
     </div>
 
     <div class="link-button mt-4">
-      <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button>
+      <!-- <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Landscape</button> -->
       <button @click="openScheduleModal" class="btn btn-secondary ml-2">Schedule Valve Simulation</button>
     </div>
 
@@ -316,25 +316,25 @@ export default {
         { time: '1:00 PM', duration: 20 }
       ],
       icons: [
-        { x: 11, y: 62, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
-        { x: 8, y: 62, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
-        { x: 5, y: 63, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
-        { x: 7, y: 56, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
-        { x: 13, y: 46, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
-        { x: 15, y: 57, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
-        { x: 22, y: 53, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
-        { x: 24, y: 46, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
-        { x: 29, y: 44, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
-        { x: 67, y: 49, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
-        { x: 78, y: 45, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
-        { x: 79, y: 59, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
-        { x: 87, y: 44, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
-        { x: 92, y: 61, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
-        { x: 87, y: 57, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
-        { x: 75, y: 67, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
-        { x: 60, y: 66, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
-        { x: 41, y: 67, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
-        { x: 23, y: 68, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
+        { x: 85, y: 32, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
+        { x: 88, y: 32, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
+        { x: 91, y: 32, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
+        { x: 88, y: 40, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
+        { x: 83, y: 46, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
+        { x: 82, y: 38, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
+        { x: 73, y: 39, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
+        { x: 73, y: 48, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
+        { x: 66, y: 49, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
+        { x: 29, y: 45, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
+        { x: 19, y: 48, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
+        { x: 18, y: 36, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
+        { x: 9, y: 48, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
+        { x: 10, y: 36, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
+        { x: 4, y: 32, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
+        { x: 19.5, y: 27, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
+        { x: 34, y: 28, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
+        { x: 53, y: 28, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
+        { x: 72, y: 28, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
       ],
       sensors: [],
       isAllOn1: false, // Track if "ALL ON 1" is active or not
@@ -757,6 +757,7 @@ h2 {
 
 .relation-view-container {
   position: relative;
+  color: black;
 }
 
 .relation-image,
@@ -825,6 +826,7 @@ h2 {
 .icon-image {
   width: 24px;
   height: 24px;
+  visibility: hidden;
 }
 
 .switch-number {
@@ -834,10 +836,10 @@ h2 {
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.75rem;
-  background-color: #fff;
+  /* background-color: #fff; */
   padding: 2px 5px;
   border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   white-space: nowrap;
 }
 

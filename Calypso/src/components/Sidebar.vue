@@ -2,7 +2,9 @@
   <div class="app-container">
     <div class="sidebar" :class="{ 'expanded': isExpanded }">
       <div class="sidebar-header">
-        <router-link class="navbar-brand" to="/">IOC</router-link>
+        <router-link to="/">
+          <img src="@/assets/ITE_LOGO.png" alt="ITE Logo" class="logo-image">
+        </router-link>
       </div>
       <ul class="sidebar-nav">
         <li class="nav-item">
@@ -84,8 +86,15 @@
         <div class="navbar-left">
           <span>{{ currentDate }}</span>
           <span>ITE College East</span>
-          <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon"
-              class="weather-icon" /></span>
+          <div class="location-weather">
+            <span>Singapore</span>
+            <span>{{ weather }} <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon"
+                class="weather-icon" /></span>
+          </div>
+        </div>
+        <!-- Centered Text -->
+        <div class="navbar-center">
+          <span>INTEGRATED OPERATION CENTRE</span>
         </div>
         <div class="navbar-right">
           <a href="http://52.237.90.38:82/" target="_blank" class="topbar-button control-tower-button">
@@ -147,7 +156,7 @@ export default {
         const temp = response.data.main.temp;
         const description = response.data.weather[0].description;
         const icon = response.data.weather[0].icon;
-        this.weather = `Singapore: ${temp}°C, ${description}`;
+        this.weather = `${temp}°C, ${description}`;
         this.weatherIcon = `https://openweathermap.org/img/wn/${icon}@2x.png`;
       } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -158,6 +167,21 @@ export default {
 </script>
 
 <style scoped>
+.location-weather {
+  display: flex;
+  flex-direction: column;
+  /* gap: 5px; */
+  font-size: 0.7rem;
+  color: white;
+}
+
+.weather-icon {
+  width: 40px;
+  height: 40px;
+  vertical-align: middle;
+  /* Align the icon with the text */
+}
+
 .app-container {
   display: flex;
   background-image: url('@/assets/background.jpg');
@@ -167,14 +191,16 @@ export default {
   width: 200px;
   transition: width 0.3s;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.1); /* Transparent sidebar */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Transparent sidebar */
   position: fixed;
   top: 0;
   left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-right: 2px solid rgba(255, 255, 255, 0.2); /* Transparent border */
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  /* Transparent border */
   z-index: 1000;
 }
 
@@ -186,7 +212,8 @@ export default {
   padding: 20px;
   display: flex;
   justify-content: center;
-  color: white; /* White text */
+  color: white;
+  /* White text */
 }
 
 .sidebar-nav {
@@ -205,9 +232,11 @@ export default {
   align-items: center;
   width: 100%;
   padding: 10px;
-  color: white; /* Default white text */
+  color: white;
+  /* Default white text */
   text-decoration: none;
-  background-color: transparent; /* Transparent background */
+  background-color: transparent;
+  /* Transparent background */
   transition: background-color 0.3s, color 0.3s;
   justify-content: flex-start;
   padding-left: 20px;
@@ -223,8 +252,10 @@ export default {
 .nav-link i,
 .nav-link .icon-image {
   margin-right: 10px;
-  color: white; /* Default icon color */
-  filter: brightness(0) saturate(100%) invert(100%); /* Default image icon as white */
+  color: white;
+  /* Default icon color */
+  filter: brightness(0) saturate(100%) invert(100%);
+  /* Default image icon as white */
 }
 
 .icon-image {
@@ -236,25 +267,31 @@ export default {
 
 /* Hover effect for links */
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* Lighter hover effect */
-  color: white; /* White text on hover */
+  background-color: rgba(255, 255, 255, 0.2);
+  /* Lighter hover effect */
+  color: white;
+  /* White text on hover */
 }
 
 /* Active state: Blue icon, white text */
 .nav-link.active .nav-text,
 .nav-link.active i,
 .nav-link.active .icon-image {
-  color: white; /* White text for active link */
+  color: white;
+  /* White text for active link */
   /* Blue color for active image icon */
 }
 
 .active-icon {
-  color: #007bff !important; /* Force blue color for active FontAwesome icons */
+  color: #007bff !important;
+  /* Force blue color for active FontAwesome icons */
 }
 
 .sidebar-nav .nav-item .nav-link.active {
-  background-color: rgba(255, 255, 255, 0.2); /* Light background when active */
-  color: lightblue; /* White text when active */
+  background-color: rgba(255, 255, 255, 0.2);
+  /* Light background when active */
+  color: lightblue;
+  /* White text when active */
 }
 
 /* Text visibility in collapsed sidebar */
@@ -279,55 +316,78 @@ export default {
   margin-top: auto;
   margin-bottom: 20px;
   padding: 10px;
-  color: white; /* White text */
+  color: white;
+  /* White text */
 }
 
 .main-content {
   flex-grow: 1;
   transition: margin-left 0.3s;
-  margin-left: 200px; /* Adjusted for expanded sidebar width */
-  background-color: rgba(0, 0, 0, 0.1); /* Transparent main content */
-  color: white; /* White text in the content */
+  margin-left: 200px;
+  /* Adjusted for expanded sidebar width */
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Transparent main content */
+  color: white;
+  /* White text in the content */
 }
 
 .sidebar:not(.expanded)~.main-content {
-  margin-left: 60px; /* Adjusted for collapsed sidebar width */
+  margin-left: 60px;
+  /* Adjusted for collapsed sidebar width */
 }
 
 .navbar {
-  height: 60px;
-  background-color: rgba(0, 0, 0, 0.1); /* Transparent navbar */
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2); /* Transparent border */
+  height: 8%;
+  background-color: rgba(0, 0, 0, 0.1);
+  /* Transparent navbar */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  /* Transparent border */
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% - 200px); /* Adjusted for expanded sidebar width */
+  width: calc(100% - 200px);
+  /* Adjusted for expanded sidebar width */
   transition: width 0.3s;
   position: fixed;
   top: 0;
-  left: 200px; /* Adjusted for expanded sidebar width */
+  left: 200px;
+  /* Adjusted for expanded sidebar width */
   z-index: 999;
-  color: white; /* White text in the navbar */
+  color: white;
+  /* White text in the navbar */
 }
 
 .sidebar:not(.expanded)~.main-content .navbar {
-  width: calc(100% - 60px); /* Adjusted for collapsed sidebar width */
-  left: 60px; /* Adjusted for collapsed sidebar width */
+  width: calc(100% - 60px);
+  /* Adjusted for collapsed sidebar width */
+  left: 60px;
+  /* Adjusted for collapsed sidebar width */
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
   gap: 20px;
-  color: white; /* White text */
+  color: white;
+  /* White text */
+}
+
+.navbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: white; /* White text */
+  color: white;
+  /* White text */
 }
 
 .weather-icon {
@@ -337,19 +397,23 @@ export default {
 
 .content {
   /* Added padding-top to account for the fixed navbar */
-  padding-top: 8%;
+  padding-top: 5%;
   /* Add margin-top to avoid overlapping with the navbar */
   transition: margin-left 0.3s;
-  color: white; /* White text in the content area */
+  color: white;
+  padding-bottom: 3%
+    /* White text in the content area */
 }
 
 .sidebar:not(.expanded)~.main-content .content {
-  margin-left: 60px; /* Adjusted for collapsed sidebar width */
+  margin-left: 60px;
+  /* Adjusted for collapsed sidebar width */
 }
 
 /* General topbar button styling */
 .topbar-button {
-  background-color: rgba(255, 255, 255, 0.1); /* Transparent button */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Transparent button */
   color: white;
   padding: 5px 10px;
   border-radius: 5px;
@@ -359,15 +423,38 @@ export default {
 }
 
 .topbar-button:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* Slightly more visible on hover */
+  background-color: rgba(255, 255, 255, 0.2);
+  /* Slightly more visible on hover */
 }
 
 .control-tower-button {
-  background-color: rgba(52, 58, 64, 0.7); /* Darker transparent background for Control Tower button */
+  background-color: rgba(52, 58, 64, 0.7);
+  /* Darker transparent background for Control Tower button */
 }
 
 .control-tower-button:hover {
-  background-color: rgba(29, 33, 36, 0.7); /* Darker hover effect */
+  background-color: rgba(29, 33, 36, 0.7);
+  /* Darker hover effect */
 }
 
+.sidebar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px; /* Adjust as per your sidebar height */
+  width: 100%; /* Make sure it takes full width */
+}
+
+.logo-image {
+  max-width: 50%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+
+.app-container {
+  display: flex;
+  background-image: url('@/assets/background.jpg');
+}
 </style>

@@ -116,18 +116,28 @@
           </div>
         </div>
 
-        <img :src="getCurrentFloorplanImage(selectedBoxId)" alt="Selected Floorplan" class="floorplan-image">
-
-        <!-- Wrapper div with v-if -->
-        <div v-if="selectedBoxId === 1 || selectedBoxId === 2">
-          <!-- Fan Icons for B05-11 and B05-12 -->
-          <div v-for="fan in fans" :key="fan.id" class="fresh-air-fan-icon" :style="{ top: fan.top, left: fan.left }"
-            @click="openFanDialog(fan)">
-            <img src="@/assets/fresh-air-fan-icon.png" alt="Fan Icon" class="icon-image" />
-            <span class="status-dot" :class="fan.isOn ? 'online' : 'offline'"></span>
+        <!-- Floorplan Image Container -->
+        <div class="floorplan-container">
+          <!-- Floorplan Image -->
+          <img :src="getCurrentFloorplanImage(selectedBoxId)" alt="Selected Floorplan" class="floorplan-image">
+          <!-- Wrapper for status dots to apply v-if -->
+          <div v-if="selectedBoxId === 1 || selectedBoxId === 2">
+            <div v-for="fan in fans" :key="fan.id" class="status-dot-floorplan"
+              :style="{ top: fan.top, left: fan.left }">
+              <span class="status-dot" :class="fan.isOn ? 'online' : 'offline'"></span>
+            </div>
+          </div>
+          <div v-if="selectedBoxId === 1 || selectedBoxId === 2" class="fan-controls-top-right">
+            <!-- Slider for each Fresh Air Fan -->
+            <div v-for="fan in fans" :key="fan.id" class="fan-control">
+              <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
+              <label class="slider-container">
+                <input type="checkbox" v-model="fan.isOn" @change="sendFanCommand(fan, fan.isOn)">
+                <span class="slider round"></span>
+              </label>
+            </div>
           </div>
         </div>
-
 
         <!-- Custom Modal for Fan Control -->
         <div v-if="showModal" class="modal-overlay" @click="closeModal">
@@ -156,8 +166,8 @@ export default {
     return {
       sensors: [], // Your sensors data
       fans: [
-        { id: 1, name: 'Fresh Air Fan 1 (B05-11)', deviceEUI: '24E124756E049153', isOn: false, top: '80%', left: '40%' },
-        { id: 2, name: 'Fresh Air Fan 2 (B05-12)', deviceEUI: '24E124756E049153', isOn: false, top: '78%', left: '75%' }
+        { id: 1, name: 'Fresh Air Fan 1 (B05-11)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '39%' },
+        { id: 2, name: 'Fresh Air Fan 2 (B05-12)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '78%' }
       ],
       selectedFan: null,
       showModal: false,
@@ -172,14 +182,14 @@ export default {
         { id: 8, top: '74%', left: '81%' }
       ],
       floorplans: [
-        { id: 1, name: 'B05-11', image: require('@/assets/Sub System and Icons/V2/B05-11-12_Indoor Air Quality System.jpg') },
-        { id: 2, name: 'B05-12', image: require('@/assets/Sub System and Icons/V2/B05-11-12_Indoor Air Quality System.jpg') },
-        { id: 3, name: 'B05-13/14', image: require('@/assets/Sub System and Icons/V2/B05 13-14_IAQ system.jpg') },
-        { id: 4, name: 'B05-15/16', image: require('@/assets/Sub System and Icons/V2/B05 15-16_ IAQ_system.jpg') },
-        { id: 5, name: 'B05-18', image: require('@/assets/Sub System and Icons/V2/B05-18_Smart_IAQ_system.jpg') },
-        { id: 6, name: 'B05-07', image: require('@/assets/Sub System and Icons/V2/B05-07_Smart_IAQ_systems_V2.jpg') },
-        { id: 7, name: 'B05-08', image: require('@/assets/Sub System and Icons/V2/B05-08_Smart_IAQ_system_V2.jpg') },
-        { id: 8, name: 'B05-09', image: require('@/assets/Sub System and Icons/V2/B05-09_Smart_IAQ_System_V2.jpg') }
+        { id: 1, name: 'B05-11', image: require('@/assets/Sub System and Icons/V2/B05-11-12_full_IAQ_FAF.png') },
+        { id: 2, name: 'B05-12', image: require('@/assets/Sub System and Icons/V2/B05-11-12_full_IAQ_FAF.png') },
+        { id: 3, name: 'B05-13/14', image: require('@/assets/Sub System and Icons/V2/B05 13-14_IAQ.png') },
+        { id: 4, name: 'B05-15/16', image: require('@/assets/Sub System and Icons/V2/B05 15-16_full.png') },
+        { id: 5, name: 'B05-18', image: require('@/assets/Sub System and Icons/V2/B05-18_full1_IAQ.png') },
+        { id: 6, name: 'B05-07', image: require('@/assets/Sub System and Icons/V2/B05-07_full1_IAQ.png') },
+        { id: 7, name: 'B05-08', image: require('@/assets/Sub System and Icons/V2/B05-08_IAQ.png') },
+        { id: 8, name: 'B05-09', image: require('@/assets/Sub System and Icons/V2/B05-09_full1_IAQ.png') }
       ],
       showDialog: false,
       selectedBoxId: null
@@ -200,25 +210,23 @@ export default {
     },
 
     // Send command to both fans at once
-    async sendFanCommand(fan, turnOn) {
-      const payload = {
-        deviceEui: fan.deviceEUI,
-        switchStates: turnOn ? [1, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0, 0]
-      };
+    methods: {
+      // Function to send command to control fan (turn it on or off)
+      async sendFanCommand(fan, turnOn) {
+        const payload = {
+          deviceEui: fan.deviceEUI,
+          switchStates: turnOn ? [1, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0, 0] // Adjust based on fan control logic
+        };
 
-      try {
-        // Send the command for the current fan (either Fresh Air Fan 1 or 2)
-        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', payload);
-        console.log(`${fan.name} turned ${turnOn ? 'ON' : 'OFF'}`, response.data);
+        try {
+          const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', payload);
+          console.log(`${fan.name} turned ${turnOn ? 'ON' : 'OFF'}`, response.data);
 
-        // Update the state of both fans (if one fan is turned on/off, the other should too)
-        this.fans.forEach(f => {
-          f.isOn = turnOn;  // Set the state of both fans to ON/OFF
-        });
-
-        this.closeModal(); // Close the modal after the action
-      } catch (error) {
-        console.error(`Error turning ${turnOn ? 'ON' : 'OFF'} ${fan.name}:`, error);
+          // Update the fan state
+          fan.isOn = turnOn;
+        } catch (error) {
+          console.error(`Error turning ${turnOn ? 'ON' : 'OFF'} ${fan.name}:`, error);
+        }
       }
     },
 
@@ -602,7 +610,108 @@ export default {
   background-color: red;
 }
 
-.modal-content{
-  color:black;
+.modal-content {
+  color: black;
+}
+
+/* Make the container of the floorplan image relative, so the sliders are positioned absolutely relative to this container */
+.floorplan-container {
+  position: relative;
+}
+
+/* Style the floorplan image */
+.floorplan-image {
+  width: 100%;
+  border-radius: 5px;
+}
+
+/* Position the fan controls on the top-right corner of the floorplan */
+.fan-controls-top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 5;
+}
+
+/* Style each fan control section to display items in a single row */
+.fan-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  /* Adjust width as needed */
+}
+
+/* Style the slider container */
+.slider-container {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  margin-left: 10px;
+  /* Adds spacing between text and slider */
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 14px;
+  width: 14px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: green;
+}
+
+input:checked+.slider:before {
+  transform: translateX(14px);
+}
+
+/* Style for floorplan status dots */
+.status-dot-floorplan {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  z-index: 10;
+  /* Ensure it appears above the floorplan */
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
+}
+
+.floorplan-image {
+  width: 100%;
+  position: relative;
+  display: block;
 }
 </style>

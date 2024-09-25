@@ -16,6 +16,12 @@ import AlarmsNotificationsPage from '@/views/AlarmsNotificationsPage.vue';
 import FaultCallTicket from '@/views/FaultCallTicket.vue';
 import IndoorAirQuality from '@/views/IndoorAirQuality.vue';
 import HybridAircon from '@/views/HybridAircon.vue';
+import B051314 from '@/views/B05-13-14.vue';
+import B051516 from '@/views/B05-15-16.vue';
+import B0507 from '@/views/B05-07.vue';
+import B0508 from '@/views/B05-08.vue';
+import B0509 from '@/views/B05-09.vue'; 
+import B05Washroom from '@/views/B05-Washroom.vue'; 
 
 const routes = [
   {
@@ -108,6 +114,36 @@ const routes = [
     path: '/quick-links',
     name: 'QuickLinks',
     component: FaultCallTicket,
+  },
+  {
+    path: '/smart-vertical-transport-room',
+    name: 'B051314',
+    component: B051314,
+  },
+  {
+    path: '/vertical-transport-room',
+    name: 'B051516',
+    component: B051516,
+  },
+  {
+    path: '/collaborative-design-centre-07',
+    name: 'B0507',
+    component: B0507,
+  },
+  {
+    path: '/collaborative-design-centre-08',
+    name: 'B0508',
+    component: B0508,
+  },
+  {
+    path: '/collaborative-design-centre-09',
+    name: 'B0509',
+    component: B0509,
+  },
+  {
+    path: '/smart-washroom-room',
+    name: 'B05Washroom',
+    component: B05Washroom,
   },
 ];
 

@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <img src="@/assets/ite_firealarm_relation.png" alt="Floor Plan" class="map-image">
+      <img src="@/assets/ite_firealarm_relations.png" alt="Floor Plan" class="map-image">
 
       <!-- Alarm Statuses -->
       <div
@@ -97,9 +97,9 @@ export default {
         { top: '56%', left: '31%' },  // Fire Alarm 6
       ],
       alarmPositions: [
-        { top: '41.2%', left: '84.2%' },
-        { top: '41.2%', left: '63.3%' },
-        { top: '41.2%', left: '42.3%' },
+        { top: '41.1%', left: '84.2%' },
+        { top: '41.1%', left: '63.3%' },
+        { top: '41.1%', left: '42.3%' },
         { top: '87.9%', left: '84.2%' },
         { top: '87.9%', left: '63.3%' },
         { top: '87.9%', left: '42.3%' },
