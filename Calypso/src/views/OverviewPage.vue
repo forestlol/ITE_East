@@ -95,6 +95,9 @@
     </div> -->
 
     <div class="subsystems-container">
+      <div class="subsystems-title">
+        <h2>ROOMS</h2>
+      </div>
       <div class="subsystems-content">
         <div v-for="(subsystem, index) in displayedSubsystems" :key="index" class="subsystem-card">
           <div class="subsystem-header">
@@ -200,7 +203,7 @@ export default {
         { name: 'ICE (VDE) Room', type: 'semi-circle', operational: 100, link: '/ice-room', room: 'B05-12' },
         { name: 'Smart Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/smart-vertical-transport-room', room: 'B05-13/14' },
         { name: 'Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/vertical-transport-room', room: 'B05-15/16' },
-        { name: 'WSH Room', type: 'semi-circle', operational: 100, link: '/wsh-room', room: 'B05' },
+        { name: 'WSH Room', type: 'semi-circle', operational: 100, link: '/wsh-room', room: 'B05-18' },
         { name: 'PPVC Training Zone', type: 'semi-circle', operational: 100, link: '/ppvc-training-zone', room: 'B05' },
         { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-07', room: 'B05-07' },
         { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-08', room: 'B05-08' },
@@ -1665,6 +1668,52 @@ button:hover {
   justify-content: center;
   align-items: center;
 }
+
+.subsystems-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.subsystems-title {
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.subsystems-title h2 {
+  font-size: 24px;
+  color: white;
+  font-weight: bold;
+}
+
+.subsystems-content {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* This ensures 6 columns */
+  grid-template-rows: repeat(2, auto); /* Adjust number of rows as necessary */
+  gap: 1rem;
+  padding: 2rem;
+  width: 100%;
+  justify-content: center; /* Ensure grid is centered */
+}
+
+.subsystem-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 
 .subsystem-room {
   font-size: 0.9rem;

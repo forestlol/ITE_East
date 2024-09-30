@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h2 class="text-center mb-4">COLLABORATIVE DESIGN CENTRE [B05-08]</h2>
+        <h2 class="text-center mb-4">WSH ROOM [B05-18]</h2>
 
         <!-- First Row: Sensor Data and Chart -->
         <div class="row">
@@ -63,12 +63,6 @@
                 <div class="floorplan-container">
                     <div class="floorplan-image-container">
                         <img :src="floorplanImage" alt="Floorplan for B05-13/14" class="floorplan-image" />
-
-                        <!-- Status Dots on Floorplan -->
-                        <div v-for="(sensor, index) in currentSensors" :key="index" class="status-dot"
-                            :class="sensor.isOnline ? 'online' : 'offline'"
-                            :style="{ top: sensor.top, left: sensor.left }">
-                        </div>
                     </div>
                 </div>
             </div>
@@ -77,31 +71,12 @@
             <div class="col-lg-4 section-container">
                 <h3 class="section-title">Console Control</h3>
                 <div class="console-box">
-                    <h4>All On/Off Control</h4>
-                    <label class="switch">
-                        <input type="checkbox" v-model="allOn">
-                        <span class="slider round"></span>
-                    </label>
-                    <span>{{ allOn ? 'ALL OFF' : 'ALL ON' }}</span>
-
-                    <!-- Sliders for Individual Sensors (positioned here under the "ALL ON/OFF" control) -->
-                    <div class="sensor-list">
-                        <div v-for="(sensor, index) in currentSensors" :key="index" class="sensor-control">
-                            <span :style="{ color: sensor.isOnline ? 'lightgreen' : 'white' }">{{ sensor.name }} ({{
-                                sensor.isOnline ? 'Online' : 'Offline' }})</span>
-                            <label class="switch">
-                                <input type="checkbox" v-model="sensor.isOnline"
-                                    @change="setZoneState(sensor.isOnline, sensor)" />
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
+                    <h4>No Controls</h4>
                 </div>
             </div>
         </div>
     </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -127,23 +102,14 @@ export default {
                 pm2_5: null,
                 pm10: null
             },
-            currentSensors: [
-                { top: '24%', left: '39%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }, // Row 1
-                { top: '13%', left: '42%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' }, // Row 2
-                { top: '13%', left: '48%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' }, // Row 3
-                { top: '13%', left: '54%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' }, // Row 4
-                { top: '13%', left: '60%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' }, // Row 5
-                { top: '13%', left: '66%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' }  // Row 6
-            ],
-            allOn: false,
-            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-09_full_lighting.png')
+            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-18_full1_IAQ.png') // Replace with your correct image path
         };
     },
     methods: {
         async fetchSensorData() {
             try {
                 const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
-                const data = response.data['24e124710d482648']; // Fetch data by device ID
+                const data = response.data['24e124710d480413']; // Fetch data by device ID
 
                 this.sensorData.co2 = data.co2;
                 this.sensorData.temperature = data.temperature;
@@ -178,7 +144,7 @@ export default {
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [32, 35, 38, 31, 34, 31, 39, 39, 40, 30, 40, 36, 32, 39, 32, 39, 39, 33, 34, 38, 30, 36, 33, 35], // Example 24-hour data
+                            data: [30, 35, 32, 40, 42, 39, 52, 55, 52, 52, 62, 44, 55, 52, 64, 63, 65, 54, 52, 54, 55, 52, 50, 48], // Example 24-hour data
                             backgroundColor: 'rgba(255, 255, 255, 0.1)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
@@ -232,53 +198,14 @@ export default {
                     }
                 }
             });
-        },
-        async sendSwitchCommand(deviceEUI, switchStates) {
-            try {
-                console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates); // Log request
-
-                const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
-                    deviceEui: deviceEUI,
-                    switchStates: switchStates
-                });
-
-                console.log('Received response from server:', response.data); // Log response
-
-                if (response && response.data) {
-                    const sensor = this.currentSensors.find(s => s.deviceEUI === deviceEUI);
-                    if (sensor) {
-                        sensor.isOnline = switchStates.every(state => state === 1);
-                    }
-                } else {
-                    console.log('Switch command sent but no data returned from server');
-                }
-            } catch (error) {
-                console.log('Error sending switch command:', error);
-            }
-        },
-        async toggleAllDevices() {
-            const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];  // Example with 3 switches for ON/OFF
-            for (const sensor of this.currentSensors) {
-                await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
-            }
-        },
-        async setZoneState(state, sensor) {
-            const switchStates = state ? [1, 1, 1] : [0, 0, 0];  // Example with 3 switches for ON/OFF
-            await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
         }
     },
     mounted() {
         this.fetchSensorData(); // Fetch sensor data when the component is mounted
         this.generateChart(); // Generate the KWH consumption chart
-    },
-    watch: {
-        allOn() {
-            this.toggleAllDevices();
-        }
     }
 };
 </script>
-
 
 <style scoped>
 .container {
@@ -304,6 +231,7 @@ export default {
 .sensor-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    /* Adjust to two columns */
     gap: 10px;
 }
 
@@ -325,8 +253,6 @@ export default {
 }
 
 .floorplan-container {
-    position: relative;
-    /* Make the container relative for absolute positioning inside */
     text-align: center;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
@@ -336,6 +262,7 @@ export default {
     width: 100%;
     height: auto;
     background-color: rgba(0, 0, 0, 0.1);
+    /* Optional background for container */
     padding: 10px;
     display: flex;
     justify-content: center;
@@ -343,6 +270,7 @@ export default {
 
 .floorplan-image {
     width: 100%;
+    /* Keep the image responsive */
     border-radius: 5px;
 }
 
@@ -356,6 +284,7 @@ export default {
 .chart-box {
     height: 300px;
     width: 100%;
+    /* Ensure it spans the entire width */
     margin-left: auto;
     margin-right: auto;
 }
@@ -372,6 +301,7 @@ export default {
     display: flex;
     justify-content: space-between;
     gap: 20px;
+    /* Add this to introduce a gap between the divs */
 }
 
 .section-container {
@@ -380,92 +310,7 @@ export default {
     padding: 20px;
     margin-bottom: 30px;
     flex: 1;
-}
-
-/* Container for Console Control */
-.console-box {
-    border-radius: 5px;
-    padding: 15px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-/* Styling for the Sensor List inside the console box */
-.sensor-list {
-    margin-top: 20px;
-    /* Ensure the list appears below the All ON/OFF toggle */
-}
-
-/* Flexbox for sensor control */
-.sensor-control {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-/* Styling for the individual switch controls */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 12px;
-    width: 12px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked+.slider {
-    background-color: green;
-}
-
-input:checked+.slider:before {
-    transform: translateX(14px);
-}
-
-.status-dot {
-    position: absolute;
-    /* Absolutely position the status dots based on the top/left of the sensors */
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.online {
-    background-color: green;
-}
-
-.offline {
-    background-color: red;
+    /* Allows each section to take up equal space */
 }
 
 @media (min-width: 1400px) {

@@ -39,10 +39,10 @@
           <div class="sensor-row">
             <p class="temperature-humidity">
               <i class="fas fa-thermometer-half"></i>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <i
-                class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <b style="font-size:0.5rem;">PM2.5</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <b style="font-size:0.5rem;">PM2.5</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <b class="ml-3" style="font-size:0.5rem;">PM10</b>
             </p>
           </div>
@@ -64,8 +64,6 @@
     <div v-if="showDialog" class="modal-overlay" @click="closeDialog">
       <div class="modal-content" @click.stop>
         <button class="close-btn" @click="closeDialog">&times;</button>
-        <h4>Information</h4>
-
         <!-- Updated Section: Selected Sensor Data in 2x3 Grid with Faces -->
         <div v-if="getSelectedSensorData(selectedBoxId)" class="sensor-details">
           <h5>Sensor Data for Floor: {{ getFloorName(selectedBoxId) }}</h5>
@@ -478,7 +476,7 @@ export default {
   color: black;
   border-radius: 5px;
   text-align: left;
-  font-size: 0.7rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 

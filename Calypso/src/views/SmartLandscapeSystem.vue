@@ -13,6 +13,10 @@
           role="tab" aria-controls="overview" aria-selected="true">Overview</button>
       </li>
       <li class="nav-item" role="presentation">
+        <button class="nav-link" id="schematic-tab" data-bs-toggle="tab" data-bs-target="#schematic" type="button"
+          role="tab" aria-controls="schematic" aria-selected="false">Schematic</button>
+      </li>
+      <li class="nav-item" role="presentation">
         <button class="nav-link" id="sensors-tab" data-bs-toggle="tab" data-bs-target="#sensors" type="button"
           role="tab" aria-controls="sensors" aria-selected="false">Sensors</button>
       </li>
@@ -33,49 +37,7 @@
       <!-- Overview Tab -->
       <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
         <div class="row">
-          <div class="col-md-6">
-            <div class="relation-section">
-              <h4>Relation View</h4>
-              <div class="relation-view-container">
-                <div class="relation-view position-relative">
-                  <img src="@/assets/Smart Landscape Algo 2 empty.png" alt="Relation View" class="relation-image">
-                  <div v-for="(point, index) in relationPoints" :key="index"
-                    :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
-                    @mouseenter="point.type !== 'Valve' && showValue(index, $event)"
-                    @mouseleave="point.type !== 'Valve' && hideValue()"
-                    :class="['relation-point', { 'point-label-break': point.type === 'break', 'active': isAllOn }]">
-                    <template v-if="point.type === 'sensor'">
-                      <span class="point-number">{{ point.number }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="point-label">{{ formatLabel(point.label) }}</span>
-                      <!-- Add the status dot for the valve based on its status -->
-                      <div v-if="point.type === 'Valve'"
-                        :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
-                    </template>
-
-                    <span v-if="hoveredIndex === index && point.type !== 'Valve'" class="value-tooltip">
-                      <h5>{{ point.type === 'sensor' ? `Sensor ${point.number}` : point.label }}</h5>
-                      <template v-if="point.type === 'sensor'">
-                        <p>Temperature: {{ point.data.temperature }}°C</p>
-                        <p>Soil Moisture: {{ point.data.soilMoisture }}%</p>
-                        <p>pH: {{ point.data.pH }}</p>
-                        <p>EC: {{ point.data.ec }} µS/cm</p>
-                        <p>N: {{ point.data.n }} mg/L</p>
-                        <p>P: {{ point.data.p }} mg/L</p>
-                        <p>K: {{ point.data.k }} mg/L</p>
-                        <p>Battery Voltage: {{ point.data.batteryVoltage }} V</p>
-                      </template>
-                    </span>
-                  </div>
-                </div>
-                <div class="adjust-button-container">
-                  <button @click="openConditionModal" class="btn btn-primary">Adjust Condition</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
+          <div class="col-md-12">
             <div class="map-section position-relative">
               <h4>Floorplan View</h4>
               <div class="map-container position-relative">
@@ -136,6 +98,50 @@
                   {{ condition }}
                 </option>
               </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schematic Tab -->
+      <div class="tab-pane fade" id="schematic" role="tabpanel" aria-labelledby="schematic-tab">
+        <div class="relation-section">
+          <h4>Relation View</h4>
+          <div class="relation-view-container">
+            <div class="relation-view position-relative">
+              <img src="@/assets/Smart Landscape Algo 2 empty.png" alt="Relation View" class="relation-image">
+              <div v-for="(point, index) in relationPoints" :key="index"
+                :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
+                @mouseenter="point.type !== 'Valve' && showValue(index, $event)"
+                @mouseleave="point.type !== 'Valve' && hideValue()"
+                :class="['relation-point', { 'point-label-break': point.type === 'break', 'active': isAllOn }]">
+                <template v-if="point.type === 'sensor'">
+                  <span class="point-number">{{ point.number }}</span>
+                </template>
+                <template v-else>
+                  <span class="point-label">{{ formatLabel(point.label) }}</span>
+                  <!-- Add the status dot for the valve based on its status -->
+                  <div v-if="point.type === 'Valve'"
+                    :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
+                </template>
+
+                <span v-if="hoveredIndex === index && point.type !== 'Valve'" class="value-tooltip">
+                  <h5>{{ point.type === 'sensor' ? `Sensor ${point.number}` : point.label }}</h5>
+                  <template v-if="point.type === 'sensor'">
+                    <p>Temperature: {{ point.data.temperature }}°C</p>
+                    <p>Soil Moisture: {{ point.data.soilMoisture }}%</p>
+                    <p>pH: {{ point.data.pH }}</p>
+                    <p>EC: {{ point.data.ec }} µS/cm</p>
+                    <p>N: {{ point.data.n }} mg/L</p>
+                    <p>P: {{ point.data.p }} mg/L</p>
+                    <p>K: {{ point.data.k }} mg/L</p>
+                    <p>Battery Voltage: {{ point.data.batteryVoltage }} V</p>
+                  </template>
+                </span>
+              </div>
+            </div>
+            <div class="adjust-button-container">
+              <button @click="openConditionModal" class="btn btn-primary">Adjust Condition</button>
             </div>
           </div>
         </div>
@@ -316,25 +322,25 @@ export default {
         { time: '1:00 PM', duration: 20 }
       ],
       icons: [
-        { x: 85, y: 32, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
+        { x: 84.5, y: 32.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
         { x: 88, y: 32, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
-        { x: 91, y: 32, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
-        { x: 88, y: 40, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
-        { x: 83, y: 46, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
-        { x: 82, y: 38, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
-        { x: 73, y: 39, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
-        { x: 73, y: 48, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
-        { x: 66, y: 49, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
-        { x: 29, y: 45, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
-        { x: 19, y: 48, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
+        { x: 91, y: 34.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
+        { x: 88, y: 38.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
+        { x: 83, y: 45, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
+        { x: 82.5, y: 35, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
+        { x: 72, y: 42, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
+        { x: 72, y: 50, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
+        { x: 65.3, y: 51, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
+        { x: 28.5, y: 46, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
+        { x: 18.5, y: 50, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
         { x: 18, y: 36, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
-        { x: 9, y: 48, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
-        { x: 10, y: 36, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
-        { x: 4, y: 32, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
-        { x: 19.5, y: 27, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
-        { x: 34, y: 28, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
-        { x: 53, y: 28, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
-        { x: 72, y: 28, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
+        { x: 8.6, y: 50, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
+        { x: 9.4, y: 37.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
+        { x: 4.5, y: 33, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
+        { x: 19.5, y: 28.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
+        { x: 34, y: 29.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
+        { x: 53, y: 29, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
+        { x: 71.5, y: 29, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
       ],
       sensors: [],
       isAllOn1: false, // Track if "ALL ON 1" is active or not
@@ -1046,7 +1052,7 @@ h2 {
   color: white;
 }
 
-.modal-content{
+.modal-content {
   color: black;
 }
 </style>

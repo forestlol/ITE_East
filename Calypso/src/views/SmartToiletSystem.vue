@@ -281,7 +281,7 @@ h2 {
   padding: 5px;
   border-radius: 5px;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 18px;
 }
 
 /* Button to Set Threshold */

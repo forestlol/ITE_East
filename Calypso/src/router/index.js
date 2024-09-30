@@ -22,6 +22,12 @@ import B0507 from '@/views/B05-07.vue';
 import B0508 from '@/views/B05-08.vue';
 import B0509 from '@/views/B05-09.vue'; 
 import B05Washroom from '@/views/B05-Washroom.vue'; 
+import ppvcTrainingRoom from '@/views/ppvc-training-room.vue';
+import liftEscalatorTrainingRoom from '@/views/lift-escalator-training-room.vue';
+import B05SmartLandscape from '@/views/B05-smart-landscape.vue';
+import integratedOperationCentre from '@/views/integrated-operation-centre.vue';
+import iceRoom from '@/views/ice-room.vue';
+import B0518 from '@/views/B05-18.vue';
 
 const routes = [
   {
@@ -145,6 +151,36 @@ const routes = [
     name: 'B05Washroom',
     component: B05Washroom,
   },
+  {
+    path: '/ppvc-training-zone',
+    name: ppvcTrainingRoom,
+    component: ppvcTrainingRoom,
+  },
+  {
+    path: '/lift-escalator-training-zone',
+    name: liftEscalatorTrainingRoom,
+    component: liftEscalatorTrainingRoom
+  },
+  {
+    path: '/smart-landscape-room',
+    name: B05SmartLandscape,
+    component: B05SmartLandscape
+  },
+  {
+    path: '/integrated-operation-centre',
+    name: integratedOperationCentre,
+    component: integratedOperationCentre
+  },
+  {
+    path: '/ice-room',
+    name: iceRoom,
+    component: iceRoom
+  },
+  {
+    path: '/wsh-room',
+    name: B0518,
+    component: B0518
+  }
 ];
 
 

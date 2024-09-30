@@ -128,15 +128,15 @@ export default {
                 pm10: null
             },
             currentSensors: [
-                { top: '29%', left: '66%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
-                { top: '18%', left: '64%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
-                { top: '18%', left: '59%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
-                { top: '18%', left: '53%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
-                { top: '18%', left: '47%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
-                { top: '18%', left: '41%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
+                { top: '29%', left: '66%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
+                { top: '18%', left: '64%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
+                { top: '18%', left: '59%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
+                { top: '18%', left: '53%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+                { top: '18%', left: '47%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
+                { top: '18%', left: '41%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
             ],
             allOn: false,
-            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-08_full.png')
+            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-08_empty_light.png')
         };
     },
     methods: {

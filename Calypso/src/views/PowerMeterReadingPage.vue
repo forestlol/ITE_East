@@ -5,10 +5,13 @@
       <h4 class="text-center mb-4">Overview</h4>
       <div class="grid-container">
         <img :src="currentImage" alt="Smart Energy Overview" class="grid-image">
-        <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">Back to
-          Main</button>
 
-        <!-- Total Active Power hover -->
+        <!-- Back to Main Button -->
+        <button v-if="currentImageIndex !== 0" @click="goToMainImage" class="back-button btn btn-secondary">
+          Back to Main
+        </button>
+
+        <!-- Total Active Power hover for the first page -->
         <div v-if="currentImageIndex === 0" class="total-active-power" :style="{ top: '39%', left: '25.6%' }">
           <div class="grid-container-active-power">
             <div class="power-item">
@@ -30,7 +33,11 @@
           </div>
         </div>
 
-
+        <!-- Chart for the second page -->
+        <div v-if="currentImageIndex !== 0" class="chart-section">
+          <h4 class="text-center mb-4">Daily kWh Trend</h4>
+          <canvas id="kwhChart"></canvas>
+        </div>
 
         <!-- Boxes overlay for the first page -->
         <div class="boxes-overlay" v-if="currentImageIndex === 0">
@@ -40,34 +47,16 @@
           </div>
         </div>
 
-        <!-- Boxes overlay for the second page -->
+        <!-- Boxes overlay for the second page with hover functionality -->
         <div class="boxes-overlay" v-if="currentImageIndex !== 0">
           <div v-for="(box, index) in currentBoxes" :key="index" :class="['box', 'second-page-box']"
-            :style="{ top: box.top, left: box.left }" @mouseover="showPopup(box, $event)" @mouseleave="hidePopup()"
-            @click="handleBoxClick(index)">
+            :style="{ top: box.top, left: box.left }" @mouseover="showPopup(box, $event)" @mouseleave="hidePopup()">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- <div class="link-button mt-4">
-      <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Energy Management</button>
-    </div> -->
-
-    <!-- Dedicated Popup for Totals -->
-    <div v-if="totalPopupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">
-      <p><strong>Import Energy:</strong> {{ totalValues.epi }} kWh</p>
-      <p><strong>Export Energy:</strong> {{ totalValues.epe }} kWh</p>
-      <p><strong>Energy Quality Count:</strong> {{ totalValues.eqc }}</p>
-      <p><strong>Energy Quality Level:</strong> {{ totalValues.eql }}</p>
-      <p><strong>Current:</strong> {{ totalValues.ia }} A</p>
-      <p><strong>Active Power:</strong> {{ totalValues.p }} kW</p>
-      <p><strong>Power Factor:</strong> {{ totalValues.pf }}</p>
-      <p><strong>Reactive Power:</strong> {{ totalValues.q }} kVAR</p>
-      <p><strong>Voltage:</strong> {{ totalValues.ua }} V</p>
-    </div>
-
-    <!-- Original Popup for Page 2 -->
+    <!-- Popup for second page -->
     <div v-if="popupVisible" class="popup" :style="{ top: popupY + 'px', left: popupX + 'px' }">
       <p><strong>Import Energy:</strong> {{ popupData.epi || 0 }} kWh</p>
       <p><strong>Export Energy:</strong> {{ popupData.epe || 0 }} kWh</p>
@@ -84,6 +73,7 @@
 
 <script>
 import axios from 'axios';
+import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
 
 export default {
   name: 'PowerMeterReadingPage',
@@ -108,19 +98,7 @@ export default {
         ua: 0
       },
       popupVisible: false,
-      totalPopupVisible: false, // Separate visibility flag for totals popup
-      popupData: {
-        ch: 0,
-        epe: 0,
-        epi: 0,
-        eqc: 0,
-        eql: 0,
-        ia: 0,
-        p: 0,
-        pf: 0,
-        q: 0,
-        ua: 0
-      },
+      popupData: {},
       popupX: 0,
       popupY: 0,
       floorSelectionBoxes: [
@@ -138,13 +116,19 @@ export default {
       } else {
         return this.boxes.map((box) => ({
           ...box,
-          width: '7.5%',  // Add dynamic width for second-page-box
-          height: '15%'   // Add dynamic height for second-page-box
+          width: '7.5%',
+          height: '15%'
         }));
       }
     }
   },
   methods: {
+    // Method to show the total popup (newly defined)
+    showTotalPopup(event) {
+      this.popupVisible = true;
+      this.popupX = event.clientX + 15;
+      this.popupY = event.clientY + 15;
+    },
     async fetchData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Mqtt/data/latest');
@@ -210,34 +194,34 @@ export default {
 
     getBoxPosition(index) {
       const positions = [
-        { top: '41%', left: '7%' },
-        { top: '41%', left: '16%' },
-        { top: '41%', left: '24.5%' },
-        { top: '41%', left: '33%' },
-        { top: '41%', left: '41.5%' },
-        { top: '41%', left: '50%' },
-        { top: '41%', left: '59%' },
-        { top: '41%', left: '67.5%' },
-        { top: '41%', left: '76%' },
-        { top: '41%', left: '84%' },
-        { top: '58.4%', left: '7%' },
-        { top: '58.4%', left: '16%' },
-        { top: '58.4%', left: '24.5%' },
-        { top: '58.4%', left: '33%' },
-        { top: '58.4%', left: '41.5%' },
-        { top: '58.4%', left: '50%' },
-        { top: '58.4%', left: '59%' },
-        { top: '58.4%', left: '67.5%' },
-        { top: '58.4%', left: '76%' },
-        { top: '58.4%', left: '84%' },
-        { top: '76%', left: '7%' },
-        { top: '76%', left: '16%' },
-        { top: '76%', left: '24.5%' },
-        { top: '76%', left: '33%' },
-        { top: '76%', left: '41.5%' },
-        { top: '76%', left: '50%' },
-        { top: '76%', left: '59%' },
-        { top: '76%', left: '67.5%' },
+        { top: '23%', left: '7%' },
+        { top: '23%', left: '16%' },
+        { top: '23%', left: '24.5%' },
+        { top: '23%', left: '33%' },
+        { top: '23%', left: '41.5%' },
+        { top: '23%', left: '50%' },
+        { top: '23%', left: '59%' },
+        { top: '23%', left: '67.5%' },
+        { top: '23%', left: '76%' },
+        { top: '23%', left: '84%' },
+        { top: '32.4%', left: '7%' },
+        { top: '32.4%', left: '16%' },
+        { top: '32.4%', left: '24.5%' },
+        { top: '32.4%', left: '33%' },
+        { top: '32.4%', left: '41.5%' },
+        { top: '32.4%', left: '50%' },
+        { top: '32.4%', left: '59%' },
+        { top: '32.4%', left: '67.5%' },
+        { top: '32.4%', left: '76%' },
+        { top: '32.4%', left: '84%' },
+        { top: '42%', left: '7%' },
+        { top: '42%', left: '16%' },
+        { top: '42%', left: '24.5%' },
+        { top: '42%', left: '33%' },
+        { top: '42%', left: '41.5%' },
+        { top: '42%', left: '50%' },
+        { top: '42%', left: '59%' },
+        { top: '42%', left: '67.5%' },
       ];
 
       if (index >= positions.length) {
@@ -255,19 +239,8 @@ export default {
       this.popupVisible = true;
     },
 
-    showTotalPopup(event) {
-      this.totalPopupVisible = true;
-      this.popupX = event.clientX + 15;
-      this.popupY = event.clientY + 15;
-    },
-
     hidePopup() {
       this.popupVisible = false;
-      this.totalPopupVisible = false;
-    },
-
-    navigateTo3DLandscape() {
-      window.location.href = "https://visualizer-lite-html.vercel.app/?site=23&levels=94";
     },
 
     goToMainImage() {
@@ -278,10 +251,93 @@ export default {
       if (this.currentImageIndex === 0 && this.floorSelectionBoxes[index].label === 'B05-11/12') {
         this.currentImageIndex = 1;
         this.fetchData();
+
+        this.$nextTick(() => {
+          this.generateChart(); // Generate the chart when moving to the second page
+        });
       }
+    },
+
+    // Method to generate the chart
+    generateChart() {
+      Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+
+      const ctx = document.getElementById('kwhChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['01 Sep', '02 Sep', '03 Sep', '04 Sep', '05 Sep', '06 Sep', '07 Sep'],
+          datasets: [
+            {
+              label: 'Total Power',
+              data: [7.37, 10.46, 7.5, 5.45, 3.35, 4.89, 5.52],
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.1)', // Lighter to indicate less power
+              fill: true,
+            },
+            {
+              label: 'Total Current',
+              data: [5.63, 8.9, 5.63, 4.68, 2.56, 3.84, 2.9], // Almost similar to Total Power
+              borderColor: 'rgba(192, 75, 192, 1)',
+              backgroundColor: 'rgba(192, 75, 192, 0.1)', // Lighter for low current usage
+              fill: true,
+            },
+            {
+              label: 'Total Voltage',
+              data: [229.34, 237.25, 227.57, 223.86, 229.23, 225.43, 220.37],
+              borderColor: 'rgba(192, 192, 75, 1)',
+              backgroundColor: 'rgba(192, 192, 75, 0.1)', // Lighter for voltage
+              fill: true,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Date',
+                color: '#fff'
+              },
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.2)'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'kWh/Current/Voltage',
+                color: '#fff'
+              },
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.2)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#fff'
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              titleColor: 'white',
+              bodyColor: 'white'
+            }
+          }
+        }
+      });
     }
   },
-
   mounted() {
     this.fetchData();
   }
@@ -331,20 +387,16 @@ export default {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  /* Space between items */
 }
 
 .power-item {
   text-align: left;
   font-size: 0.6rem;
-  /* Smaller font size to fit the content */
 }
 
 .power-item p {
   margin: 0;
-  /* Remove margin to save space */
 }
-
 
 .link-button {
   display: flex;
@@ -357,9 +409,10 @@ export default {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  z-index: 10;
+  /* Ensure it is clickable and above other elements */
 }
 
-/* First-page box styling */
 .first-page-box {
   position: absolute;
   width: 15%;
@@ -372,16 +425,16 @@ export default {
   z-index: 20;
 }
 
-/* Second-page box styling */
 .second-page-box {
   position: absolute;
   width: 7.5%;
-  height: 15%;
+  height: 9%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  /* background-color:grey; */
 }
 
 .popup {
@@ -409,5 +462,18 @@ export default {
   margin: 0;
   font-size: 12px;
   text-align: center;
+}
+
+.chart-section {
+  width: 100%;
+  height: 500px;
+  /* Full height */
+  position: relative;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  /* Full width and height */
 }
 </style>

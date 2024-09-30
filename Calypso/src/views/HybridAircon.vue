@@ -29,7 +29,7 @@
               <div class="col-12 text-center">
                 <select id="conditionSelect" v-model="selectedCondition" class="form-select" @change="updateCondition">
                   <option v-for="(condition, index) in conditions" :key="index" :value="condition">
-                    {{ condition }}
+                    Conditions
                   </option>
                 </select>
               </div>
@@ -91,7 +91,7 @@
                       <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'ON' : 'OFF' }}</span>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'OFF' : 'ON' }}</span>
                   </div>
 
                   <div v-for="aircon in airconBoxes" :key="aircon.name" class="slider-control">
@@ -100,7 +100,7 @@
                         @change="sendAirconState($event.target.checked, aircon.name)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'ON' : 'OFF' }}</span>
+                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'OFF' : 'ON' }}</span>
                   </div>
                 </div>
               </div>
@@ -135,16 +135,17 @@ export default {
       ],
       sensors: [
         { id: 1, top: '27%', left: '45%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
-        { id: 2, top: '44%', left: '39%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false }
+        { id: 2, top: '44%', left: '39%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false },
+        { id: 1, top: '39%', left: '74%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 3', isOnline: false },
+        { id: 2, top: '22%', left: '79%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 4', isOnline: false },
       ],
       airconBoxes: [
         { top: '66%', left: '38%', showButtons: false, name: 'FCU 1-1', isOnline: false },
-        { top: '65%', left: '47%', showButtons: false, name: 'FCU 1-2', isOnline: false },
-        { top: '65%', left: '58%', showButtons: false, name: 'FCU 2-1', isOnline: false },
-        { top: '65%', left: '72%', showButtons: false, name: 'FCU 2-2', isOnline: false }
+        { top: '66%', left: '47%', showButtons: false, name: 'FCU 1-2', isOnline: false },
+        { top: '66%', left: '58%', showButtons: false, name: 'FCU 2-1', isOnline: false },
+        { top: '66%', left: '72%', showButtons: false, name: 'FCU 2-2', isOnline: false }
       ],
       conditions: [
-        'Conditions',
         'If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.',
         'If CO2 Level too high, turn on all Fresh Air Fans.',
         'If Motorized Dampener malfunctions, notify the maintenance team immediately.',
@@ -153,6 +154,9 @@ export default {
     };
   },
   methods: {
+    setActiveTab(tab) {
+      this.activeTab = tab;  // Set the active tab
+    },
     async setSwitch(state, deviceType) {
       let switchStates = Array(8).fill(0);
 
@@ -165,6 +169,7 @@ export default {
         }
       }
     },
+    // Method to handle Aircon toggling logic
     sendAirconState(state, airconId) {
       let airconIndex;
       if (airconId === 'FCU 1-1') airconIndex = 1;
@@ -178,27 +183,75 @@ export default {
       axios.post(apiUrl, payload)
         .then(response => {
           console.log(`Aircon ${airconId} turned ${state ? 'on' : 'off'} successfully`, response.data);
-          // Update the UI state
+
+          // Update the UI state for the aircon
           this.airconBoxes.forEach(aircon => {
             if (aircon.name === airconId) {
               aircon.isOnline = state;
             }
           });
+
+          // If the aircon is turned on, turn off the related MDU (dampener)
+          if (state) {
+            this.turnOffDampenerForAircon(airconId);
+          } else {
+            // If the aircon is turned off, turn on the related MDU (dampener)
+            this.turnOnDampenerForAircon(airconId);
+          }
         })
         .catch(error => {
           console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
         });
     },
-    toggleSensor(sensor) {
-      const newState = !sensor.isOnline;
-      const switchStates = newState ? [1, 1, 1, 1, 1, 1, 1, 1] : [0, 0, 0, 0, 0, 0, 0, 0];
+    // Method to handle turning off the MDU when aircon is turned on
+    turnOffDampenerForAircon(airconId) {
+      let mduId;
+
+      // Map the aircon to the corresponding MDU that needs to be turned off
+      if (airconId === 'FCU 1-1' || airconId === 'FCU 1-2') {
+        mduId = 'MDU 1';  // Example MDU for FCU 1
+      } else if (airconId === 'FCU 2-1' || airconId === 'FCU 2-2') {
+        mduId = 'MDU 2';  // Example MDU for FCU 2
+      }
+
+      const mdu = this.sensors.find(sensor => sensor.name === mduId);
+
+      if (mdu) {
+        // Turn off the MDU (dampener) associated with the aircon
+        this.toggleSensor(mdu, false);
+        console.log(`MDU ${mduId} turned off because ${airconId} is turned on.`);
+      }
+    },
+    // Method to handle turning on the MDU when aircon is turned off
+    turnOnDampenerForAircon(airconId) {
+      let mduId;
+
+      // Map the aircon to the corresponding MDU that needs to be turned on
+      if (airconId === 'FCU 1-1' || airconId === 'FCU 1-2') {
+        mduId = 'MDU 1';  // Example MDU for FCU 1
+      } else if (airconId === 'FCU 2-1' || airconId === 'FCU 2-2') {
+        mduId = 'MDU 2';  // Example MDU for FCU 2
+      }
+
+      const mdu = this.sensors.find(sensor => sensor.name === mduId);
+
+      if (mdu) {
+        // Turn on the MDU (dampener) associated with the aircon
+        this.toggleSensor(mdu, true);
+        console.log(`MDU ${mduId} turned on because ${airconId} is turned off.`);
+      }
+    },
+    // Method to toggle the MDU state
+    toggleSensor(sensor, state) {
+      const switchStates = state ? [1, 1, 1, 1, 1, 1, 1, 1] : [0, 0, 0, 0, 0, 0, 0, 0];
 
       // Send the switch command to update the backend
       this.sendSwitchCommand(sensor.deviceEUI, switchStates)
         .then((response) => {
           if (response && response.success) {
             // Only update the state if the backend confirms success
-            sensor.isOnline = newState;
+            sensor.isOnline = state;
+            console.log(`${sensor.name} is now ${state ? 'ON' : 'OFF'}`);
           } else {
             console.warn('Failed to confirm sensor state change');
           }
@@ -208,15 +261,18 @@ export default {
         });
     },
 
+    // Method to send the switch command to the backend
     async sendSwitchCommand(deviceEUI, switchStates) {
       const payload = {
         deviceEui: deviceEUI,
         switchStates: switchStates
       };
       const targetUrl = 'https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558';
+
       try {
         const response = await axios.post(targetUrl, payload);
         console.log('Switch command sent successfully', response.data);
+        return response.data;
       } catch (error) {
         console.error('Error sending switch command:', error);
       }
@@ -226,6 +282,7 @@ export default {
       this.setAllDevicesState('dampener', this.allDampenerOn);
     },
 
+    // Additional logic for global toggling
     toggleAllAircons() {
       const newState = !this.allAirconOn;
 
@@ -261,9 +318,15 @@ export default {
       }
     },
 
+    // Update the states of all aircons
     updateAirconStates(state) {
       this.airconBoxes.forEach(aircon => {
         aircon.isOnline = state;
+        if (state) {
+          this.turnOffDampenerForAircon(aircon.name); // Turn off the MDU if aircon is turned on
+        } else {
+          this.turnOnDampenerForAircon(aircon.name); // Turn on the MDU if aircon is turned off
+        }
       });
     },
 
@@ -285,8 +348,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style scoped>
 /* Basic styling */

@@ -63,10 +63,9 @@
                 <div class="floorplan-container">
                     <div class="floorplan-image-container">
                         <img :src="floorplanImage" alt="Floorplan for B05-13/14" class="floorplan-image" />
-                        
+
                         <!-- Status Dots on Floorplan -->
-                        <div v-for="(sensor, index) in currentSensors" :key="index" 
-                            class="status-dot" 
+                        <div v-for="(sensor, index) in currentSensors" :key="index" class="status-dot"
                             :class="sensor.isOnline ? 'online' : 'offline'"
                             :style="{ top: sensor.top, left: sensor.left }">
                         </div>
@@ -129,15 +128,15 @@ export default {
                 pm10: null
             },
             currentSensors: [
-                { top: '18%', left: '66.5%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' },
-                { top: '18%', left: '60.5%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' },
-                { top: '18%', left: '54.5%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' },
-                { top: '18%', left: '49%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' },
-                { top: '18%', left: '43%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' },
-                { top: '27%', left: '40%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }
+                { top: '24%', left: '40%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }, // Row 1
+                { top: '15%', left: '43%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' }, // Row 2
+                { top: '15%', left: '49%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' }, // Row 3
+                { top: '15%', left: '54.5%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' }, // Row 4
+                { top: '15%', left: '60.5%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' }, // Row 5
+                { top: '15%', left: '66.5%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' }  // Row 6
             ],
             allOn: false,
-            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-07_full.png')
+            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-07_empty.png')
         };
     },
     methods: {
@@ -326,7 +325,8 @@ export default {
 }
 
 .floorplan-container {
-    position: relative; /* Make the container relative for absolute positioning inside */
+    position: relative;
+    /* Make the container relative for absolute positioning inside */
     text-align: center;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
@@ -453,7 +453,8 @@ input:checked+.slider:before {
 }
 
 .status-dot {
-    position: absolute; /* Absolutely position the status dots based on the top/left of the sensors */
+    position: absolute;
+    /* Absolutely position the status dots based on the top/left of the sensors */
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -468,7 +469,13 @@ input:checked+.slider:before {
 }
 
 @media (min-width: 1400px) {
-    .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
         max-width: 99%;
     }
 }

@@ -10,10 +10,7 @@
                 <div class="sensor-grid">
                     <div class="sensor-box">
                         <p><b>CO2:</b></p>
-                        <p>{{ sensorData.co2 }} ppm</p>
-                        <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.co2, 'co2')" class="face-icon"></i>
-                        </div>
+                        <p>No data available</p>
                     </div>
                     <div class="sensor-box">
                         <p><b>Temperature:</b></p>
@@ -29,25 +26,11 @@
                             <i :class="getFaceClass(sensorData.humidity, 'humidity')" class="face-icon"></i>
                         </div>
                     </div>
-                    <div class="sensor-box">
-                        <p><b>PM2.5:</b></p>
-                        <p>{{ sensorData.pm2_5 }} µg/m³</p>
-                        <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.pm2_5, 'pm2_5')" class="face-icon"></i>
-                        </div>
-                    </div>
-                    <div class="sensor-box">
-                        <p><b>PM10:</b></p>
-                        <p>{{ sensorData.pm10 }} µg/m³</p>
-                        <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.pm10, 'pm10')" class="face-icon"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <!-- Chart Section -->
-            <div class="col-lg-6 section-container chart-container">
+            <div class="col-lg-6 section-container chart-container" style="width: 48%;">
                 <div class="chart-box">
                     <h3 class="section-title">KWH Daily Consumption</h3>
                     <canvas id="kwhChart"></canvas>
@@ -55,23 +38,37 @@
             </div>
         </div>
 
-        <!-- Second Row: Floorplan and Console Control -->
+        <!-- Second Row: Floorplan and Sensor Icons -->
         <div class="row mt-4">
-            <!-- Floorplan Section - 80% width -->
-            <div class="col-lg-8 section-container">
+            <!-- Floorplan Section with Icons -->
+            <div class="col-lg-12 section-container">
                 <h3 class="section-title">Room Layout</h3>
-                <div class="floorplan-container">
-                    <div class="floorplan-image-container">
-                        <img :src="floorplanImage" alt="Floorplan for B05-13/14" class="floorplan-image" />
-                    </div>
-                </div>
-            </div>
+                <div class="floorplan-container position-relative">
+                    <img :src="floorplanImage" alt="Floorplan for B05-13/14" class="floorplan-image" />
 
-            <!-- Console Control Section - 20% width -->
-            <div class="col-lg-4 section-container">
-                <h3 class="section-title">Console Control</h3>
-                <div class="console-box">
-                    <h4>No Controls</h4>
+                    <!-- Icons and Tooltip Logic -->
+                    <div v-for="(icon, index) in icons" :key="index" class="icon-container"
+                        :style="{ top: icon.top, left: icon.left }" @mouseenter="showValue(index, $event)"
+                        @mouseleave="hideValue">
+                        <img :src="icon.src" alt="Sensor Icon" class="icon-image" />
+
+                        <!-- Tooltip to Show on Hover -->
+                        <div v-if="hoveredIndex === index" class="value-tooltip"
+                            :style="{ top: `${tooltipY}px`, left: `${tooltipX}px` }">
+                            <h5>{{ icon.label }}</h5>
+                            <template v-if="icon.type === 'People Counter'">
+                                <p>Period In: {{ icon.periodIn }}</p>
+                                <p>Period Out: {{ icon.periodOut }}</p>
+                            </template>
+                            <template v-else-if="icon.type === 'Odor Sensor'">
+                                <p>Battery: {{ icon.battery }}%</p>
+                                <p>Ammonia Level: {{ icon.nh3 }} ppm</p>
+                                <p>Hydrogen Sulfide Level: {{ icon.h2s }} ppm</p>
+                                <p>Temperature: {{ icon.temperature }}°C</p>
+                                <p>Humidity: {{ icon.humidity }}%</p>
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,7 +76,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+import peopleCounterIcon from '@/assets/peopleCounter.png';
+import odorIcon from '@/assets/Odor.png';
 import {
     Chart,
     LineController,
@@ -99,58 +97,57 @@ export default {
                 co2: null,
                 temperature: null,
                 humidity: null,
-                pm2_5: null,
-                pm10: null
             },
-            floorplanImage: require('@/assets/Sub System and Icons/V2/B05 15-16_full.png') // Replace with your correct image path
+            hoveredIndex: null,
+            tooltipX: 0,
+            tooltipY: 0,
+            floorplanImage: require('@/assets/Sub System and Icons/V2/smart washroom_full1.png'), // Floorplan image
+            icons: [
+                { top: '51%', left: '66%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
+                { top: '40.6%', left: '44%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
+                { top: '37.6%', left: '64.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
+                { top: '36%', left: '18%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
+            ],
         };
     },
     methods: {
-        async fetchSensorData() {
-            try {
-                const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
-                const data = response.data['24e124710d481996']; // Fetch data by device ID
-
-                this.sensorData.co2 = data.co2;
-                this.sensorData.temperature = data.temperature;
-                this.sensorData.humidity = data.humidity;
-                this.sensorData.pm2_5 = data.pm2_5;
-                this.sensorData.pm10 = data.pm10;
-            } catch (error) {
-                console.error('Error fetching sensor data:', error);
-            }
-        },
+        // This function determines the class for the smiley/frown icon based on thresholds
         getFaceClass(value, type) {
             let thresholds = {
                 co2: 1000,
                 temperature: 25,
                 humidity: 70,
-                pm2_5: 35,
-                pm10: 50
             };
-            return value > thresholds[type]
-                ? 'fas fa-frown text-danger'
-                : 'fas fa-smile text-success';
+            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile text-success';
+        },
+        showValue(index, event) {
+            const containerRect = event.currentTarget.getBoundingClientRect();
+            const pointRect = event.target.getBoundingClientRect();
+            this.tooltipX = pointRect.x + pointRect.width / 2 - containerRect.x;
+            this.tooltipY = pointRect.y - containerRect.y - 10;
+            this.hoveredIndex = index;
+        },
+        hideValue() {
+            this.hoveredIndex = null;
         },
         generateChart() {
-            // Registering the required components
+            // Registering the required components from Chart.js and generating the chart
             Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
-
             const ctx = document.getElementById('kwhChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`), // 0:00 to 23:00 for 24-hour data
+                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [30, 35, 32, 40, 42, 39, 52, 55, 52, 52, 62, 44, 55, 52, 64, 63, 65, 54, 52, 54, 55, 52, 50, 48], // Example 24-hour data
+                            data: [30, 35, 32, 40, 42, 39, 52, 55, 52, 52, 62, 44, 55, 52, 64, 63, 65, 54, 52, 54, 55, 52, 50, 48],
                             backgroundColor: 'rgba(255, 255, 255, 0.1)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
                             fill: true,
-                        }
-                    ]
+                        },
+                    ],
                 },
                 options: {
                     responsive: true,
@@ -161,49 +158,48 @@ export default {
                             title: {
                                 display: true,
                                 text: 'KWH',
-                                color: 'white' // Set Y-axis title color to white
+                                color: 'white',
                             },
                             ticks: {
-                                color: 'white' // Set Y-axis ticks (numbers) color to white
+                                color: 'white',
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
-                            }
+                                color: 'rgba(255, 255, 255, 0.1)',
+                            },
                         },
                         x: {
                             title: {
                                 display: true,
                                 text: 'Hour (0-24)',
-                                color: 'white' // Set X-axis title color to white
+                                color: 'white',
                             },
                             ticks: {
-                                color: 'white' // Set X-axis ticks (numbers) color to white
+                                color: 'white',
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
-                            }
-                        }
+                                color: 'rgba(255, 255, 255, 0.1)',
+                            },
+                        },
                     },
                     plugins: {
                         legend: {
                             labels: {
-                                color: 'white' // Set legend text color to white
-                            }
+                                color: 'white',
+                            },
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tooltip background
-                            titleColor: 'white', // Set tooltip title color to white
-                            bodyColor: 'white',  // Set tooltip body text color to white
-                        }
-                    }
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                        },
+                    },
                 }
             });
-        }
+        },
     },
     mounted() {
-        this.fetchSensorData(); // Fetch sensor data when the component is mounted
         this.generateChart(); // Generate the KWH consumption chart
-    }
+    },
 };
 </script>
 
@@ -219,6 +215,8 @@ export default {
 
 .section-container {
     margin-bottom: 30px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-right: 1%;
 }
 
 .section-title {
@@ -228,11 +226,53 @@ export default {
     font-weight: bold;
 }
 
+/* Floorplan and Icons */
+.floorplan-container {
+    position: relative;
+}
+
+.floorplan-image {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.icon-container {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+}
+
+.icon-image {
+    width: 100%;
+    height: 100%;
+    visibility: hidden;
+}
+
+.value-tooltip {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.chart-box {
+    height: 300px;
+    width: 100%;
+}
+
 .sensor-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    /* Adjust to two columns */
     gap: 10px;
+    margin-bottom: 10%;
 }
 
 .sensor-box {
@@ -252,76 +292,15 @@ export default {
     font-size: 1.5rem;
 }
 
-.floorplan-container {
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-}
-
-.floorplan-image-container {
-    width: 100%;
-    height: auto;
-    background-color: rgba(0, 0, 0, 0.1);
-    /* Optional background for container */
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-}
-
-.floorplan-image {
-    width: 100%;
-    /* Keep the image responsive */
-    border-radius: 5px;
-}
-
-.chart-box,
-.console-box {
-    border-radius: 5px;
-    padding: 15px;
-    text-align: center;
-}
-
-.chart-box {
-    height: 300px;
-    width: 100%;
-    /* Ensure it spans the entire width */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.text-success {
-    color: green;
-}
-
-.text-danger {
-    color: red;
-}
-
-.row {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    /* Add this to introduce a gap between the divs */
-}
-
-.section-container {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 30px;
-    flex: 1;
-    /* Allows each section to take up equal space */
-}
-
 @media (min-width: 1400px) {
 
-    .container,
-    .container-lg,
-    .container-md,
-    .container-sm,
-    .container-xl,
-    .container-xxl {
-        max-width: 99%;
-    }
+.container,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+    max-width: 99%;
+}
 }
 </style>

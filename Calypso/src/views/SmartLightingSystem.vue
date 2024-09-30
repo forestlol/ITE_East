@@ -21,7 +21,7 @@
         <div class="col-md-6 sensor-controls-container">
           <div class="relation-section">
             <div class="sensor-controls">
-              <h4>Sensor Controls</h4>
+              <h4>Lighting Controls</h4>
               <div class="row sensor-control-container">
 
                 <!-- ALL ON/OFF Control (left side) -->
@@ -45,7 +45,7 @@
                     <!-- Control Button for B05-11/12 -->
                     <button :class="sensor.isOnline ? 'btn btn-danger' : 'btn btn-primary'"
                       @click="toggleModal(sensor)">
-                      {{ sensor.isOnline ? 'Turn OFF' : 'Turn ON' }}
+                      {{ sensor.isOnline ? 'Control OFF' : 'Control ON' }}
                     </button>
                   </div>
                 </div>
@@ -233,32 +233,32 @@ export default {
         { value: 'B05-07_empty.png', label: 'B05-07' },
         { value: 'B05-08_empty_light.png', label: 'B05-08' },
         { value: 'B05-09_full_lighting.png', label: 'B05-09' },
-        { value: 'B05-11-12_full_empty.png', label: 'B05-11/12' }
+        { value: 'B05-11-12_full_empty.png', label: 'B05-11 & 12' }
       ],
       sensors: {
         'B05-07_empty.png': [
-          { top: '15%', left: '66.5%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' },
-          { top: '15%', left: '60.5%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' },
-          { top: '15%', left: '54.5%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' },
-          { top: '15%', left: '49%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' },
-          { top: '15%', left: '43%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' },
-          { top: '24%', left: '40%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }
+          { top: '24%', left: '40%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131774' }, // Row 1
+          { top: '15%', left: '43%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131940' }, // Row 2
+          { top: '15%', left: '49%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131721' }, // Row 3
+          { top: '15%', left: '54.5%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D099018' }, // Row 4
+          { top: '15%', left: '60.5%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D130904' }, // Row 5
+          { top: '15%', left: '66.5%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131065' }  // Row 6
         ],
         'B05-08_empty_light.png': [
-          { top: '24%', left: '67%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
-          { top: '15%', left: '65%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
-          { top: '15%', left: '59%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
-          { top: '15%', left: '53%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
-          { top: '15%', left: '47%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
-          { top: '15%', left: '41%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
+          { top: '24%', left: '67%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131508' },
+          { top: '15%', left: '65%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131142' },
+          { top: '15%', left: '59%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
+          { top: '15%', left: '53%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+          { top: '15%', left: '47%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
+          { top: '15%', left: '41%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' }
         ],
         'B05-09_full_lighting.png': [
-          { top: '13%', left: '66%', name: 'Sensor 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' },
-          { top: '13%', left: '60%', name: 'Sensor 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' },
-          { top: '13%', left: '54%', name: 'Sensor 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' },
-          { top: '13%', left: '48%', name: 'Sensor 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' },
-          { top: '13%', left: '42%', name: 'Sensor 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' },
-          { top: '24%', left: '39%', name: 'Sensor 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }
+          { top: '24%', left: '39%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }, // Row 1
+          { top: '13%', left: '42%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' }, // Row 2
+          { top: '13%', left: '48%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' }, // Row 3
+          { top: '13%', left: '54%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' }, // Row 4
+          { top: '13%', left: '60%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' }, // Row 5
+          { top: '13%', left: '66%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' }  // Row 6
         ],
         'B05-11-12_full_empty.png': [
           { top: '17%', left: '78%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
@@ -630,7 +630,7 @@ input:checked+.slider:before {
 }
 
 .sensor-control span {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 .sensor-control label {
@@ -671,6 +671,7 @@ input:checked+.slider:before {
 .individual-sensor-controls {
   display: flex;
   flex-direction: column;
+  font-size: 1.2rem;
 }
 
 .all-on-control {
@@ -804,5 +805,9 @@ input:checked+.slider:before {
   height: 24px;
   margin-right: 10px;
   opacity: 0;
+}
+
+.form-select {
+  font-size: 1.2rem;
 }
 </style>
