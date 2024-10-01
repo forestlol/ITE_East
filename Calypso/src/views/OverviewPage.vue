@@ -585,13 +585,13 @@ export default {
           window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=91', '_blank');
           break;
         case 'box7':
-          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=97', '_blank');
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=99', '_blank');
           break;
         case 'box8':
           window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=98', '_blank');
           break;
         case 'box9':
-          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=99', '_blank');
+          window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=97', '_blank');
           break;
         case 'box10':
           window.open('https://visualizer-lite-html.vercel.app/?site=23&levels=95', '_blank');
@@ -1554,87 +1554,87 @@ button:hover {
 
 /* Positioning for each box - Washroom*/
 #box1 {
-  top: 69%;
+  top: 63%;
   left: 6%;
   width: 10%;
   height: 23%;
 }
 
 #box2 {
-  top: 48%;
+  top: 42%;
   left: 13%;
   width: 11%;
   height: 18%;
 }
 
 #box3 {
-  top: 34%;
+  top: 19%;
   left: 11%;
   width: 11%;
-  height: 14%;
+  height: 20%;
 }
 
 #box4 {
-  top: 34%;
+  top: 19%;
   left: 22%;
   width: 6%;
-  height: 14%;
+  height: 18%;
 }
 
 #box5 {
-  top: 32%;
+  top: 19%;
   left: 28%;
   width: 15%;
   height: 11%;
 }
 
 #box6 {
-  top: 53%;
+  top: 42%;
   left: 29%;
-  width: 25%;
+  width: 27%;
   height: 9%;
 }
 
 #box7 {
-  top: 62%;
+  top: 54%;
   left: 25%;
-  width: 10%;
-  height: 21%;
+  width: 11%;
+  height: 24%;
 }
 
 #box8 {
-  top: 61%;
-  left: 35%;
+  top: 52%;
+  left: 36%;
   width: 9%;
-  height: 20%;
+  height: 24%;
 }
 
 #box9 {
-  top: 60%;
-  left: 44%;
+  top: 51%;
+  left: 45%;
   width: 10%;
-  height: 19%;
+  height: 23%;
 }
 
 #box10 {
-  top: 32%;
+  top: 16%;
   left: 43%;
-  width: 15%;
-  height: 10%;
+  width: 17%;
+  height: 12%;
 }
 
 #box11 {
-  top: 33%;
-  left: 65%;
+  top: 17%;
+  left: 67%;
   width: 8%;
-  height: 9%;
+  height: 13%;
 }
 
 #box12 {
-  top: 42%;
+  top: 28%;
   left: 33%;
-  width: 40%;
-  height: 10%;
+  width: 43%;
+  height: 13%;
 }
 
 /* Close Button Styling */
@@ -1694,12 +1694,15 @@ button:hover {
 
 .subsystems-content {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* This ensures 6 columns */
-  grid-template-rows: repeat(2, auto); /* Adjust number of rows as necessary */
+  grid-template-columns: repeat(6, 1fr);
+  /* This ensures 6 columns */
+  grid-template-rows: repeat(2, auto);
+  /* Adjust number of rows as necessary */
   gap: 1rem;
   padding: 2rem;
   width: 100%;
-  justify-content: center; /* Ensure grid is centered */
+  justify-content: center;
+  /* Ensure grid is centered */
 }
 
 .subsystem-card {
