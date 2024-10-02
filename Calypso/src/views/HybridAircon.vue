@@ -50,13 +50,10 @@
                 class="map-image">
 
               <!-- Sensors on the floorplan -->
-              <div v-for="sensor in sensors" :key="sensor.id" class="slider-control">
-                <label class="switch">
-                  <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor, sensor.isOnline)"
-                    :disabled="sensor.type === 'dampener' && airconBoxes.some(aircon => aircon.isOnline)">
-                  <span class="slider round"></span>
-                </label>
-                <span>{{ sensor.name }} {{ sensor.isOnline ? 'ON' : 'OFF' }}</span>
+              <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
+                :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
+                <!-- Online/Offline Status Dot -->
+                <span class="status-dot" :class="sensor.isOnline ? 'online' : 'offline'"></span>
               </div>
 
 
@@ -191,7 +188,7 @@ export default {
           // Update the UI state for the aircon
           this.airconBoxes.forEach(aircon => {
             if (aircon.name === airconId) {
-              aircon.isOnline = state; // No need for $set, direct assignment is reactive in Vue 3
+              aircon.isOnline = state;
             }
           });
 
@@ -319,24 +316,30 @@ export default {
     // Additional logic for global toggling
     toggleAllAircons() {
       const newState = !this.allAirconOn;
+      console.log("Toggling all aircons. New state:", newState);
 
-      // Disable checkbox to prevent double-clicking during API call
       this.$refs.airconCheckbox.disabled = true;
 
       this.sendAirconCommand(newState)
         .then(() => {
-          // Update the UI state after the API call is successful
           this.allAirconOn = newState;
           this.updateAirconStates(newState);
+
+          console.log("Aircon state updated:", this.allAirconOn);
+
+          if (newState) {
+            console.log("Turning off all MDUs...");
+            this.setAllDevicesState('dampener', false);
+          }
         })
         .catch(error => {
           console.error('Error toggling all aircons:', error);
         })
         .finally(() => {
-          // Re-enable the checkbox after API call completes
           this.$refs.airconCheckbox.disabled = false;
         });
-    },
+    }
+    ,
 
     async sendAirconCommand(state) {
       const payload = { state: state ? 'on' : 'off' };
@@ -366,8 +369,10 @@ export default {
 
     setAllDevicesState(deviceType, state) {
       if (deviceType === 'dampener') {
+        console.log("Turning off all MDUs...");
         this.sensors.forEach(sensor => {
           if (sensor.type === 'dampener') {
+            console.log(`Turning ${sensor.name} ${state ? 'ON' : 'OFF'}`);
             sensor.isOnline = state;
             this.setSwitch(state, 'dampener');
           }
