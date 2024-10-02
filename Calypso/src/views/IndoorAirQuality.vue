@@ -40,8 +40,7 @@
             <p class="temperature-humidity">
               <i class="fas fa-thermometer-half"></i>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <i
-                class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <i class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <b style="font-size:0.5rem;">PM2.5</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <b class="ml-3" style="font-size:0.5rem;">PM10</b>
             </p>
@@ -157,7 +156,6 @@
 
 <script>
 import axios from 'axios';
-
 export default {
   name: 'IndoorAirQuality',
   data() {
@@ -207,24 +205,21 @@ export default {
       this.showModal = false;
     },
 
-    // Send command to both fans at once
-    methods: {
-      // Function to send command to control fan (turn it on or off)
-      async sendFanCommand(fan, turnOn) {
-        const payload = {
-          deviceEui: fan.deviceEUI,
-          switchStates: turnOn ? [1, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0, 0] // Adjust based on fan control logic
-        };
+    // Function to send command to control fan (turn it on or off)
+    async sendFanCommand(fan, turnOn) {
+      const payload = {
+        deviceEui: fan.deviceEUI,
+        switchStates: turnOn ? [1, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0, 0] // Adjust based on fan control logic
+      };
 
-        try {
-          const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', payload);
-          console.log(`${fan.name} turned ${turnOn ? 'ON' : 'OFF'}`, response.data);
+      try {
+        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', payload);
+        console.log(`${fan.name} turned ${turnOn ? 'ON' : 'OFF'}`, response.data);
 
-          // Update the fan state
-          fan.isOn = turnOn;
-        } catch (error) {
-          console.error(`Error turning ${turnOn ? 'ON' : 'OFF'} ${fan.name}:`, error);
-        }
+        // Update the fan state
+        fan.isOn = turnOn;
+      } catch (error) {
+        console.error(`Error turning ${turnOn ? 'ON' : 'OFF'} ${fan.name}:`, error);
       }
     },
 
@@ -235,9 +230,11 @@ export default {
         this.sendFanCommand(fan, fan.isOn);  // Send the command for each fan
       });
     },
+
     getSelectedSensorData(boxId) {
       return this.sensors.find(sensor => sensor.id === boxId);
     },
+
     async fetchSensorData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
@@ -348,7 +345,6 @@ export default {
 
     openDialog(boxId) {
       this.selectedBoxId = boxId;
-      console.log(this.getCurrentFloorplanImage(boxId)); // Check what is returned here
       this.showDialog = true;
     },
 
@@ -359,7 +355,7 @@ export default {
     getCurrentFloorplanImage(boxId) {
       const floorplan = this.floorplans.find(fp => fp.id === boxId);
       if (floorplan) {
-        return floorplan.image; // Ensure this is the correct path and dynamically loaded with require()
+        return floorplan.image;
       } else {
         return ''; // Fallback in case no image is found
       }
@@ -406,9 +402,10 @@ export default {
       } else {
         return 'fas fa-frown text-danger modal-face-icon'; // Red frown face for bad values
       }
-    },
+    }
   }
 };
+
 </script>
 
 <style scoped>

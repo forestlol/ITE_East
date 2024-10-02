@@ -50,11 +50,15 @@
                 class="map-image">
 
               <!-- Sensors on the floorplan -->
-              <div v-for="sensor in sensors" :key="sensor.id" class="sensor-icon"
-                :style="{ top: sensor.top, left: sensor.left }" @click="toggleButtons(sensor)">
-                <!-- Online/Offline Status Dot -->
-                <span class="status-dot" :class="sensor.isOnline ? 'online' : 'offline'"></span>
+              <div v-for="sensor in sensors" :key="sensor.id" class="slider-control">
+                <label class="switch">
+                  <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor, sensor.isOnline)"
+                    :disabled="sensor.type === 'dampener' && airconBoxes.some(aircon => aircon.isOnline)">
+                  <span class="slider round"></span>
+                </label>
+                <span>{{ sensor.name }} {{ sensor.isOnline ? 'ON' : 'OFF' }}</span>
               </div>
+
 
               <!-- Aircon Box on the floorplan -->
               <div v-for="aircon in airconBoxes" :key="aircon.name" class="aircon-box"
@@ -187,22 +191,31 @@ export default {
           // Update the UI state for the aircon
           this.airconBoxes.forEach(aircon => {
             if (aircon.name === airconId) {
-              aircon.isOnline = state;
+              aircon.isOnline = state; // No need for $set, direct assignment is reactive in Vue 3
             }
           });
 
-          // If the aircon is turned on, turn off the related MDU (dampener)
+          // If any FCU is turned on, turn off all MDUs
           if (state) {
-            this.turnOffDampenerForAircon(airconId);
-          } else {
-            // If the aircon is turned off, turn on the related MDU (dampener)
-            this.turnOnDampenerForAircon(airconId);
+            this.setAllDevicesState('dampener', false);  // Turn off all MDUs
           }
         })
         .catch(error => {
           console.error(`Error turning aircon ${airconId} ${state ? 'on' : 'off'}:`, error);
         });
     },
+
+    turnOffAllMDUs() {
+      // Iterate over all dampeners (MDUs) and turn them off
+      this.sensors.forEach(sensor => {
+        if (sensor.type === 'dampener' && sensor.isOnline) {
+          // Only turn off if the MDU is currently online
+          this.toggleSensor(sensor, false);
+          console.log(`MDU ${sensor.name} turned off because an FCU is turned on.`);
+        }
+      });
+    },
+
     // Method to handle turning off the MDU when aircon is turned on
     turnOffDampenerForAircon(airconId) {
       let mduId;
@@ -216,8 +229,8 @@ export default {
 
       const mdu = this.sensors.find(sensor => sensor.name === mduId);
 
-      if (mdu) {
-        // Turn off the MDU (dampener) associated with the aircon
+      if (mdu && mdu.isOnline) {
+        // Only turn off the MDU (dampener) if it is already online
         this.toggleSensor(mdu, false);
         console.log(`MDU ${mduId} turned off because ${airconId} is turned on.`);
       }
@@ -242,15 +255,35 @@ export default {
       }
     },
     // Method to toggle the MDU state
-    toggleSensor(sensor, state) {
+    toggleSensor(sensor, state = false) {
+      console.log("Sensor Type:", sensor.type);
+      console.log("State:", state);
+
+      // If we are trying to turn on an MDU (dampener), check if any FCU is already on
+      if (sensor.type === 'dampener' && state === false) {
+        console.log("Attempting to turn on MDU, checking FCUs...");
+
+        const anyFCUOn = this.airconBoxes.some(aircon => aircon.isOnline);
+
+        console.log("FCU States:", this.airconBoxes);
+        console.log("Any FCU On:", anyFCUOn);
+
+        if (anyFCUOn) {
+          console.log("Cannot turn on MDU because an FCU is currently on.");
+
+          // Reset the slider back to the original state (false)
+          sensor.isOnline = false;
+
+          return;
+        }
+      }
+
       const switchStates = state ? [1, 1, 1, 1, 1, 1, 1, 1] : [0, 0, 0, 0, 0, 0, 0, 0];
 
-      // Send the switch command to update the backend
       this.sendSwitchCommand(sensor.deviceEUI, switchStates)
         .then((response) => {
           if (response && response.success) {
-            // Only update the state if the backend confirms success
-            sensor.isOnline = state;
+            this.$set(sensor, 'isOnline', state);  // This updates the sensor state in the UI
             console.log(`${sensor.name} is now ${state ? 'ON' : 'OFF'}`);
           } else {
             console.warn('Failed to confirm sensor state change');
@@ -275,6 +308,7 @@ export default {
         return response.data;
       } catch (error) {
         console.error('Error sending switch command:', error);
+        throw error;  // Ensure that the catch block in toggleSensor catches this
       }
     },
 
