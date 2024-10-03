@@ -49,29 +49,21 @@
             <!-- Chart Section -->
             <div class="col-lg-6 section-container chart-container">
                 <div class="chart-box">
-                    <h3 class="section-title">KWH Daily Consumption</h3>
+                    <h3 class="section-title">KWH Consumption (Last 7 Days)</h3>
                     <canvas id="kwhChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Second Row: Floorplan and Console Control -->
+        <!-- Second Row: Floorplan Section -->
         <div class="row mt-4">
-            <!-- Floorplan Section - 80% width -->
-            <div class="col-lg-8 section-container">
+            <!-- Floorplan Section -->
+            <div class="col-lg-12 section-container">
                 <h3 class="section-title">Room Layout</h3>
                 <div class="floorplan-container">
                     <div class="floorplan-image-container">
-                        <img :src="floorplanImage" alt="Floorplan for B05-13/14" class="floorplan-image" />
+                        <img :src="floorplanImage" alt="Floorplan for B05-18" class="floorplan-image" />
                     </div>
-                </div>
-            </div>
-
-            <!-- Console Control Section - 20% width -->
-            <div class="col-lg-4 section-container">
-                <h3 class="section-title">Console Control</h3>
-                <div class="console-box">
-                    <h4>No Controls</h4>
                 </div>
             </div>
         </div>
@@ -80,17 +72,7 @@
 
 <script>
 import axios from 'axios';
-import {
-    Chart,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
+import { Chart, BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
 
 export default {
     data() {
@@ -102,7 +84,7 @@ export default {
                 pm2_5: null,
                 pm10: null
             },
-            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-18_full1_IAQ.png') // Replace with your correct image path
+            floorplanImage: require('@/assets/Sub System and Icons/V2/B05-18_full1_IAQ.png') // Replace with the correct image path
         };
     },
     methods: {
@@ -128,27 +110,43 @@ export default {
                 pm2_5: 35,
                 pm10: 50
             };
-            return value > thresholds[type]
-                ? 'fas fa-frown text-danger'
-                : 'fas fa-smile text-success';
+            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile text-success';
         },
         generateChart() {
-            // Registering the required components
-            Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+            // Register required components for Bar and Line charts
+            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
             const ctx = document.getElementById('kwhChart').getContext('2d');
+
+            // Data for the last 7 days
+            const last7DaysData = [32, 35, 33, 35, 34, 34, 33]; // Example KWH consumption for the last 7 days
+            const differences = last7DaysData.map((value, index, array) => {
+                if (index === 0) return 0;
+                return value - array[index - 1];
+            });
+
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar', // Bar chart for KWH Consumption
                 data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`), // 0:00 to 23:00 for 24-hour data
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [30, 35, 32, 40, 42, 39, 52, 55, 52, 52, 62, 44, 55, 52, 64, 63, 65, 54, 52, 54, 55, 52, 50, 48], // Example 24-hour data
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            data: last7DaysData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
-                            fill: true,
+                            type: 'bar',
+                        },
+                        {
+                            label: 'Difference Between Days',
+                            data: differences,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            type: 'line',
+                            yAxisID: 'differenceAxis',
                         }
                     ]
                 },
@@ -161,39 +159,54 @@ export default {
                             title: {
                                 display: true,
                                 text: 'KWH',
-                                color: 'white' // Set Y-axis title color to white
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white' // Set Y-axis ticks (numbers) color to white
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        differenceAxis: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Difference (KWH)',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                drawOnChartArea: false // Avoid overlap with the main chart
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Hour (0-24)',
-                                color: 'white' // Set X-axis title color to white
+                                text: 'Days',
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white' // Set X-axis ticks (numbers) color to white
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             labels: {
-                                color: 'white' // Set legend text color to white
+                                color: 'white'
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tooltip background
-                            titleColor: 'white', // Set tooltip title color to white
-                            bodyColor: 'white',  // Set tooltip body text color to white
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: 'white',
+                            bodyColor: 'white'
                         }
                     }
                 }
@@ -202,7 +215,7 @@ export default {
     },
     mounted() {
         this.fetchSensorData(); // Fetch sensor data when the component is mounted
-        this.generateChart(); // Generate the KWH consumption chart
+        this.generateChart(); // Generate the updated KWH consumption chart
     }
 };
 </script>
@@ -231,7 +244,6 @@ export default {
 .sensor-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    /* Adjust to two columns */
     gap: 10px;
 }
 
@@ -262,7 +274,6 @@ export default {
     width: 100%;
     height: auto;
     background-color: rgba(0, 0, 0, 0.1);
-    /* Optional background for container */
     padding: 10px;
     display: flex;
     justify-content: center;
@@ -270,38 +281,20 @@ export default {
 
 .floorplan-image {
     width: 100%;
-    /* Keep the image responsive */
     border-radius: 5px;
-}
-
-.chart-box,
-.console-box {
-    border-radius: 5px;
-    padding: 15px;
-    text-align: center;
 }
 
 .chart-box {
     height: 300px;
     width: 100%;
-    /* Ensure it spans the entire width */
     margin-left: auto;
     margin-right: auto;
-}
-
-.text-success {
-    color: green;
-}
-
-.text-danger {
-    color: red;
 }
 
 .row {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    /* Add this to introduce a gap between the divs */
 }
 
 .section-container {
@@ -310,11 +303,9 @@ export default {
     padding: 20px;
     margin-bottom: 30px;
     flex: 1;
-    /* Allows each section to take up equal space */
 }
 
 @media (min-width: 1400px) {
-
     .container,
     .container-lg,
     .container-md,

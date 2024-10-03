@@ -2,58 +2,30 @@
   <div class="container-fluid mt-5">
     <h2 class="text-center mb-4">Indoor Air Quality System</h2>
     <div class="sensor-detection-diagram">
-      <div class="image-container">
-        <img src="@/assets/IAQ Pic.jpg" alt="Relation View" class="relation-image" style="width: 100%;">
-
-        <div v-for="box in boxes" :key="box.id" class="clickable-box" @click="openDialog(box.id)"
-          :style="{ top: box.top, left: box.left }">
-          <button class="btn btn-secondary btn-plus">+</button>
-        </div>
-        <div v-for="sensor in sensors" :key="sensor.id" class="sensor-data"
-          :style="{ top: sensor.top, left: sensor.left }">
-          <div class="sensor-row">
-            <p class="co2">
-              <b>CO2</b>
-            </p>
-            <p class="pressure">
-              <b>Pressure</b>
-            </p>
-          </div>
-          <div class="sensor-row">
-            <p class="co2">
-              {{ sensor.co2 }} ppm
-            </p>
-            <p class="pressure">
-              {{ sensor.pressure }}
-            </p>
-          </div>
-          <div class="sensor-row">
-
-          </div>
-          <div class="sensor-row">
-
-          </div>
-          <div class="sensor-row">
-
-          </div>
-          <div class="sensor-row">
-            <p class="temperature-humidity">
-              <i class="fas fa-thermometer-half"></i>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <i class="fas fa-tint ml-3"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <b style="font-size:0.5rem;">PM2.5</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <b class="ml-3" style="font-size:0.5rem;">PM10</b>
-            </p>
-          </div>
-
-          <div class="sensor-row" style="font-size:0.7rem;">
-            <p class="temperature-humidity">
-              {{ parseFloat(sensor.temperature).toFixed(1)
-              }}°C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              {{ parseFloat(sensor.humidity).toFixed(1) }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              {{ sensor.pm2_5 }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              {{ sensor.pm10 }}
-            </p>
+      <div class="sensor-box-grid">
+        <div v-for="box in boxes" :key="box.id" class="grid-box" @click="openDialog(box.id)">
+          <h3>{{ getFloorName(box.id) }}</h3>
+          <div class="sensor-data-list" v-if="getSelectedSensorData(box.id)">
+            <div class="sensor-row">
+              <p class="sensor-title">CO2:</p>
+              <p class="sensor-value">{{ getSelectedSensorData(box.id).co2 }} ppm</p>
+            </div>
+            <div class="sensor-row">
+              <p class="sensor-title">Temperature:</p>
+              <p class="sensor-value">{{ getSelectedSensorData(box.id).temperature }}°C</p>
+            </div>
+            <div class="sensor-row">
+              <p class="sensor-title">Humidity:</p>
+              <p class="sensor-value">{{ getSelectedSensorData(box.id).humidity }}%</p>
+            </div>
+            <div class="sensor-row">
+              <p class="sensor-title">PM2.5:</p>
+              <p class="sensor-value">{{ getSelectedSensorData(box.id).pm2_5 }} µg/m³</p>
+            </div>
+            <div class="sensor-row">
+              <p class="sensor-title">PM10:</p>
+              <p class="sensor-value">{{ getSelectedSensorData(box.id).pm10 }} µg/m³</p>
+            </div>
           </div>
         </div>
       </div>
@@ -162,8 +134,8 @@ export default {
     return {
       sensors: [], // Your sensors data
       fans: [
-        { id: 1, name: 'Fresh Air Fan 1 (B05-11)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '39%' },
-        { id: 2, name: 'Fresh Air Fan 2 (B05-12)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '78%' }
+        { id: 1, name: 'Fresh Air Fan 4 (B05-11)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '39%' },
+        { id: 2, name: 'Fresh Air Fan 3 (B05-12)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '78%' }
       ],
       selectedFan: null,
       showModal: false,
@@ -435,46 +407,16 @@ export default {
 
 
 .sensor-detection-diagram {
+  margin-top: 4%;
   position: relative;
   width: 100%;
 }
-
-.image-container {
-  position: relative;
-  width: 88%;
-}
-
-.clickable-box {
-  width: 19%;
-  /* Smaller width */
-  height: 45%;
-  /* Smaller height */
-  cursor: pointer;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  /* Add a high z-index to bring the boxes to the front */
-}
-
 
 .btn-plus {
   position: absolute;
   top: 5px;
   right: 5px;
   z-index: 2;
-}
-
-.sensor-data {
-  width: 15%;
-  /* Adjust to fit smaller cards */
-  height: 20%;
-  position: absolute;
-  padding: 8px;
-  color: black;
-  border-radius: 5px;
-  text-align: left;
-  font-size: 0.9rem;
-  white-space: nowrap;
 }
 
 .modal-overlay {
@@ -708,5 +650,56 @@ input:checked+.slider:before {
   width: 100%;
   position: relative;
   display: block;
+}
+
+.sensor-box-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4 columns */
+  grid-template-rows: repeat(2, 1fr);
+  /* 2 rows */
+  gap: 20px;
+  /* Space between boxes */
+  padding: 10px;
+}
+
+.grid-box {
+  background-color: rgb(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.grid-box:hover {
+  transform: scale(1.05);
+}
+
+.sensor-data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  /* Space between each row */
+}
+
+.sensor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.sensor-title {
+  font-weight: bold;
+  margin-right: 10px;
+  /* Space between title and value */
+}
+
+.sensor-value {
+  text-align: right;
+  /* Align the value to the right */
+  flex: 1;
 }
 </style>

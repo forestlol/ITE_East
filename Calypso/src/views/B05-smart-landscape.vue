@@ -49,7 +49,7 @@
 
             <!-- Console Control Section - 20% width -->
             <div class="col-lg-4 section-container">
-                <h3 class="section-title">Console Control</h3>
+                <h3 class="section-title">Control Panel</h3>
                 <div class="console-box">
                     <!-- ALL ON/OFF Toggle -->
                     <div class="toggle-switch">
@@ -63,7 +63,8 @@
                         <label for="mainPumpToggle">Main Pump (Valve 1)</label>
                     </div>
                     <div class="toggle-switch">
-                        <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn" @change="toggleDosagePump">
+                        <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn"
+                            @change="toggleDosagePump">
                         <label for="dosagePumpToggle">Dosage Pump (Valve 19)</label>
                     </div>
 
@@ -73,7 +74,8 @@
                         <div class="toggle-switch" v-for="(icon, index) in icons.slice(2)" :key="index">
                             <input type="checkbox" :id="'valveToggle' + (icon.switchNumber - 1)" v-model="icon.isOn"
                                 @change="toggleIndividualValve(icon.switchNumber)">
-                            <label :for="'valveToggle' + (icon.switchNumber - 1)">{{ icon.name }} (Valve {{ icon.switchNumber }})</label>
+                            <label :for="'valveToggle' + (icon.switchNumber - 1)">{{ icon.name }} (Valve {{
+                                icon.switchNumber }})</label>
                         </div>
                     </div>
                 </div>
@@ -106,7 +108,7 @@
 
 <script>
 import axios from 'axios';
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
+import { Chart, BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
 import mainPumpIcon from '@/assets/main-pump-icon.png';
 import dosagePumpIcon from '@/assets/dosage-pump-icon.png';
 import planterPotIcon from '@/assets/planter-pot-icon.png';
@@ -124,10 +126,6 @@ export default {
             isMainPumpOn: false,
             areAllValvesOn: false,
             isDosagePumpOn: false,
-            areAllPumpsOn: false,
-            switchStatesOutdoor1: Array(8).fill(false), // Initialize the array with 8 switches set to false
-            switchStatesOutdoor2: Array(8).fill(false), // Initialize the array for the second device
-            switchStatesOutdoor3: Array(3).fill(false), // Initialize the array for the third device
             floorplanImage: require('@/assets/Sub System and Icons/V2/smart Landscape system_full.png'),
             icons: [
                 { x: 84.5, y: 32.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
@@ -165,6 +163,115 @@ export default {
             };
             return units[key] || '';
         },
+        getFaceClass(value, type) {
+            let thresholds = {
+                co2: 1000,
+                temperature: 25,
+                humidity: 70,
+                pm2_5: 35,
+                pm10: 50
+            };
+            return value > thresholds[type] ? "fas fa-frown text-danger" : "fas fa-smile text-success";
+        },
+        generateChart() {
+            // Registering the required components from Chart.js
+            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+            const ctx = document.getElementById('kwhChart').getContext('2d');
+
+            // Sample data for the last 7 days
+            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH consumption for the last 7 days
+            const differences = last7DaysData.map((value, index, array) => {
+                if (index === 0) return 0; // No difference for the first day
+                return value - array[index - 1];
+            });
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+                    datasets: [
+                        {
+                            label: 'KWH Consumption',
+                            data: last7DaysData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            type: 'bar',
+                        },
+                        {
+                            label: 'Difference Between Days',
+                            data: differences,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            type: 'line',
+                            yAxisID: 'differenceAxis',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'KWH',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        differenceAxis: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Difference (KWH)',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                drawOnChartArea: false // Prevent grid lines from overlapping with the main chart
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Days',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: 'white',
+                            bodyColor: 'white'
+                        }
+                    }
+                }
+            });
+        },
         toggleIndividualValve(switchNumber) {
             const deviceEUI = this.getDeviceEUI(switchNumber);
             let switchStates = this.getSwitchStates(deviceEUI);
@@ -198,43 +305,6 @@ export default {
                 console.error("Error fetching sensor data:", error);
             }
         },
-        getFaceClass(value, type) {
-            let thresholds = {
-                co2: 1000,
-                temperature: 25,
-                humidity: 70,
-                pm2_5: 35,
-                pm10: 50
-            };
-            return value > thresholds[type] ? "fas fa-frown text-danger" : "fas fa-smile text-success";
-        },
-        generateChart() {
-            Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
-            const ctx = document.getElementById("kwhChart").getContext("2d");
-            new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
-                    datasets: [
-                        {
-                            label: "KWH Consumption",
-                            data: [30, 35, 32, 40, 42, 39, 52, 55, 52, 52, 62, 44, 55, 52, 64, 63, 65, 54, 52, 54, 55, 52, 50, 48],
-                            borderColor: "rgba(75, 192, 192, 1)",
-                            borderWidth: 1,
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, title: { text: "KWH", color: "white" }, ticks: { color: "white" }, grid: { color: "rgba(255, 255, 255, 0.1)" } },
-                        x: { title: { text: "Hour (0-24)", color: "white" }, ticks: { color: "white" }, grid: { color: "rgba(255, 255, 255, 0.1)" } }
-                    }
-                }
-            });
-        },
         async sendSwitchCommand(deviceEUI, switchStates) {
             const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
             const payload = {
@@ -242,119 +312,12 @@ export default {
                 switchStates: switchStates.map((state) => (state ? 1 : 0)),
             };
 
-            console.log('Preparing to send payload:', payload);
-
             try {
                 const response = await axios.post(url, payload);
                 console.log('Switch command sent successfully:', response.data);
             } catch (error) {
                 console.error('Error sending switch command:', error);
-
-                // Detailed error logging
-                if (error.response) {
-                    console.error('Response data:', error.response.data);
-                    console.error('Response status:', error.response.status);
-                    console.error('Response headers:', error.response.headers);
-                } else if (error.request) {
-                    console.error('Request data:', error.request);
-                } else {
-                    console.error('Error message:', error.message);
-                }
             }
-        },
-        toggleMainPump() {
-            // Toggle Main Pump (Switch 1 on device 24e124756e049564)
-            this.setAllSwitches(this.isMainPumpOn, '24e124756e049564', 1, 1);
-        },
-        toggleAllValves() {
-            // Toggle All Valves (Switches 2-18 across three devices)
-            this.setAllSwitches(this.areAllValvesOn, '24e124756e049564', 2, 8);
-            this.setAllSwitches(this.areAllValvesOn, '24e124756e049516', 9, 16);
-            this.setAllSwitches(this.areAllValvesOn, '24E124756E049454', 17, 18);
-        },
-        toggleDosagePump() {
-            // Set the entire array to 1 for ON or 0 for OFF
-            const switchStates = Array(8).fill(this.isDosagePumpOn ? 1 : 0);
-
-            // Send switch command with the full array of 8 elements for the Dosage Pump
-            this.sendSwitchCommand('24E124756E049454', switchStates);
-
-            // Update the icon state for Dosage Pump (assuming it's at position 19 in your array of icons)
-            this.icons.forEach(icon => {
-                if (icon.switchNumber === 19) {
-                    icon.isOn = this.isDosagePumpOn;
-                }
-            });
-        },
-
-        toggleAllPumps() {
-            this.areAllPumpsOn = !this.areAllPumpsOn;
-            this.toggleMainPump();
-            this.toggleDosagePump();
-        },
-
-        setAllSwitches(state, deviceEUI, startSwitch, endSwitch) {
-            let switchStates = [];
-
-            if (deviceEUI === '24e124756e049564') {
-                this.switchStatesOutdoor1 = this.switchStatesOutdoor1.map((_, index) =>
-                    index + 1 >= startSwitch && index + 1 <= endSwitch ? state : this.switchStatesOutdoor1[index]
-                );
-                switchStates = this.switchStatesOutdoor1;
-            } else if (deviceEUI === '24e124756e049516') {
-                this.switchStatesOutdoor2 = this.switchStatesOutdoor2.map((_, index) =>
-                    index + 9 >= startSwitch && index + 9 <= endSwitch ? state : this.switchStatesOutdoor2[index]
-                );
-                switchStates = this.switchStatesOutdoor2;
-            } else if (deviceEUI === '24E124756E049454') {
-                this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map((_, index) =>
-                    index + 17 >= startSwitch && index + 17 <= endSwitch ? state : this.switchStatesOutdoor3[index]
-                );
-                switchStates = this.switchStatesOutdoor3;
-            }
-
-            // Send the switch command based on the updated states
-            this.sendSwitchCommand(deviceEUI, switchStates);
-
-            // Update the icon statuses based on the range of switches
-            this.icons.forEach(icon => {
-                if (icon.switchNumber >= startSwitch && icon.switchNumber <= endSwitch) {
-                    icon.isOn = state;
-                }
-            });
-
-            // Update the status of Solenoid Valves in relationPoints (if applicable)
-            if (this.relationPoints) {
-                this.relationPoints.forEach(point => {
-                    if (point.type === 'Valve' && point.label >= startSwitch && point.label <= endSwitch) {
-                        point.status = state ? 'On' : 'Off';
-                    }
-                });
-            }
-        },
-
-        toggleSwitchInModal(state, icon) {
-            icon.isOn = state;
-            let switchStates, deviceEUI;
-            if (icon.switchNumber <= 8) {
-                deviceEUI = "24e124756e049564";
-                switchStates = new Array(8).fill(icon.isOn);
-            } else if (icon.switchNumber <= 16) {
-                deviceEUI = "24e124756e049516";
-                switchStates = new Array(8).fill(icon.isOn);
-            } else if (icon.switchNumber <= 19) {
-                deviceEUI = "24E124756E049454";
-                switchStates = new Array(8).fill(icon.isOn);
-            }
-            this.sendSwitchCommand(deviceEUI, switchStates);
-            this.closeIconModal();
-        },
-        openIconModal(icon) {
-            this.activeIcon = icon;
-            this.showIconModal = true;
-        },
-        closeIconModal() {
-            this.showIconModal = false;
         }
     },
     mounted() {
@@ -365,7 +328,6 @@ export default {
 </script>
 
 <style scoped>
-/* Add your styles here */
 .container {
     width: 100%;
     padding: 20px;
@@ -581,10 +543,6 @@ export default {
     cursor: pointer;
 }
 
-.modal-body .btn {
-    margin: 10px;
-}
-
 .switch {
     position: relative;
     display: inline-block;
@@ -636,13 +594,13 @@ input:checked+.slider:before {
 
 @media (min-width: 1400px) {
 
-.container,
-.container-lg,
-.container-md,
-.container-sm,
-.container-xl,
-.container-xxl {
-    max-width: 99%;
-}
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
+        max-width: 99%;
+    }
 }
 </style>

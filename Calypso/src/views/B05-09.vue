@@ -75,7 +75,7 @@
 
             <!-- Console Control Section - 20% width -->
             <div class="col-lg-4 section-container">
-                <h3 class="section-title">Console Control</h3>
+                <h3 class="section-title">Control Panel</h3>
                 <div class="console-box">
                     <h4>All On/Off Control</h4>
                     <label class="switch">
@@ -107,7 +107,9 @@
 import axios from 'axios';
 import {
     Chart,
+    BarController,
     LineController,
+    BarElement,
     LineElement,
     PointElement,
     LinearScale,
@@ -128,12 +130,12 @@ export default {
                 pm10: null
             },
             currentSensors: [
-                { top: '24%', left: '39%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }, // Row 1
-                { top: '13%', left: '42%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' }, // Row 2
-                { top: '13%', left: '48%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' }, // Row 3
-                { top: '13%', left: '54%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' }, // Row 4
-                { top: '13%', left: '60%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' }, // Row 5
-                { top: '13%', left: '66%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' }  // Row 6
+                { top: '24%', left: '39%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' },
+                { top: '13%', left: '42%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' },
+                { top: '13%', left: '48%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' },
+                { top: '13%', left: '54%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' },
+                { top: '13%', left: '60%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' },
+                { top: '13%', left: '66%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' }
             ],
             allOn: false,
             floorplanImage: require('@/assets/Sub System and Icons/V2/B05-09_full_lighting.png')
@@ -168,21 +170,39 @@ export default {
         },
         generateChart() {
             // Registering the required components
-            Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
             const ctx = document.getElementById('kwhChart').getContext('2d');
+
+            // Sample data for the last 7 days
+            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH consumption for the last 7 days
+            const differences = last7DaysData.map((value, index, array) => {
+                if (index === 0) return 0; // No difference for the first day
+                return value - array[index - 1];
+            });
+
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`), // 0:00 to 23:00 for 24-hour data
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [32, 35, 38, 31, 34, 31, 39, 39, 40, 30, 40, 36, 32, 39, 32, 39, 39, 33, 34, 38, 30, 36, 33, 35], // Example 24-hour data
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            data: last7DaysData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
-                            fill: true,
+                            type: 'bar',
+                        },
+                        {
+                            label: 'Difference Between Days',
+                            data: differences,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            type: 'line',
+                            yAxisID: 'differenceAxis',
                         }
                     ]
                 },
@@ -195,39 +215,54 @@ export default {
                             title: {
                                 display: true,
                                 text: 'KWH',
-                                color: 'white' // Set Y-axis title color to white
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white' // Set Y-axis ticks (numbers) color to white
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        differenceAxis: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Difference (KWH)',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                drawOnChartArea: false // Prevent grid lines from overlapping with the main chart
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Hour (0-24)',
-                                color: 'white' // Set X-axis title color to white
+                                text: 'Days',
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white' // Set X-axis ticks (numbers) color to white
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             labels: {
-                                color: 'white' // Set legend text color to white
+                                color: 'white'
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tooltip background
-                            titleColor: 'white', // Set tooltip title color to white
-                            bodyColor: 'white',  // Set tooltip body text color to white
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: 'white',
+                            bodyColor: 'white'
                         }
                     }
                 }
@@ -235,14 +270,14 @@ export default {
         },
         async sendSwitchCommand(deviceEUI, switchStates) {
             try {
-                console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates); // Log request
+                console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates);
 
                 const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
                     deviceEui: deviceEUI,
                     switchStates: switchStates
                 });
 
-                console.log('Received response from server:', response.data); // Log response
+                console.log('Received response from server:', response.data);
 
                 if (response && response.data) {
                     const sensor = this.currentSensors.find(s => s.deviceEUI === deviceEUI);
@@ -257,19 +292,19 @@ export default {
             }
         },
         async toggleAllDevices() {
-            const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];  // Example with 3 switches for ON/OFF
+            const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];
             for (const sensor of this.currentSensors) {
                 await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
             }
         },
         async setZoneState(state, sensor) {
-            const switchStates = state ? [1, 1, 1] : [0, 0, 0];  // Example with 3 switches for ON/OFF
+            const switchStates = state ? [1, 1, 1] : [0, 0, 0];
             await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
         }
     },
     mounted() {
-        this.fetchSensorData(); // Fetch sensor data when the component is mounted
-        this.generateChart(); // Generate the KWH consumption chart
+        this.fetchSensorData();
+        this.generateChart();
     },
     watch: {
         allOn() {
@@ -277,6 +312,7 @@ export default {
         }
     }
 };
+
 </script>
 
 

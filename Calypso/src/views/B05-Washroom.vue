@@ -80,7 +80,9 @@ import peopleCounterIcon from '@/assets/peopleCounter.png';
 import odorIcon from '@/assets/Odor.png';
 import {
     Chart,
+    BarController,
     LineController,
+    BarElement,
     LineElement,
     PointElement,
     LinearScale,
@@ -131,23 +133,42 @@ export default {
             this.hoveredIndex = null;
         },
         generateChart() {
-            // Registering the required components from Chart.js and generating the chart
-            Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+            // Registering the required components for the bar and line chart
+            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+
             const ctx = document.getElementById('kwhChart').getContext('2d');
+
+            // Sample KWH consumption data for 7 days
+            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH data
+            const differences = last7DaysData.map((value, index, array) => {
+                if (index === 0) return 0;
+                return value - array[index - 1];
+            });
+
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [30, 35, 32, 40, 42, 39, 52, 55, 52, 52, 62, 44, 55, 52, 64, 63, 65, 54, 52, 54, 55, 52, 50, 48],
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            data: last7DaysData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
-                            fill: true,
+                            type: 'bar',
                         },
-                    ],
+                        {
+                            label: 'Difference Between Days',
+                            data: differences,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            type: 'line',
+                            yAxisID: 'differenceAxis',
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -158,47 +179,62 @@ export default {
                             title: {
                                 display: true,
                                 text: 'KWH',
-                                color: 'white',
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white',
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)',
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        differenceAxis: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Difference (KWH)',
+                                color: 'white'
                             },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Hour (0-24)',
-                                color: 'white',
+                                text: 'Days',
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white',
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)',
-                            },
-                        },
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
                     },
                     plugins: {
                         legend: {
                             labels: {
-                                color: 'white',
-                            },
+                                color: 'white'
+                            }
                         },
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.7)',
                             titleColor: 'white',
-                            bodyColor: 'white',
-                        },
-                    },
+                            bodyColor: 'white'
+                        }
+                    }
                 }
             });
         },
     },
     mounted() {
-        this.generateChart(); // Generate the KWH consumption chart
+        this.generateChart(); // Generate the 7-day KWH consumption chart with differences
     },
 };
 </script>

@@ -55,10 +55,10 @@
             </div>
         </div>
 
-        <!-- Second Row: Floorplan and Console Control -->
+        <!-- Second Row: Floorplan Section -->
         <div class="row mt-4">
-            <!-- Floorplan Section - 80% width -->
-            <div class="col-lg-8 section-container">
+            <!-- Floorplan Section -->
+            <div class="col-lg-12 section-container">
                 <h3 class="section-title">Room Layout</h3>
                 <div class="floorplan-container">
                     <div class="floorplan-image-container">
@@ -66,31 +66,14 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Console Control Section - 20% width -->
-            <div class="col-lg-4 section-container">
-                <h3 class="section-title">Console Control</h3>
-                <div class="console-box">
-                    <h4>No Controls</h4>
-                </div>
-            </div>
         </div>
     </div>
 </template>
 
+
 <script>
 import axios from 'axios';
-import {
-    Chart,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
+import { Chart, BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
 
 export default {
     data() {
@@ -133,22 +116,40 @@ export default {
                 : 'fas fa-smile text-success';
         },
         generateChart() {
-            // Registering the required components
-            Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+            // Register the required components for Bar and Line charts
+            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
             const ctx = document.getElementById('kwhChart').getContext('2d');
+
+            // Data for the last 7 days
+            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH consumption for the last 7 days
+            const differences = last7DaysData.map((value, index, array) => {
+                if (index === 0) return 0; // No difference for the first day
+                return value - array[index - 1];
+            });
+
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar', // Bar chart for KWH Consumption
                 data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`), // 0:00 to 23:00 for 24-hour data
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [30, 35, 32, 40, 42, 39, 50, 55, 52, 60, 62, 65, 66, 67, 64, 63, 70, 75, 72, 80, 82, 85, 87, 90], // Example 24-hour data
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            data: last7DaysData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
-                            fill: true,
+                            type: 'bar',
+                        },
+                        {
+                            label: 'Difference Between Days',
+                            data: differences,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            type: 'line',
+                            yAxisID: 'differenceAxis',
                         }
                     ]
                 },
@@ -161,44 +162,59 @@ export default {
                             title: {
                                 display: true,
                                 text: 'KWH',
-                                color: 'white' // Set Y-axis title color to white
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white' // Set Y-axis ticks (numbers) color to white
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        differenceAxis: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Difference (KWH)',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                drawOnChartArea: false // Prevent grid lines from overlapping
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Hour (0-24)',
-                                color: 'white' // Set X-axis title color to white
+                                text: 'Days',
+                                color: 'white'
                             },
                             ticks: {
-                                color: 'white' // Set X-axis ticks (numbers) color to white
+                                color: 'white'
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Make grid lines visible
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             labels: {
-                                color: 'white' // Set legend text color to white
+                                color: 'white'
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tooltip background
-                            titleColor: 'white', // Set tooltip title color to white
-                            bodyColor: 'white',  // Set tooltip body text color to white
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleColor: 'white',
+                            bodyColor: 'white'
                         }
                     }
                 }
             });
-        }
+        },
     },
     mounted() {
         this.fetchSensorData(); // Fetch sensor data when the component is mounted

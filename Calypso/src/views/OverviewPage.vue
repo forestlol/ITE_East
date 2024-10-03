@@ -204,13 +204,11 @@ export default {
         { name: 'Smart Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/smart-vertical-transport-room', room: 'B05-13/14' },
         { name: 'Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/vertical-transport-room', room: 'B05-15/16' },
         { name: 'WSH Room', type: 'semi-circle', operational: 100, link: '/wsh-room', room: 'B05-18' },
-        { name: 'PPVC Training Zone', type: 'semi-circle', operational: 100, link: '/ppvc-training-zone', room: 'B05' },
         { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-07', room: 'B05-07' },
         { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-08', room: 'B05-08' },
         { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-09', room: 'B05-09' },
         { name: 'Smart Washroom', type: 'semi-circle', operational: 100, link: '/smart-washroom-room', room: 'B05' },
         { name: 'Smart Landscape', type: 'semi-circle', operational: 100, link: '/smart-landscape-room', room: 'B05' },
-        { name: 'Lift & Escalator Traning Zone', type: 'semi-circle', operational: 100, link: '/lift-escalator-training-zone', room: 'B05' },
       ],
       fireAlarms: [
         { name: 'Fire Alarm System Overview', operational: 100 },
@@ -312,11 +310,11 @@ export default {
     },
     displayedSubsystems() {
       // Display 4 subsystems per page
-      const start = this.currentPage * 12;
-      return this.subsystemData.slice(start, start + 12);
+      const start = this.currentPage * 10;
+      return this.subsystemData.slice(start, start + 10);
     },
     totalPages() {
-      return Math.ceil(this.subsystemData.length / 8);
+      return Math.ceil(this.subsystemData.length / 5);
     }
   },
   mounted() {
@@ -1141,14 +1139,17 @@ export default {
 
 .subsystems-content {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  /* Adjust the number of columns based on how many items per row */
+  grid-template-columns: repeat(5, 1fr);
+  /* 5 columns */
   grid-template-rows: repeat(2, auto);
-  /* Two rows */
+  /* 2 rows */
   gap: 1rem;
   /* Space between cards */
   padding: 2rem;
+  width: 100%;
+  justify-content: center;
 }
+
 
 .subsystem-card {
   background-color: rgba(255, 255, 255, 0.1);
@@ -1690,19 +1691,6 @@ button:hover {
   font-size: 24px;
   color: white;
   font-weight: bold;
-}
-
-.subsystems-content {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  /* This ensures 6 columns */
-  grid-template-rows: repeat(2, auto);
-  /* Adjust number of rows as necessary */
-  gap: 1rem;
-  padding: 2rem;
-  width: 100%;
-  justify-content: center;
-  /* Ensure grid is centered */
 }
 
 .subsystem-card {

@@ -50,9 +50,11 @@
             <div class="col-lg-6 section-container chart-container" style="width: 48%;">
                 <div class="chart-box">
                     <h3 class="section-title">KWH Daily Consumption</h3>
-                    <canvas id="kwhChart"></canvas>
+                    <canvas id="kwhChart"></canvas> <!-- Bar Chart will be drawn here -->
                 </div>
             </div>
+
+
         </div>
 
         <!-- Second Row: Floorplan and Console Control -->
@@ -148,7 +150,7 @@
 
                     <!-- FAF1 Control -->
                     <div class="toggle-switch mb-4">
-                        <span><b>Fresh Air Fan 2 (FAF2)</b></span>
+                        <span><b>Fresh Air Fan 3 (FAF3)</b></span>
                         <label class="switch">
                             <input type="checkbox" v-model="fans[0].isOn" @change="controlFAF1(fans[0].isOn)">
                             <span class="slider round"></span>
@@ -163,17 +165,8 @@
 
 <script>
 import axios from 'axios';
-import {
-    Chart,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
-    Title,
-    Tooltip,
-    Legend
-} from 'chart.js';
+import { Chart, BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
+
 
 export default {
     data() {
@@ -359,8 +352,15 @@ export default {
             const payload = { state: state ? 'on' : 'off' };
 
             try {
+                // Send request to toggle the aircon state
                 await axios.post(apiUrl, payload);
                 console.log(`FCU ${airconIndex + 2} turned ${state ? 'ON' : 'OFF'}`);
+
+                // If FCU is being turned ON, turn OFF all MDUs
+                if (state) {
+                    console.log('Aircon is ON, turning off all MDUs...');
+                    await this.toggleAllMDU(false);  // Pass false to turn off all MDUs
+                }
             } catch (error) {
                 console.error(`Error turning aircon ${airconIndex + 2} ${state ? 'on' : 'off'}:`, error);
             }
@@ -382,21 +382,40 @@ export default {
             }
         },
         generateChart() {
-            Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+            // Register the required components for Bar and Line charts
+            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
             const ctx = document.getElementById('kwhChart').getContext('2d');
+
+            // Data for the last 7 days
+            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH consumption for the last 7 days
+            const differences = last7DaysData.map((value, index, array) => {
+                if (index === 0) return 0; // No difference for the first day
+                return value - array[index - 1];
+            });
+
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar', // Bar chart for KWH Consumption
                 data: {
-                    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
                         {
                             label: 'KWH Consumption',
-                            data: [32, 35, 38, 31, 34, 31, 39, 39, 40, 30, 40, 36, 32, 39, 32, 39, 39, 33, 34, 38, 30, 36, 33, 35],
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            data: last7DaysData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1,
-                            fill: true,
+                            type: 'bar',
+                        },
+                        {
+                            label: 'Difference Between Days',
+                            data: differences,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            type: 'line',
+                            yAxisID: 'differenceAxis',
                         }
                     ]
                 },
@@ -418,10 +437,25 @@ export default {
                                 color: 'rgba(255, 255, 255, 0.1)'
                             }
                         },
+                        differenceAxis: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Difference (KWH)',
+                                color: 'white'
+                            },
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                drawOnChartArea: false // Prevent grid lines from overlapping
+                            }
+                        },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Hour (0-24)',
+                                text: 'Days',
                                 color: 'white'
                             },
                             ticks: {
@@ -534,11 +568,13 @@ export default {
 }
 
 .chart-box {
-    height: 300px;
+    height: 350px;
+    /* Adjust height if needed */
     width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
+
 
 /* Console Control Styles */
 .console-box {
@@ -691,13 +727,13 @@ input:checked+.slider:before {
 
 @media (min-width: 1400px) {
 
-.container,
-.container-lg,
-.container-md,
-.container-sm,
-.container-xl,
-.container-xxl {
-    max-width: 99%;
-}
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
+        max-width: 99%;
+    }
 }
 </style>
