@@ -113,7 +113,6 @@ export default {
         };
     },
     methods: {
-        // This function determines the class for the smiley/frown icon based on thresholds
         getFaceClass(value, type) {
             let thresholds = {
                 co2: 1000,
@@ -138,8 +137,8 @@ export default {
 
             const ctx = document.getElementById('kwhChart').getContext('2d');
 
-            // Sample KWH consumption data for 7 days
-            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH data
+            // Sample Daily Water consumption data for 7 days (in liters)
+            const last7DaysData = [250, 300, 280, 320, 290, 270, 310]; // Example water consumption data in liters
             const differences = last7DaysData.map((value, index, array) => {
                 if (index === 0) return 0;
                 return value - array[index - 1];
@@ -151,7 +150,7 @@ export default {
                     labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
                         {
-                            label: 'KWH Consumption',
+                            label: 'Water Consumption (liters)',
                             data: last7DaysData,
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',
@@ -178,7 +177,7 @@ export default {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'KWH',
+                                text: 'Liters',
                                 color: 'white'
                             },
                             ticks: {
@@ -193,7 +192,7 @@ export default {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Difference (KWH)',
+                                text: 'Difference (Liters)',
                                 color: 'white'
                             },
                             ticks: {
@@ -234,7 +233,7 @@ export default {
         },
     },
     mounted() {
-        this.generateChart(); // Generate the 7-day KWH consumption chart with differences
+        this.generateChart(); // Generate the 7-day Water Consumption chart with differences
     },
 };
 </script>
@@ -330,13 +329,13 @@ export default {
 
 @media (min-width: 1400px) {
 
-.container,
-.container-lg,
-.container-md,
-.container-sm,
-.container-xl,
-.container-xxl {
-    max-width: 99%;
-}
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
+        max-width: 99%;
+    }
 }
 </style>

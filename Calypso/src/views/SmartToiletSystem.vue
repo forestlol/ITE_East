@@ -5,35 +5,55 @@
       <div class="col-md-8">
         <div class="map-section position-relative">
           <h4>B05 Toilet</h4>
-          <div class="map-container">
-            <img src="@/assets/Sub System and Icons/V2/smart washroom_full1.png" alt="Map View" class="map-image">
-            <!-- Multiple Icons on the Floorplan -->
-            <div v-for="(icon, index) in icons" :key="index" class="icon-container"
-              :style="{ top: icon.top, left: icon.left }" @mouseenter="showValue(index, $event)"
-              @mouseleave="hideValue">
-              <div v-if="icon.pulsating" class="pulsate-ring"></div> <!-- Motion ring -->
-              <img :src="icon.src" alt="Sensor Icon" class="icon-image">
-              <!-- Tooltip should only show when hoveredIndex matches -->
-              <div v-if="hoveredIndex === index" class="value-tooltip"
-                :style="{ top: `${tooltipY}px`, left: `${tooltipX}px` }">
-                <h5>{{ icon.label }}</h5>
-                <template v-if="icon.type === 'People Counter'">
-                  <p>Period In: {{ icon.periodIn }}</p>
-                  <p>Period Out: {{ icon.periodOut }}</p>
-                </template>
-                <template v-else-if="icon.type === 'Odor Sensor'">
-                  <p>Battery: {{ icon.battery }}%</p>
-                  <p>Ammonia Level: {{ icon.nh3 }} ppm</p>
-                  <p>Hydrogen Sulfide Level: {{ icon.h2s }} ppm</p>
-                  <p>Temperature: {{ icon.temperature }}°C</p>
-                  <p>Humidity: {{ icon.humidity }}%</p>
-                </template>
+
+          <!-- Info boxes for Male and Female people counters outside the floorplan -->
+          <div class="row">
+            <div class="col-md-1">
+              <div class="people-counter-info">
+                <div class="male-counter-box">
+                  <h5>Male Toilet Counter</h5>
+                  <p>In: {{ icons[1].periodIn }}</p>
+                  <p>Out: {{ icons[1].periodOut }}</p>
+                </div>
+                <div class="female-counter-box">
+                  <h5>Female Toilet Counter</h5>
+                  <p>In: {{ icons[0].periodIn }}</p>
+                  <p>Out: {{ icons[0].periodOut }}</p>
+                </div>
               </div>
             </div>
+            <div class="col-md-11">
+              <div class="map-container">
+                <img src="@/assets/Sub System and Icons/V2/smart washroom_full1.png" alt="Map View" class="map-image">
+                <!-- Multiple Icons on the Floorplan -->
+                <div v-for="(icon, index) in icons" :key="index" class="icon-container"
+                  :style="{ top: icon.top, left: icon.left }" @mouseenter="showValue(index, $event)"
+                  @mouseleave="hideValue">
+                  <div v-if="icon.pulsating" class="pulsate-ring"></div> <!-- Motion ring -->
+                  <img :src="icon.src" alt="Sensor Icon" class="icon-image">
+                  <!-- Tooltip should only show when hoveredIndex matches -->
+                  <div v-if="hoveredIndex === index" class="value-tooltip"
+                    :style="{ top: `${tooltipY}px`, left: `${tooltipX}px` }">
+                    <h5>{{ icon.label }}</h5>
+                    <template v-if="icon.type === 'People Counter'">
+                      <p>Period In: {{ icon.periodIn }}</p>
+                      <p>Period Out: {{ icon.periodOut }}</p>
+                    </template>
+                    <template v-else-if="icon.type === 'Odor Sensor'">
+                      <p>Battery: {{ icon.battery }}%</p>
+                      <p>Ammonia Level: {{ icon.nh3 }} ppm</p>
+                      <p>Hydrogen Sulfide Level: {{ icon.h2s }} ppm</p>
+                      <p>Temperature: {{ icon.temperature }}°C</p>
+                      <p>Humidity: {{ icon.humidity }}%</p>
+                    </template>
+                  </div>
+                </div>
 
-            <!-- Button to Set Threshold at Bottom Right of Floorplan -->
-            <div class="threshold-button">
-              <button @click="openThresholdModal" class="btn btn-primary">Set Threshold</button>
+                <!-- Button to Set Threshold at Bottom Right of Floorplan -->
+                <div class="threshold-button">
+                  <button @click="openThresholdModal" class="btn btn-primary">Set Threshold</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -72,12 +92,9 @@
         </li>
       </ul>
     </div>
-
-    <!-- <div class="link-button mt-4">
-      <button @click="navigateTo3DLandscape" class="btn btn-primary">Go to 3D Washroom</button>
-    </div> -->
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -378,4 +395,86 @@ h2 {
 .modal-title{
   color:black;
 }
+
+.map-container {
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Container for people counters placed on the left side */
+.people-counter-info {
+  margin-right: 10px; /* Space between the counter boxes and the floorplan */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.male-counter-box, .female-counter-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 150px; /* Adjust the width as needed */
+}
+
+.male-counter-box h5, .female-counter-box h5 {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.map-section {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  height: 100%;
+}
+
+.map-container {
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Other existing styles */
+.map-image {
+  width: 100%;
+  height: auto;
+}
+
+.icon-container {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* Tooltip for Sensor Value */
+.value-tooltip {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 18px;
+}
+
+
 </style>

@@ -1562,7 +1562,7 @@ button:hover {
 }
 
 #box2 {
-  top: 42%;
+  top: 39%;
   left: 13%;
   width: 11%;
   height: 18%;

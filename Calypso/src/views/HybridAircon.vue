@@ -137,14 +137,12 @@ export default {
       sensors: [
         { id: 1, top: '27%', left: '45%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
         { id: 2, top: '44%', left: '39%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false },
-        { id: 1, top: '39%', left: '74%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 3', isOnline: false },
-        { id: 2, top: '22%', left: '79%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 4', isOnline: false },
       ],
       airconBoxes: [
-        { top: '66%', left: '38%', showButtons: false, name: 'FCU 1-1', isOnline: false },
-        { top: '66%', left: '47%', showButtons: false, name: 'FCU 1-2', isOnline: false },
-        { top: '66%', left: '58%', showButtons: false, name: 'FCU 2-1', isOnline: false },
-        { top: '66%', left: '72%', showButtons: false, name: 'FCU 2-2', isOnline: false }
+        { top: '66%', left: '38%', name: 'FCU 1-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/1' },
+        { top: '66%', left: '47%', name: 'FCU 1-2', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/2' },
+        { top: '66%', left: '58%', name: 'FCU 2-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/3' },
+        { top: '66%', left: '72%', name: 'FCU 2-2', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/4' }
       ],
       conditions: [
         'If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.',
@@ -169,6 +167,34 @@ export default {
           this.sendSwitchCommand(sensor.deviceEUI, switchStates);
         }
       }
+    },
+    async fetchAirconStatus(aircon) {
+      try {
+        const response = await axios.get(aircon.apiUrl);
+        const mode = response.data.registers.find(register => register.name === 'Mode').value;
+
+        // Update the isOnline status based on the Mode value
+        if (mode === 2) {  // Mode 2 indicates 'Cool' (ON)
+          aircon.isOnline = true;
+        } else if (mode === 1) {  // Mode 1 indicates 'ON'
+          aircon.isOnline = true;
+        }
+        else if (mode === 0) {  // Mode 0 indicates 'Off'
+          aircon.isOnline = false;
+        }
+      } catch (error) {
+        console.error(`Error fetching status for ${aircon.name}:`, error);
+      }
+    },
+    // Fetch status for all aircons when component is mounted
+    fetchAllAirconStatus() {
+      this.airconBoxes.forEach(aircon => {
+        this.fetchAirconStatus(aircon);
+      });
+    },
+    // Call this method to manually refresh the aircon statuses
+    refreshAirconStatuses() {
+      this.fetchAllAirconStatus();
     },
     // Method to handle Aircon toggling logic
     sendAirconState(state, airconId) {
@@ -385,6 +411,21 @@ export default {
       }
     }
   },
+  mounted() {
+    // Fetch all aircon statuses when the component is mounted
+    this.fetchAllAirconStatus();
+
+    // Set up a polling interval to fetch the aircon statuses every 1 minute (60000 ms)
+    this.intervalId = setInterval(() => {
+      this.fetchAllAirconStatus();
+    }, 60000);
+  },
+  beforeUnmount() {
+    // Clear the interval when the component is destroyed to prevent memory leaks
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
 };
 </script>
 

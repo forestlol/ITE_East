@@ -17,14 +17,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Chart Section -->
-            <div class="col-lg-6 section-container chart-container">
-                <div class="chart-box">
-                    <h3 class="section-title">KWH Daily Consumption</h3>
-                    <canvas id="kwhChart"></canvas>
-                </div>
-            </div>
         </div>
 
         <!-- Second Row: Floorplan and Console Control -->
@@ -108,7 +100,6 @@
 
 <script>
 import axios from 'axios';
-import { Chart, BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from 'chart.js';
 import mainPumpIcon from '@/assets/main-pump-icon.png';
 import dosagePumpIcon from '@/assets/dosage-pump-icon.png';
 import planterPotIcon from '@/assets/planter-pot-icon.png';
@@ -173,105 +164,6 @@ export default {
             };
             return value > thresholds[type] ? "fas fa-frown text-danger" : "fas fa-smile text-success";
         },
-        generateChart() {
-            // Registering the required components from Chart.js
-            Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
-            const ctx = document.getElementById('kwhChart').getContext('2d');
-
-            // Sample data for the last 7 days
-            const last7DaysData = [32, 35, 38, 31, 34, 31, 39]; // Example KWH consumption for the last 7 days
-            const differences = last7DaysData.map((value, index, array) => {
-                if (index === 0) return 0; // No difference for the first day
-                return value - array[index - 1];
-            });
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
-                    datasets: [
-                        {
-                            label: 'KWH Consumption',
-                            data: last7DaysData,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1,
-                            type: 'bar',
-                        },
-                        {
-                            label: 'Difference Between Days',
-                            data: differences,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderWidth: 2,
-                            fill: false,
-                            type: 'line',
-                            yAxisID: 'differenceAxis',
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'KWH',
-                                color: 'white'
-                            },
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        },
-                        differenceAxis: {
-                            position: 'right',
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Difference (KWH)',
-                                color: 'white'
-                            },
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                drawOnChartArea: false // Prevent grid lines from overlapping with the main chart
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Days',
-                                color: 'white'
-                            },
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'white'
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                            titleColor: 'white',
-                            bodyColor: 'white'
-                        }
-                    }
-                }
-            });
-        },
         toggleIndividualValve(switchNumber) {
             const deviceEUI = this.getDeviceEUI(switchNumber);
             let switchStates = this.getSwitchStates(deviceEUI);
@@ -322,7 +214,6 @@ export default {
     },
     mounted() {
         this.fetchSensorData();
-        this.generateChart();
     }
 };
 </script>

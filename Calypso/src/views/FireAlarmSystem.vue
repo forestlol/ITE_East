@@ -33,7 +33,7 @@
         <!-- Show Zone Status on Hover -->
         <div v-if="hoveredZone === index" class="zone-status-popup">
           <p><strong>Zone {{ index + 1 }}</strong></p>
-          <p>Status: <span :class="zoneStatuses[index] === 'Offline' ? 'text-danger' : 'text-success'">{{ zoneStatuses[index] }}</span></p>
+          <p>Status: <span :class="zoneStatuses[index] === 'Online' ? 'text-success' : 'text-danger'">{{ zoneStatuses[index] }}</span></p>
           <p>Last Updated: {{ lastUpdatedTimes[index] }}</p>
         </div>
       </div>
@@ -65,8 +65,8 @@
         <h5>{{ alarm.name }}</h5>
         <p>
           Status:
-          <span :class="{'text-success': alarm.status === 'ON', 'text-danger': alarm.status === 'OFF'}">
-            {{ alarm.status === 'ON' ? 'Online' : 'Offline' }}
+          <span :class="{'text-success': alarm.status === 'OFF', 'text-danger': alarm.status === 'ON'}">
+            {{ alarm.status === 'ON' ? 'Offline' : 'Online' }}
           </span>
         </p>
         <p>Last Updated: {{ alarm.dateTimeRecorded }}</p>
@@ -105,7 +105,7 @@ export default {
         { top: '87.9%', left: '42.3%' },
       ],
       // Sample statuses and last updated times for each zone
-      zoneStatuses: ['Offline', 'Offline', 'Offline', 'Offline', 'Offline', 'Offline'],
+      zoneStatuses: ['Online', 'Online', 'Online', 'Online', 'Online', 'Online'],
       lastUpdatedTimes: [
         '08/23/2024 19:58:55',
         '08/23/2024 19:58:56',

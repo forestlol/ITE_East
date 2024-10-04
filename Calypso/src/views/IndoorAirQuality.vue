@@ -89,6 +89,7 @@
         <div class="floorplan-container">
           <!-- Floorplan Image -->
           <img :src="getCurrentFloorplanImage(selectedBoxId)" alt="Selected Floorplan" class="floorplan-image">
+
           <!-- Wrapper for status dots to apply v-if -->
           <div v-if="selectedBoxId === 1 || selectedBoxId === 2">
             <div v-for="fan in fans" :key="fan.id" class="status-dot-floorplan"
@@ -96,9 +97,22 @@
               <span class="status-dot" :class="fan.isOn ? 'online' : 'offline'"></span>
             </div>
           </div>
-          <div v-if="selectedBoxId === 1 || selectedBoxId === 2" class="fan-controls-top-right">
-            <!-- Slider for each Fresh Air Fan -->
-            <div v-for="fan in fans" :key="fan.id" class="fan-control">
+        </div>
+
+        <!-- Fan controls positioned below the floorplan -->
+        <div class="fan-controls-below">
+          <div class="fan-controls-bottom-left">
+            <div v-for="fan in fans.slice(0, 1)" :key="fan.id" class="fan-control">
+              <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
+              <label class="slider-container">
+                <input type="checkbox" v-model="fan.isOn" @change="sendFanCommand(fan, fan.isOn)">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="fan-controls-bottom-right">
+            <div v-for="fan in fans.slice(1, 2)" :key="fan.id" class="fan-control">
               <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
               <label class="slider-container">
                 <input type="checkbox" v-model="fan.isOn" @change="sendFanCommand(fan, fan.isOn)">
@@ -107,6 +121,8 @@
             </div>
           </div>
         </div>
+
+
 
         <!-- Custom Modal for Fan Control -->
         <div v-if="showModal" class="modal-overlay" @click="closeModal">
@@ -394,10 +410,11 @@ export default {
 }
 
 .sensor-box {
-  background-color: #f0f0f0;
+  background-color: rgb(255, 255, 255, 0.1);
   padding: 10px;
   border-radius: 5px;
   text-align: center;
+  color: white;
 }
 
 .sensor-box p {
@@ -433,12 +450,13 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
+  background: linear-gradient(to top, #09203f 0%, #ADD8E6 100%);
   padding: 20px;
   border-radius: 10px;
   width: 40%;
   text-align: center;
   position: relative;
+  color: white;
 }
 
 .close-btn {
@@ -473,7 +491,6 @@ export default {
 }
 
 .sensor-details {
-  background-color: #f7f7f7;
   padding: 15px;
   margin-top: 20px;
   border-radius: 5px;
@@ -547,13 +564,29 @@ export default {
   background-color: red;
 }
 
-.modal-content {
-  color: black;
-}
-
 /* Make the container of the floorplan image relative, so the sliders are positioned absolutely relative to this container */
 .floorplan-container {
   position: relative;
+  width: 100%;
+  margin-bottom: 20px; /* Adds spacing between the image and the controls */
+}
+
+.fan-controls-below {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 20px;
+}
+
+.fan-controls-bottom-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.fan-controls-bottom-right {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Style the floorplan image */
@@ -573,7 +606,7 @@ export default {
   z-index: 5;
 }
 
-/* Style each fan control section to display items in a single row */
+/* Style each fan control section */
 .fan-control {
   display: flex;
   align-items: center;
@@ -583,7 +616,7 @@ export default {
   margin-bottom: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 250px;
   /* Adjust width as needed */
 }
 
@@ -701,5 +734,76 @@ input:checked+.slider:before {
   text-align: right;
   /* Align the value to the right */
   flex: 1;
+}
+
+/* Position fan controls in bottom left and bottom right corners of the modal */
+.fan-controls-bottom-left {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fan-controls-bottom-right {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style each fan control section */
+.fan-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  /* Adjust width as needed */
+}
+
+/* Style the slider container */
+.slider-container {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  margin-left: 10px;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 14px;
+  width: 14px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: green;
+}
+
+input:checked+.slider:before {
+  transform: translateX(14px);
 }
 </style>
