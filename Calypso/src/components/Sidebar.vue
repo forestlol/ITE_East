@@ -457,6 +457,6 @@ export default {
 
 .app-container {
   display: flex;
-  background-image: url('@/assets/background.jpg');
+  background: linear-gradient(to right, #0d47a1, #1565c0);
 }
 </style>
