@@ -39,7 +39,7 @@
                     class="sensor-control mb-3 d-flex align-items-center justify-content-between">
                     <!-- Zone name and status -->
                     <span :style="{ color: sensor.isOnline ? 'lightgreen' : 'white' }">
-                      {{ sensor.name }} ({{ sensor.isOnline ? 'Opened' : 'Closed' }})
+                      {{ sensor.name }} ({{ sensor.isOnline ? 'Lights On' : 'Lights Off' }})
                     </span>
 
                     <!-- Control Button for B05-11/12 -->
@@ -56,7 +56,7 @@
                     class="sensor-control mb-3 d-flex align-items-center justify-content-between">
                     <!-- Zone name and status -->
                     <span :style="{ color: sensor.isOnline ? 'lightgreen' : 'white' }">
-                      {{ sensor.name }} ({{ sensor.isOnline ? 'Opened' : 'Closed' }})
+                      {{ sensor.name }} ({{ sensor.isOnline ? 'Lights On' : 'Lights Off' }})
                     </span>
 
                     <!-- Default slider control -->

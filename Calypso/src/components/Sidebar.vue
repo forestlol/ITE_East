@@ -338,7 +338,7 @@ export default {
 
 .navbar {
   height: 8%;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 100, 0.8);
   /* Transparent navbar */
   border-bottom: 2px solid rgba(255, 255, 255, 0.2);
   /* Transparent border */
@@ -441,8 +441,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 150px; /* Adjust as per your sidebar height */
-  width: 100%; /* Make sure it takes full width */
+  height: 150px;
+  /* Adjust as per your sidebar height */
+  width: 100%;
+  /* Make sure it takes full width */
 }
 
 .logo-image {

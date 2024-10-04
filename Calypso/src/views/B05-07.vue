@@ -82,13 +82,13 @@
                         <input type="checkbox" v-model="allOn">
                         <span class="slider round"></span>
                     </label>
-                    <span>{{ allOn ? 'ALL OFF' : 'ALL ON' }}</span>
+                    <span>{{ allOn ? 'ALL Lights OFF' : 'ALL Lights ON' }}</span>
 
                     <!-- Sliders for Individual Sensors (positioned here under the "ALL ON/OFF" control) -->
                     <div class="sensor-list">
                         <div v-for="(sensor, index) in currentSensors" :key="index" class="sensor-control">
                             <span :style="{ color: sensor.isOnline ? 'lightgreen' : 'white' }">{{ sensor.name }} ({{
-                                sensor.isOnline ? 'Online' : 'Offline' }})</span>
+                                sensor.isOnline ? 'Lights On' : 'Lights Off' }})</span>
                             <label class="switch">
                                 <input type="checkbox" v-model="sensor.isOnline"
                                     @change="setZoneState(sensor.isOnline, sensor)" />

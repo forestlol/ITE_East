@@ -2,7 +2,7 @@
     <div class="container">
         <h2 class="text-center mb-4">SMART LANDSCAPE [B05]</h2>
 
-        <!-- First Row: Sensor Data and Chart -->
+        <!-- First Row: Sensor Data and ALL ON Control Panel -->
         <div class="row">
             <!-- Sensor Data Section -->
             <div class="col-lg-6 section-container">
@@ -17,11 +17,34 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ALL ON Control Panel Section (with Main and Dosage Pumps) -->
+            <div class="col-lg-6 section-container">
+                <h3 class="section-title">Control Panel (ALL ON)</h3>
+                <div class="console-box">
+                    <!-- ALL ON/OFF Toggle -->
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="allValvesToggle" v-model="areAllValvesOn" @change="toggleAllValves">
+                        <label for="allValvesToggle">{{ areAllValvesOn ? 'ALL VALVES OFF' : 'ALL VALVES ON' }}</label>
+                    </div>
+
+                    <!-- Main Pump and Dosage Pump Toggles -->
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="mainPumpToggle" v-model="isMainPumpOn" @change="toggleMainPump">
+                        <label for="mainPumpToggle">Main Pump (Valve 1)</label>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn"
+                            @change="toggleDosagePump">
+                        <label for="dosagePumpToggle">Dosage Pump (Valve 19)</label>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Second Row: Floorplan and Console Control -->
+        <!-- Second Row: Room Layout and Main Control Panel -->
         <div class="row mt-4">
-            <!-- Floorplan Section - 80% width -->
+            <!-- Room Layout Section -->
             <div class="col-lg-8 section-container">
                 <h3 class="section-title">Room Layout</h3>
                 <div class="floorplan-container position-relative">
@@ -39,30 +62,12 @@
                 </div>
             </div>
 
-            <!-- Console Control Section - 20% width -->
+            <!-- Control Panel Section for Individual Valves and Pumps -->
             <div class="col-lg-4 section-container">
-                <h3 class="section-title">Control Panel</h3>
+                <h3 class="section-title">Control Panel (Individual)</h3>
                 <div class="console-box">
-                    <!-- ALL ON/OFF Toggle -->
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="allValvesToggle" v-model="areAllValvesOn" @change="toggleAllValves">
-                        <label for="allValvesToggle">{{ areAllValvesOn ? 'ALL VALVES OFF' : 'ALL VALVES ON' }}</label>
-                    </div>
-
-                    <!-- Individual Valves Sliders: Main Pump, Dosage Pump -->
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="mainPumpToggle" v-model="isMainPumpOn" @change="toggleMainPump">
-                        <label for="mainPumpToggle">Main Pump (Valve 1)</label>
-                    </div>
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn"
-                            @change="toggleDosagePump">
-                        <label for="dosagePumpToggle">Dosage Pump (Valve 19)</label>
-                    </div>
-
-                    <!-- Planter Pots Valves (Moved to the right side) -->
+                    <!-- Planter Pots Valves -->
                     <div class="valves-section">
-                        <h3 class="section-title">Planter Pots Valves</h3>
                         <div class="toggle-switch" v-for="(icon, index) in icons.slice(2)" :key="index">
                             <input type="checkbox" :id="'valveToggle' + (icon.switchNumber - 1)" v-model="icon.isOn"
                                 @change="toggleIndividualValve(icon.switchNumber)">
@@ -74,21 +79,20 @@
             </div>
         </div>
 
+        <!-- Modal -->
         <div v-if="showIconModal" class="modal-overlay" @click="closeIconModal"></div>
         <div v-if="showIconModal" class="modal d-block" style="z-index: 1050;">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header justify-content-center">
-                        <!-- Display the active icon's name -->
                         <h5 class="modal-title">{{ activeIcon ? activeIcon.name : 'Sensor' }}</h5>
                         <button type="button" class="btn-close position-absolute top-0 end-0"
                             @click="closeIconModal">&times;</button>
                     </div>
                     <div class="modal-body text-center">
-                        <!-- Slider toggle to turn the sensor on/off -->
                         <label class="switch">
                             <input type="checkbox" v-model="activeIcon.isOn"
-                                @change="toggleSwitchInModal(activeIcon.isOn, activeIcon)">
+                                @change="toggleSwitchInModal(activeIcon.isOn, activeIcon)" />
                             <span class="slider round"></span>
                         </label>
                     </div>
@@ -107,6 +111,7 @@ import planterPotIcon from '@/assets/planter-pot-icon.png';
 export default {
     data() {
         return {
+
             sensorData: {
                 co2: null,
                 temperature: null,
@@ -119,28 +124,32 @@ export default {
             isDosagePumpOn: false,
             floorplanImage: require('@/assets/Sub System and Icons/V2/smart Landscape system_full.png'),
             icons: [
-                { x: 84.5, y: 32.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
-                { x: 88, y: 32, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
-                { x: 91, y: 34.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
-                { x: 88, y: 38.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
-                { x: 83, y: 45, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
-                { x: 82.5, y: 35, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
-                { x: 72, y: 42, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
-                { x: 72, y: 50, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
-                { x: 65.3, y: 51, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
-                { x: 28.5, y: 46, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
-                { x: 18.5, y: 50, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
-                { x: 18, y: 36, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
-                { x: 8.6, y: 50, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
-                { x: 9.4, y: 37.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
-                { x: 4.5, y: 33, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
-                { x: 19.5, y: 28.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
-                { x: 34, y: 29.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
-                { x: 53, y: 29, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
-                { x: 71.5, y: 29, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
+                { x: 84.5, y: 49.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
+                { x: 88, y: 50, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
+                { x: 91, y: 52.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
+                { x: 88, y: 59.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
+                { x: 83, y: 68, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
+                { x: 82.5, y: 54, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
+                { x: 72, y: 64, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
+                { x: 72, y: 76, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
+                { x: 65.3, y: 78, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
+                { x: 28.5, y: 70, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
+                { x: 18.5, y: 76, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
+                { x: 18, y: 56, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
+                { x: 8.6, y: 76, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
+                { x: 9.4, y: 57.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
+                { x: 4.5, y: 51, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
+                { x: 19.5, y: 44.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
+                { x: 34, y: 45.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
+                { x: 53, y: 45, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
+                { x: 71.5, y: 45, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
             ],
             showIconModal: false,
-            activeIcon: null
+            activeIcon: null,
+            switchStatesOutdoor1: Array(8).fill(false), // Valves 1-8
+            switchStatesOutdoor2: Array(8).fill(false), // Valves 9-16
+            switchStatesOutdoor3: Array(3).fill(false), // Valves 17-19
+
         };
     },
     methods: {
@@ -168,16 +177,27 @@ export default {
             const deviceEUI = this.getDeviceEUI(switchNumber);
             let switchStates = this.getSwitchStates(deviceEUI);
 
-            // Update the correct switch index
-            const index = switchNumber - 1;
-            switchStates[index] = this.icons[index].isOn;
+            // Ensure the array exists and reset it to all `false` (0s) before updating the selected valve
+            const index = switchNumber - 1; // Switch numbers start from 1
+            if (deviceEUI === '24e124756e049516') {
+                // Reset array for switches 9-16
+                this.switchStatesOutdoor2 = Array(8).fill(false);
+                this.switchStatesOutdoor2[switchNumber - 9] = this.icons.find(icon => icon.switchNumber === switchNumber).isOn;
+                switchStates = this.switchStatesOutdoor2;
+            } else {
+                switchStates[index] = this.icons.find(icon => icon.switchNumber === switchNumber).isOn;
+            }
 
+            // Send the updated switch states
             this.sendSwitchCommand(deviceEUI, switchStates);
-        },
+
+            console.log(switchStates.map(state => state ? 1 : 0)); // Debugging to see if the array is correct
+        }
+        ,
         getDeviceEUI(switchNumber) {
-            if (switchNumber <= 8) return '24e124756e049564';
-            else if (switchNumber <= 16) return '24e124756e049516';
-            else return '24E124756E049454';
+            if (switchNumber <= 8) return '24e124756e049564';   // Valves 1-8
+            else if (switchNumber <= 16) return '24e124756e049516'; // Valves 9-16
+            else return '24E124756E049454'; // Valves 17-19
         },
         getSwitchStates(deviceEUI) {
             if (deviceEUI === '24e124756e049564') return this.switchStatesOutdoor1;
@@ -199,9 +219,10 @@ export default {
         },
         async sendSwitchCommand(deviceEUI, switchStates) {
             const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
+            console.log(switchStates.map(state => state ? 1 : 0));
             const payload = {
                 deviceEui: deviceEUI,
-                switchStates: switchStates.map((state) => (state ? 1 : 0)),
+                switchStates: switchStates.map(state => state ? 1 : 0), // Ensure switch states are correctly mapped
             };
 
             try {
@@ -210,7 +231,78 @@ export default {
             } catch (error) {
                 console.error('Error sending switch command:', error);
             }
-        }
+        },
+        toggleMainPump() {
+            this.setAllSwitches(this.isMainPumpOn, '24e124756e049564', 1, 1);
+        },
+        toggleAllValves() {
+            this.setAllSwitches(this.areAllValvesOn, '24e124756e049564', 2, 8);
+            this.setAllSwitches(this.areAllValvesOn, '24e124756e049516', 9, 16);
+            this.setAllSwitches(this.areAllValvesOn, '24E124756E049454', 17, 19);
+        },
+        toggleDosagePump() {
+            this.setAllSwitches(this.isDosagePumpOn, '24E124756E049454', 19, 19);
+        },
+        setAllSwitches(state, deviceEUI, startSwitch, endSwitch) {
+            let switchStates = [];
+
+            if (deviceEUI === '24e124756e049564') {
+                // Update for switches 1-8
+                this.switchStatesOutdoor1 = this.switchStatesOutdoor1.map((_, index) =>
+                    index + 1 >= startSwitch && index + 1 <= endSwitch ? state : this.switchStatesOutdoor1[index]
+                );
+                switchStates = this.switchStatesOutdoor1;
+            } else if (deviceEUI === '24e124756e049516') {
+                // Update for switches 9-16
+                this.switchStatesOutdoor2 = this.switchStatesOutdoor2.map((_, index) =>
+                    index + 9 >= startSwitch && index + 9 <= endSwitch ? state : this.switchStatesOutdoor2[index]
+                );
+                switchStates = this.switchStatesOutdoor2;
+            } else if (deviceEUI === '24E124756E049454') {
+                // Update for switches 17-19
+                this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map((_, index) =>
+                    index + 17 >= startSwitch && index + 17 <= endSwitch ? state : this.switchStatesOutdoor3[index]
+                );
+                switchStates = this.switchStatesOutdoor3;
+            }
+
+            console.log(switchStates.map(state => state ? 1 : 0)); // Debugging to see the final switch states array
+
+            // Send the switch command, ensuring the array is correctly sized
+            this.sendSwitchCommand(deviceEUI, switchStates);
+        },
+        toggleSwitchInModal(state, icon) {
+            icon.isOn = state; // Toggle the state of the icon in the modal
+
+            let switchStates;
+            let deviceEUI;
+
+            if (icon.switchNumber <= 8) {
+                deviceEUI = '24e124756e049564';
+                this.switchStatesOutdoor1[icon.switchNumber - 1] = state;
+                switchStates = this.switchStatesOutdoor1;
+            } else if (icon.switchNumber <= 16) {
+                deviceEUI = '24e124756e049516';
+                this.switchStatesOutdoor2[icon.switchNumber - 9] = state;
+                switchStates = this.switchStatesOutdoor2;
+            } else if (icon.switchNumber <= 19) {
+                deviceEUI = '24E124756E049454';
+                this.switchStatesOutdoor3[icon.switchNumber - 17] = state;
+                switchStates = this.switchStatesOutdoor3;
+            }
+
+            this.sendSwitchCommand(deviceEUI, switchStates);
+            console.log(`Switch ${icon.switchNumber} toggled to ${state ? 'ON' : 'OFF'}`);
+
+            // Sync status in relationPoints
+            this.relationPoints.forEach((point) => {
+                if (point.type === 'Valve' && point.label === icon.switchNumber.toString()) {
+                    point.status = state ? 'On' : 'Off';
+                }
+            });
+
+            this.closeIconModal(); // Close the modal after toggling the switch
+        },
     },
     mounted() {
         this.fetchSensorData();

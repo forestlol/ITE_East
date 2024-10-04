@@ -95,7 +95,7 @@
                             <input type="checkbox" v-model="allOnZones" @change="toggleAllDevices" />
                             <span class="slider round"></span>
                         </label>
-                        <span>{{ allOnZones ? 'ALL OFF' : 'ALL ON' }}</span>
+                        <span>{{ allOnZones ? 'ALL Lights OFF' : 'ALL Lights ON' }}</span>
                     </div>
 
                     <!-- Zone 5 to Zone 8 Controls -->
@@ -103,7 +103,7 @@
                         class="sensor-control mb-3 d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <span :style="{ color: sensor.isOnline ? 'lightgreen' : 'white' }">
-                                {{ sensor.name }} ({{ sensor.isOnline ? 'Online' : 'Offline' }})
+                                {{ sensor.name }} ({{ sensor.isOnline ? 'Lights On' : 'Lights Off' }})
                             </span>
                         </div>
                         <button class="btn btn-primary" @click="toggleModal(sensor)">
@@ -117,7 +117,7 @@
                             <input type="checkbox" v-model="allOnFCU" @change="toggleAllFCU" />
                             <span class="slider round"></span>
                         </label>
-                        <span>{{ allOnFCU ? 'Turn All FCUs OFF' : 'Turn All FCUs ON' }}</span>
+                        <span>{{ allOnFCU ? 'Turn All FCUs Close' : 'Turn All FCUs Open' }}</span>
                     </div>
 
                     <!-- ALL ON/OFF Toggle for MDUs -->
@@ -127,7 +127,7 @@
                                 :disabled="isTogglingMDU" />
                             <span class="slider round"></span>
                         </label>
-                        <span>{{ allOnMDU ? 'Turn All MDUs OFF' : 'Turn All MDUs ON' }}</span>
+                        <span>{{ allOnMDU ? 'Turn All MDUs Close' : 'Turn All MDUs Open' }}</span>
                     </div>
 
 
@@ -143,7 +143,7 @@
                             </label>
                         </div>
                         <!-- Display ON when device isOnline, else OFF -->
-                        <span>{{ device.isOnline ? 'OFF' : 'ON' }}</span>
+                        <span>{{ device.isOnline ? 'Open' : 'Close' }}</span>
                     </div>
 
 
@@ -154,7 +154,7 @@
                             <input type="checkbox" v-model="fans[0].isOn" @change="controlFAF1(fans[0].isOn)">
                             <span class="slider round"></span>
                         </label>
-                        <span>{{ fans[0].isOn ? 'ON' : 'OFF' }}</span>
+                        <span>{{ fans[0].isOn ? 'Open' : 'Close' }}</span>
                     </div>
                 </div>
             </div>

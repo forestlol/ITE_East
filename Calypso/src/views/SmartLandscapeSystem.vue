@@ -486,7 +486,7 @@ export default {
       const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
       const payload = {
         deviceEui: deviceEUI,
-        switchStates: switchStates.map((state) => (state ? 1 : 0)),
+        switchStates: switchStates.map((state) => (state ? 1 : 0)), // Convert boolean to 1 or 0
       };
 
       console.log('Preparing to send payload:', payload);
@@ -496,17 +496,6 @@ export default {
         console.log('Switch command sent successfully:', response.data);
       } catch (error) {
         console.error('Error sending switch command:', error);
-
-        // Detailed error logging
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
-          console.error('Request data:', error.request);
-        } else {
-          console.error('Error message:', error.message);
-        }
       }
     },
     toggleMainPump() {
@@ -529,24 +518,27 @@ export default {
       let switchStates = [];
 
       if (deviceEUI === '24e124756e049564') {
+        // Ensure the array is always of size 8
         this.switchStatesOutdoor1 = this.switchStatesOutdoor1.map((_, index) =>
           index + 1 >= startSwitch && index + 1 <= endSwitch ? state : this.switchStatesOutdoor1[index]
         );
         switchStates = this.switchStatesOutdoor1;
       } else if (deviceEUI === '24e124756e049516') {
+        // Ensure the array is always of size 8
         this.switchStatesOutdoor2 = this.switchStatesOutdoor2.map((_, index) =>
           index + 9 >= startSwitch && index + 9 <= endSwitch ? state : this.switchStatesOutdoor2[index]
         );
         switchStates = this.switchStatesOutdoor2;
       } else if (deviceEUI === '24E124756E049454') {
+        // Ensure the array is always of size 8
         this.switchStatesOutdoor3 = this.switchStatesOutdoor3.map((_, index) =>
           index + 17 >= startSwitch && index + 17 <= endSwitch ? state : this.switchStatesOutdoor3[index]
         );
         switchStates = this.switchStatesOutdoor3;
       }
 
-      // Send the switch command based on the updated states
-      this.sendSwitchCommand(deviceEUI, switchStates);
+      // Send the switch command, ensuring the array length is 8
+      this.sendSwitchCommand(deviceEUI, this.ensureArraySize(switchStates, 8));
 
       // Update the icon statuses based on the range of switches
       this.icons.forEach(icon => {
@@ -561,6 +553,18 @@ export default {
           point.status = state ? 'On' : 'Off';
         }
       });
+    },
+
+    ensureArraySize(array, size) {
+      if (array.length === size) {
+        return array;  // Already the correct size
+      } else if (array.length < size) {
+        // Pad with false (or any other default value) to make the array size 8
+        return [...array, ...Array(size - array.length).fill(false)];
+      } else {
+        // Trim the array to size 8
+        return array.slice(0, size);
+      }
     },
 
     toggleSwitchInModal(state, icon) {

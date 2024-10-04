@@ -73,7 +73,7 @@
                       <input type="checkbox" :checked="allAirconOn" @change="toggleAllAircons" ref="airconCheckbox">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ allAirconOn ? 'Turn All Aircons OFF' : 'Turn All Aircons ON' }}</span>
+                    <span>{{ allAirconOn ? 'Turn All Aircons Closed' : 'Turn All Aircons Open' }}</span>
                   </div>
 
                   <div class="slider-control">
@@ -81,7 +81,7 @@
                       <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ allDampenerOn ? 'Turn All Dampeners OFF' : 'Turn All Dampeners ON' }}</span>
+                    <span>{{ allDampenerOn ? 'Turn All Dampeners Closed' : 'Turn All Dampeners Open' }}</span>
                   </div>
                 </div>
 
@@ -92,7 +92,7 @@
                       <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'OFF' : 'ON' }}</span>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'Closed' : 'Open' }}</span>
                   </div>
 
                   <div v-for="aircon in airconBoxes" :key="aircon.name" class="slider-control">
@@ -101,7 +101,7 @@
                         @change="sendAirconState($event.target.checked, aircon.name)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'OFF' : 'ON' }}</span>
+                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'Closed' : 'Open' }}</span>
                   </div>
                 </div>
               </div>
