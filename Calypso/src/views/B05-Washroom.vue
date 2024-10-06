@@ -30,7 +30,7 @@
             <!-- Chart Section -->
             <div class="col-lg-6 section-container chart-container" style="width: 48%;">
                 <div class="chart-box">
-                    <h3 class="section-title">KWH Daily Consumption</h3>
+                    <h3 class="section-title">Daily Water Consumption</h3>
                     <canvas id="kwhChart"></canvas>
                 </div>
             </div>
