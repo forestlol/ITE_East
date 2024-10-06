@@ -73,7 +73,7 @@
                       <input type="checkbox" :checked="allAirconOn" @change="toggleAllAircons" ref="airconCheckbox">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ allAirconOn ? 'Turn All Aircons Closed' : 'Turn All Aircons Open' }}</span>
+                    <span>{{ allAirconOn ? 'All Aircons Closed' : 'All Aircons Open' }}</span>
                   </div>
 
                   <div class="slider-control">
@@ -81,21 +81,13 @@
                       <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ allDampenerOn ? 'Turn All Dampeners Closed' : 'Turn All Dampeners Open' }}</span>
+                    <span>{{ allDampenerOn ? 'All Dampeners Closed' : 'All Dampeners Open' }}</span>
                   </div>
                 </div>
 
-                <!-- Individual Controls on the top-right -->
                 <div class="individual-controls">
-                  <div v-for="sensor in sensors" :key="sensor.id" class="slider-control">
-                    <label class="switch">
-                      <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
-                      <span class="slider round"></span>
-                    </label>
-                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'Closed' : 'Open' }}</span>
-                  </div>
-
-                  <div v-for="aircon in airconBoxes" :key="aircon.name" class="slider-control">
+                  <!-- FCU 1-1 and FCU 1-2 -->
+                  <div v-for="aircon in airconBoxes.slice(0, 2)" :key="aircon.name" class="slider-control">
                     <label class="switch">
                       <input type="checkbox" :checked="aircon.isOnline"
                         @change="sendAirconState($event.target.checked, aircon.name)">
@@ -103,7 +95,36 @@
                     </label>
                     <span>{{ aircon.name }} {{ aircon.isOnline ? 'Closed' : 'Open' }}</span>
                   </div>
+
+                  <!-- MDU 3 -->
+                  <div v-for="sensor in sensors.slice(0, 1)" :key="sensor.id" class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'Closed' : 'Open' }}</span>
+                  </div>
+
+                  <!-- FCU 2-1 and FCU 2-2 -->
+                  <div v-for="aircon in airconBoxes.slice(2, 4)" :key="aircon.name" class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" :checked="aircon.isOnline"
+                        @change="sendAirconState($event.target.checked, aircon.name)">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'Closed' : 'Open' }}</span>
+                  </div>
+
+                  <!-- MDU 4 -->
+                  <div v-for="sensor in sensors.slice(1, 2)" :key="sensor.id" class="slider-control">
+                    <label class="switch">
+                      <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
+                      <span class="slider round"></span>
+                    </label>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'Closed' : 'Open' }}</span>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -135,14 +156,14 @@ export default {
         { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
       ],
       sensors: [
-        { id: 1, top: '27%', left: '45%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 1', isOnline: false },
-        { id: 2, top: '44%', left: '39%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 2', isOnline: false },
+        { id: 1, top: '40%', left: '44%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 3', isOnline: false },
+        { id: 2, top: '53%', left: '80%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 4', isOnline: false },
       ],
       airconBoxes: [
-        { top: '66%', left: '38%', name: 'FCU 1-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/1' },
+        { top: '66%', left: '39%', name: 'FCU 1-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/1' },
         { top: '66%', left: '47%', name: 'FCU 1-2', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/2' },
-        { top: '66%', left: '58%', name: 'FCU 2-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/3' },
-        { top: '66%', left: '72%', name: 'FCU 2-2', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/4' }
+        { top: '66%', left: '59%', name: 'FCU 2-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/3' },
+        { top: '66%', left: '73%', name: 'FCU 2-2', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/4' }
       ],
       conditions: [
         'If Indoor Air Quality Sensor on acceptable CO2 Level, Motorized Dampener turned off and Fresh Air Fan turn off, else both turned on.',
@@ -512,8 +533,8 @@ h2 {
   position: absolute;
   top: -4px;
   right: -4px;
-  width: 8px;
-  height: 8px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
 }
 
@@ -850,15 +871,6 @@ input:checked+.slider:before {
   align-items: center;
   transform: translate(-50%, -50%);
   cursor: pointer;
-}
-
-.status-dot {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
 }
 
 .online {

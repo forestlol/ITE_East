@@ -7,24 +7,22 @@
             <!-- Sensor Data Section -->
             <div class="col-lg-6 section-container">
                 <h3 class="section-title">Sensor Data</h3>
-                <div class="sensor-grid">
-                    <div class="sensor-box">
-                        <p><b>CO2:</b></p>
-                        <p>No data available</p>
+                <div class="row justify-content-center">
+                    <div class="col-lg-4 sensor-box">
+                        <h4 class="text-center"><u>Male Toilet</u></h4>
+                        <p><b>Occupancy:</b> {{ maleToiletData.occupancy }} pax</p>
+                        <p><b>Ammonium:</b> {{ maleToiletData.nh3 }} ppm</p>
+                        <p><b>Hydrogen Sulfide:</b> {{ maleToiletData.h2s }} ppm</p>
+                        <p><b>Temperature:</b> {{ maleToiletData.temperature }}°C</p>
+                        <p><b>Humidity:</b> {{ maleToiletData.humidity }}%</p>
                     </div>
-                    <div class="sensor-box">
-                        <p><b>Temperature:</b></p>
-                        <p>{{ sensorData.temperature }}°C</p>
-                        <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.temperature, 'temperature')" class="face-icon"></i>
-                        </div>
-                    </div>
-                    <div class="sensor-box">
-                        <p><b>Humidity:</b></p>
-                        <p>{{ sensorData.humidity }}%</p>
-                        <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.humidity, 'humidity')" class="face-icon"></i>
-                        </div>
+                    <div class="col-lg-4 sensor-box">
+                        <h4 class="text-center"><u>Female Toilet</u></h4>
+                        <p><b>Occupancy:</b> {{ femaleToiletData.occupancy }} pax</p>
+                        <p><b>Ammonium:</b> {{ femaleToiletData.nh3 }} ppm</p>
+                        <p><b>Hydrogen Sulfide:</b> {{ femaleToiletData.h2s }} ppm</p>
+                        <p><b>Temperature:</b> {{ femaleToiletData.temperature }}°C</p>
+                        <p><b>Humidity:</b> {{ femaleToiletData.humidity }}%</p>
                     </div>
                 </div>
             </div>
@@ -76,6 +74,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import peopleCounterIcon from '@/assets/peopleCounter.png';
 import odorIcon from '@/assets/Odor.png';
 import {
@@ -95,24 +94,123 @@ import {
 export default {
     data() {
         return {
+            maleToiletData: {
+                occupancy: 0,
+                nh3: 0,
+                h2s: 0,
+                temperature: 0,
+                humidity: 0,
+            },
+            femaleToiletData: {
+                occupancy: 0,
+                nh3: 0,
+                h2s: 0,
+                temperature: 0,
+                humidity: 0,
+            },
             sensorData: {
-                co2: null,
                 temperature: null,
                 humidity: null,
+                co2: null, // Assuming you'll add CO2 data later
             },
             hoveredIndex: null,
             tooltipX: 0,
             tooltipY: 0,
             floorplanImage: require('@/assets/Sub System and Icons/V2/smart washroom_full1.png'), // Floorplan image
             icons: [
-                { top: '51%', left: '66%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
-                { top: '40.6%', left: '44%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
-                { top: '37.6%', left: '64.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
-                { top: '36%', left: '18%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
-            ],
+                { top: '51%', left: '66%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', devEUI: '24e124716d496395', periodIn: 0, periodOut: 0 },
+                { top: '40.6%', left: '44%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', devEUI: '24e124716d496118', periodIn: 0, periodOut: 0 },
+                { top: '37.6%', left: '64.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', devEUI: '24e124798d482591', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
+                { top: '36%', left: '18%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', devEUI: '24e124798d482365', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
+            ]
         };
     },
     methods: {
+        async fetchSensorData() {
+            try {
+                const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/toilet');
+                const data = response.data;
+
+                // Assuming devEUI '24e124798d482591' is for the Male Toilet Odor Detector
+                const maleToiletOdorSensor = data['24e124798d482591'];
+                const maleToiletPeopleCounter = data['24e124716d496395']; // devEUI for male toilet people counter
+                if (maleToiletOdorSensor && maleToiletPeopleCounter) {
+                    this.maleToiletData = {
+                        occupancy: maleToiletPeopleCounter.period_in || 0,
+                        nh3: maleToiletOdorSensor.nh3 || 0,
+                        h2s: maleToiletOdorSensor.h2s || 0,
+                        temperature: maleToiletOdorSensor.temperature || 0,
+                        humidity: maleToiletOdorSensor.humidity || 0,
+                    };
+                }
+
+                // Assuming devEUI '24e124798d482365' is for the Female Toilet Odor Detector
+                const femaleToiletOdorSensor = data['24e124798d482365'];
+                const femaleToiletPeopleCounter = data['24e124716d496118']; // devEUI for female toilet people counter
+                if (femaleToiletOdorSensor && femaleToiletPeopleCounter) {
+                    this.femaleToiletData = {
+                        occupancy: femaleToiletPeopleCounter.period_in || 0,
+                        nh3: femaleToiletOdorSensor.nh3 || 0,
+                        h2s: femaleToiletOdorSensor.h2s || 0,
+                        temperature: femaleToiletOdorSensor.temperature || 0,
+                        humidity: femaleToiletOdorSensor.humidity || 0,
+                    };
+                }
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+            }
+        },
+        updateIcons(data) {
+            // Loop through the icons and update them based on their devEUI (if applicable)
+            this.icons.forEach(icon => {
+                if (icon.label === 'Bathroom Odor Detector') {
+                    if (icon.devEUI === '24e124798d482591') {
+                        // Update for Bathroom Odor Detector 02
+                        const deviceData = data['24e124798d482591'];
+                        if (deviceData) {
+                            icon.battery = deviceData.battery;
+                            icon.nh3 = deviceData.nh3;
+                            icon.h2s = deviceData.h2s;
+                            icon.temperature = deviceData.temperature;
+                            icon.humidity = deviceData.humidity;
+                        }
+                    } else if (icon.devEUI === '24e124798d482365') {
+                        // Update for Bathroom Odor Detector 01
+                        const deviceData = data['24e124798d482365'];
+                        if (deviceData) {
+                            icon.battery = deviceData.battery;
+                            icon.nh3 = deviceData.nh3;
+                            icon.h2s = deviceData.h2s;
+                            icon.temperature = deviceData.temperature;
+                            icon.humidity = deviceData.humidity;
+                        }
+                    }
+                } else if (icon.label === 'People Counter') {
+                    // Example for updating people counters with their respective devEUI
+                    if (icon.devEUI === '24e124716d496395') {
+                        const deviceData = data['24e124716d496395'];
+                        if (deviceData) {
+                            icon.periodIn = deviceData.period_in;
+                            icon.periodOut = deviceData.period_out;
+                        }
+                    } else if (icon.devEUI === '24e124716d496118') {
+                        const deviceData = data['24e124716d496118'];
+                        if (deviceData) {
+                            icon.periodIn = deviceData.period_in;
+                            icon.periodOut = deviceData.period_out;
+                        }
+                    }
+                }
+            });
+        },
+        updateSensorData(data) {
+            // Assuming you're using Bathroom Odor Detector 02's data for the main sensor display
+            const odorSensor = data['24e124798d482591']; // Example device ID
+            if (odorSensor) {
+                this.sensorData.temperature = odorSensor.temperature;
+                this.sensorData.humidity = odorSensor.humidity;
+            }
+        },
         getFaceClass(value, type) {
             let thresholds = {
                 co2: 1000,
@@ -132,41 +230,20 @@ export default {
             this.hoveredIndex = null;
         },
         generateChart() {
-            // Registering the required components for the bar and line chart
+            // Chart generation logic
             Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
             const ctx = document.getElementById('kwhChart').getContext('2d');
-
-            // Sample Daily Water consumption data for 7 days (in liters)
-            const last7DaysData = [250, 300, 280, 320, 290, 270, 310]; // Example water consumption data in liters
-            const differences = last7DaysData.map((value, index, array) => {
-                if (index === 0) return 0;
-                return value - array[index - 1];
-            });
+            const last7DaysData = [250, 300, 280, 320, 290, 270, 310]; // Example data
+            const differences = last7DaysData.map((value, index, array) => (index === 0 ? 0 : value - array[index - 1]));
 
             new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
                     datasets: [
-                        {
-                            label: 'Water Consumption (liters)',
-                            data: last7DaysData,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1,
-                            type: 'bar',
-                        },
-                        {
-                            label: 'Difference Between Days',
-                            data: differences,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderWidth: 2,
-                            fill: false,
-                            type: 'line',
-                            yAxisID: 'differenceAxis',
-                        }
+                        { label: 'Water Consumption (liters)', data: last7DaysData, backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 1, type: 'bar' },
+                        { label: 'Difference Between Days', data: differences, borderColor: 'rgba(255, 99, 132, 1)', backgroundColor: 'rgba(255, 99, 132, 0.2)', borderWidth: 2, fill: false, type: 'line', yAxisID: 'differenceAxis' }
                     ]
                 },
                 options: {
@@ -175,53 +252,25 @@ export default {
                     scales: {
                         y: {
                             beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Liters',
-                                color: 'white'
-                            },
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            title: { display: true, text: 'Liters', color: 'white' },
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         },
                         differenceAxis: {
                             position: 'right',
                             beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Difference (Liters)',
-                                color: 'white'
-                            },
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
+                            title: { display: true, text: 'Difference (Liters)', color: 'white' },
+                            ticks: { color: 'white' },
+                            grid: { drawOnChartArea: false }
                         },
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Days',
-                                color: 'white'
-                            },
-                            ticks: {
-                                color: 'white'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            title: { display: true, text: 'Days', color: 'white' },
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         }
                     },
                     plugins: {
-                        legend: {
-                            labels: {
-                                color: 'white'
-                            }
-                        },
+                        legend: { labels: { color: 'white' } },
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.7)',
                             titleColor: 'white',
@@ -230,13 +279,15 @@ export default {
                     }
                 }
             });
-        },
+        }
     },
     mounted() {
-        this.generateChart(); // Generate the 7-day Water Consumption chart with differences
-    },
+        this.fetchSensorData(); // Fetch sensor data when the component is mounted
+        this.generateChart();   // Generate the chart
+    }
 };
 </script>
+
 
 <style scoped>
 .container {
@@ -315,6 +366,8 @@ export default {
     border-radius: 5px;
     padding: 15px;
     text-align: center;
+    margin-left: 2%;
+    margin-bottom: 5%;
 }
 
 .face-indicator {

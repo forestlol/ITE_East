@@ -261,14 +261,14 @@ export default {
           { top: '13%', left: '66%', name: 'Row 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131824' }  // Row 6
         ],
         'B05-11-12_full_empty.png': [
-          { top: '17%', left: '78%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
-          { top: '17%', left: '70%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001713', level1: 0, level2: 0 },
-          { top: '17%', left: '62%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000166B', level1: 0, level2: 0 },
-          { top: '42%', left: '62%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001704', level1: 0, level2: 0 },
-          { top: '18%', left: '45.5%', name: 'Zone 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001716', level1: 0, level2: 0 },
-          { top: '18%', left: '38%', name: 'Zone 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001711', level1: 0, level2: 0 },
-          { top: '18%', left: '30%', name: 'Zone 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000170F', level1: 0, level2: 0 },
-          { top: '18%', left: '21.5%', name: 'Zone 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000173B', level1: 0, level2: 0 },
+          { top: '15%', left: '78%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
+          { top: '15%', left: '70%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001713', level1: 0, level2: 0 },
+          { top: '15%', left: '62%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000166B', level1: 0, level2: 0 },
+          { top: '36%', left: '62%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001704', level1: 0, level2: 0 },
+          { top: '15%', left: '45.5%', name: 'Zone 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001716', level1: 0, level2: 0 },
+          { top: '15%', left: '38%', name: 'Zone 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001711', level1: 0, level2: 0 },
+          { top: '15%', left: '30%', name: 'Zone 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000170F', level1: 0, level2: 0 },
+          { top: '15%', left: '21.5%', name: 'Zone 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000173B', level1: 0, level2: 0 },
         ]
       },
       showModal: false,

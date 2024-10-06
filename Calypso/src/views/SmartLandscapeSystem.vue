@@ -72,7 +72,7 @@
                   @click="openIconModal(icon)">
                   <img :src="icon.src" alt="Icon" class="icon-image">
                   <div :class="['status-dot', icon.isOn ? 'online' : 'offline']"></div>
-                  <span class="switch-number">{{ icon.switchNumber }}</span> <!-- Display switchNumber -->
+                  <span class="switch-number"></span> <!-- Display switchNumber -->
                 </div>
               </div>
             </div>
@@ -109,7 +109,7 @@
           <h4>Relation View</h4>
           <div class="relation-view-container">
             <div class="relation-view position-relative">
-              <img src="@/assets/Smart Landscape Algo 2 empty.png" alt="Relation View" class="relation-image">
+              <img src="@/assets/Smart Landscape Schematic.jpg" alt="Relation View" class="relation-image">
               <div v-for="(point, index) in relationPoints" :key="index"
                 :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
                 @mouseenter="point.type !== 'Valve' && showValue(index, $event)"
@@ -130,11 +130,11 @@
                   <template v-if="point.type === 'sensor'">
                     <p>Temperature: {{ point.data.temperature }}°C</p>
                     <p>Soil Moisture: {{ point.data.soilMoisture }}%</p>
-                    <p>pH: {{ point.data.pH }}</p>
-                    <p>EC: {{ point.data.ec }} µS/cm</p>
-                    <p>N: {{ point.data.n }} mg/L</p>
-                    <p>P: {{ point.data.p }} mg/L</p>
-                    <p>K: {{ point.data.k }} mg/L</p>
+                    <p>pH Level: {{ point.data.pH }}</p>
+                    <p>Electrical Conductivity (EC): {{ point.data.ec }} µS/cm</p>
+                    <p>Nitrogen (N): {{ point.data.n }} mg/L</p>
+                    <p>Phosphorus (P): {{ point.data.p }} mg/L</p>
+                    <p>Potassium (K): {{ point.data.k }} mg/L</p>
                     <p>Battery Voltage: {{ point.data.batteryVoltage }} V</p>
                   </template>
                 </span>
@@ -158,11 +158,11 @@
               <div class="card-body">
                 <p><strong>Temperature:</strong> {{ sensor.data.temperature }}°C</p>
                 <p><strong>Soil Moisture:</strong> {{ sensor.data.soilMoisture }}%</p>
-                <p><strong>pH:</strong> {{ sensor.data.pH }}</p>
-                <p><strong>EC:</strong> {{ sensor.data.ec }} µS/cm</p>
-                <p><strong>N:</strong> {{ sensor.data.n }} mg/L</p>
-                <p><strong>P:</strong> {{ sensor.data.p }} mg/L</p>
-                <p><strong>K:</strong> {{ sensor.data.k }} mg/L</p>
+                <p><strong>pH Level:</strong> {{ sensor.data.pH }}</p>
+                <p><strong>Electrical Conductivity (EC):</strong> {{ sensor.data.ec }} µS/cm</p>
+                <p><strong>Nitrogen (N):</strong> {{ sensor.data.n }} mg/L</p>
+                <p><strong>Phosphorus (P):</strong> {{ sensor.data.p }} mg/L</p>
+                <p><strong>Potassium (K):</strong> {{ sensor.data.k }} mg/L</p>
                 <p><strong>Battery Voltage:</strong> {{ sensor.data.batteryVoltage }} V</p>
               </div>
             </div>
@@ -288,26 +288,23 @@ export default {
       ],
       selectedCondition: "Conditions",
       relationPoints: [
-        { number: 1, type: 'sensor', x: 15, y: 20, data: { temperature: 25, soilMoisture: 60, pH: 6.8, ec: 1.2, n: 20, p: 5, k: 10, batteryVoltage: 3.5 }, status: 'Off' },
-        { number: 2, type: 'sensor', x: 21, y: 20, data: { temperature: 26, soilMoisture: 65, pH: 6.7, ec: 1.3, n: 21, p: 6, k: 11, batteryVoltage: 3.6 }, status: 'Off' },
-        { number: 3, type: 'sensor', x: 27.6, y: 20, data: { temperature: 27, soilMoisture: 70, pH: 6.9, ec: 1.4, n: 22, p: 7, k: 12, batteryVoltage: 3.7 }, status: 'Off' },
-        { number: 4, type: 'sensor', x: 34, y: 20, data: { temperature: 28, soilMoisture: 75, pH: 7.0, ec: 1.5, n: 23, p: 8, k: 13, batteryVoltage: 3.8 }, status: 'Off' },
-        { number: 5, type: 'sensor', x: 15, y: 31, data: { temperature: 29, soilMoisture: 80, pH: 7.1, ec: 1.6, n: 24, p: 9, k: 14, batteryVoltage: 3.9 }, status: 'Off' },
-        { number: 6, type: 'sensor', x: 21, y: 31, data: { temperature: 30, soilMoisture: 85, pH: 7.2, ec: 1.7, n: 25, p: 10, k: 15, batteryVoltage: 4.0 }, status: 'Off' },
-        { number: 7, type: 'sensor', x: 27.6, y: 31, data: { temperature: 31, soilMoisture: 90, pH: 7.3, ec: 1.8, n: 26, p: 11, k: 16, batteryVoltage: 4.1 }, status: 'Off' },
-        { number: 8, type: 'sensor', x: 34, y: 31, data: { temperature: 32, soilMoisture: 95, pH: 7.4, ec: 1.9, n: 27, p: 12, k: 17, batteryVoltage: 4.2 }, status: 'Off' },
-        { number: 9, type: 'sensor', x: 15, y: 42, data: { temperature: 33, soilMoisture: 60, pH: 6.5, ec: 2.0, n: 28, p: 13, k: 18, batteryVoltage: 4.3 }, status: 'Off' },
-        { number: 10, type: 'sensor', x: 21, y: 42, data: { temperature: 34, soilMoisture: 65, pH: 6.6, ec: 2.1, n: 29, p: 14, k: 19, batteryVoltage: 4.4 }, status: 'Off' },
-        { number: 11, type: 'sensor', x: 27.6, y: 42, data: { temperature: 35, soilMoisture: 70, pH: 6.7, ec: 2.2, n: 30, p: 15, k: 20, batteryVoltage: 4.5 }, status: 'Off' },
-        { number: 12, type: 'sensor', x: 34, y: 42, data: { temperature: 36, soilMoisture: 75, pH: 6.8, ec: 2.3, n: 31, p: 16, k: 21, batteryVoltage: 4.6 }, status: 'Off' },
-        { number: 13, type: 'sensor', x: 14.7, y: 53, data: { temperature: 37, soilMoisture: 80, pH: 6.9, ec: 2.4, n: 32, p: 17, k: 22, batteryVoltage: 4.7 }, status: 'Off' },
-        { number: 14, type: 'sensor', x: 21, y: 53, data: { temperature: 38, soilMoisture: 85, pH: 7.0, ec: 2.5, n: 33, p: 18, k: 23, batteryVoltage: 4.8 }, status: 'Off' },
-        { number: 15, type: 'sensor', x: 27.6, y: 53, data: { temperature: 39, soilMoisture: 90, pH: 7.1, ec: 2.6, n: 34, p: 19, k: 24, batteryVoltage: 4.9 }, status: 'Off' },
-        { number: 16, type: 'sensor', x: 34, y: 53, data: { temperature: 40, soilMoisture: 95, pH: 7.2, ec: 2.7, n: 35, p: 20, k: 25, batteryVoltage: 5.0 }, status: 'Off' },
-        { number: 17, type: 'sensor', x: 14.7, y: 63.5, data: { temperature: 41, soilMoisture: 60, pH: 7.3, ec: 2.8, n: 36, p: 21, k: 26, batteryVoltage: 5.1 }, status: 'Off' },
-        { number: 18, type: 'sensor', x: 21, y: 63.5, data: { temperature: 42, soilMoisture: 65, pH: 7.4, ec: 2.9, n: 37, p: 22, k: 27, batteryVoltage: 5.2 }, status: 'Off' },
-        { number: 19, type: 'sensor', x: 27.6, y: 63.5, data: { temperature: 43, soilMoisture: 70, pH: 7.5, ec: 3.0, n: 38, p: 23, k: 28, batteryVoltage: 5.3 }, status: 'Off' },
-        { number: 20, type: 'sensor', x: 34, y: 63.5, data: { temperature: 44, soilMoisture: 75, pH: 7.6, ec: 3.1, n: 39, p: 24, k: 29, batteryVoltage: 5.4 }, status: 'Off' },
+        { number: 1, type: 'sensor', x: 13, y: 30, data: { temperature: 25, soilMoisture: 60, pH: 6.8, ec: 1.2, n: 20, p: 5, k: 10, batteryVoltage: 3.5 }, status: 'Off' },
+        { number: 2, type: 'sensor', x: 17, y: 30, data: { temperature: 26, soilMoisture: 65, pH: 6.7, ec: 1.3, n: 21, p: 6, k: 11, batteryVoltage: 3.6 }, status: 'Off' },
+        { number: 3, type: 'sensor', x: 21.6, y: 30, data: { temperature: 27, soilMoisture: 70, pH: 6.9, ec: 1.4, n: 22, p: 7, k: 12, batteryVoltage: 3.7 }, status: 'Off' },
+        { number: 4, type: 'sensor', x: 26, y: 30, data: { temperature: 28, soilMoisture: 75, pH: 7.0, ec: 1.5, n: 23, p: 8, k: 13, batteryVoltage: 3.8 }, status: 'Off' },
+        { number: 5, type: 'sensor', x: 31, y: 30, data: { temperature: 29, soilMoisture: 80, pH: 7.1, ec: 1.6, n: 24, p: 9, k: 14, batteryVoltage: 3.9 }, status: 'Off' },
+        { number: 6, type: 'sensor', x: 13, y: 40, data: { temperature: 30, soilMoisture: 85, pH: 7.2, ec: 1.7, n: 25, p: 10, k: 15, batteryVoltage: 4.0 }, status: 'Off' },
+        { number: 7, type: 'sensor', x: 17, y: 40, data: { temperature: 31, soilMoisture: 90, pH: 7.3, ec: 1.8, n: 26, p: 11, k: 16, batteryVoltage: 4.1 }, status: 'Off' },
+        { number: 8, type: 'sensor', x: 21.5, y: 40, data: { temperature: 32, soilMoisture: 95, pH: 7.4, ec: 1.9, n: 27, p: 12, k: 17, batteryVoltage: 4.2 }, status: 'Off' },
+        { number: 9, type: 'sensor', x: 26, y: 40, data: { temperature: 33, soilMoisture: 60, pH: 6.5, ec: 2.0, n: 28, p: 13, k: 18, batteryVoltage: 4.3 }, status: 'Off' },
+        { number: 10, type: 'sensor', x: 31, y: 40, data: { temperature: 34, soilMoisture: 65, pH: 6.6, ec: 2.1, n: 29, p: 14, k: 19, batteryVoltage: 4.4 }, status: 'Off' },
+        { number: 11, type: 'sensor', x: 13, y: 50, data: { temperature: 35, soilMoisture: 70, pH: 6.7, ec: 2.2, n: 30, p: 15, k: 20, batteryVoltage: 4.5 }, status: 'Off' },
+        { number: 12, type: 'sensor', x: 17, y: 50, data: { temperature: 36, soilMoisture: 75, pH: 6.8, ec: 2.3, n: 31, p: 16, k: 21, batteryVoltage: 4.6 }, status: 'Off' },
+        { number: 13, type: 'sensor', x: 21.6, y: 50, data: { temperature: 37, soilMoisture: 80, pH: 6.9, ec: 2.4, n: 32, p: 17, k: 22, batteryVoltage: 4.7 }, status: 'Off' },
+        { number: 14, type: 'sensor', x: 26, y: 50, data: { temperature: 38, soilMoisture: 85, pH: 7.0, ec: 2.5, n: 33, p: 18, k: 23, batteryVoltage: 4.8 }, status: 'Off' },
+        { number: 15, type: 'sensor', x: 31, y: 50, data: { temperature: 39, soilMoisture: 90, pH: 7.1, ec: 2.6, n: 34, p: 19, k: 24, batteryVoltage: 4.9 }, status: 'Off' },
+        { number: 16, type: 'sensor', x: 13, y: 60, data: { temperature: 40, soilMoisture: 95, pH: 7.2, ec: 2.7, n: 35, p: 20, k: 25, batteryVoltage: 5.0 }, status: 'Off' },
+        { number: 17, type: 'sensor', x: 17, y: 60, data: { temperature: 41, soilMoisture: 60, pH: 7.3, ec: 2.8, n: 36, p: 21, k: 26, batteryVoltage: 5.1 }, status: 'Off' },
       ],
       hoveredIndex: null,
       tooltipX: 0,
@@ -322,25 +319,25 @@ export default {
         { time: '1:00 PM', duration: 20 }
       ],
       icons: [
-        { x: 84.5, y: 47.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
-        { x: 88, y: 48, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
-        { x: 91, y: 50.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
-        { x: 88, y: 57.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
-        { x: 83, y: 66, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
-        { x: 82.5, y: 52, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
-        { x: 72, y: 62, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
-        { x: 72, y: 74, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
-        { x: 65.3, y: 76, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
-        { x: 28.5, y: 68, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
-        { x: 18.5, y: 74, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
-        { x: 18, y: 54, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
-        { x: 8.6, y: 74, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
-        { x: 9.4, y: 55.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
-        { x: 4.5, y: 49, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
-        { x: 19.5, y: 42.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
-        { x: 34, y: 43.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
-        { x: 53, y: 43, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
-        { x: 71.5, y: 43, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
+        { x: 91.5, y: 25.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
+        { x: 95, y: 23, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
+        { x: 97, y: 30.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
+        { x: 95, y: 38.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
+        { x: 89, y: 51, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
+        { x: 88.5, y: 33, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
+        { x: 77, y: 46, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
+        { x: 77, y: 63, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
+        { x: 69.3, y: 64, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
+        { x: 28.5, y: 54, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
+        { x: 17.5, y: 34, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
+        { x: 18, y: 59, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
+        { x: 6.6, y: 63, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
+        { x: 7.4, y: 35.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
+        { x: 1.5, y: 32, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
+        { x: 19.5, y: 14.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
+        { x: 34, y: 17.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
+        { x: 56, y: 18, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
+        { x: 74.5, y: 18, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
       ],
       sensors: [],
       isAllOn1: false, // Track if "ALL ON 1" is active or not
@@ -406,25 +403,25 @@ export default {
 
         // Include the Solenoid Valves and other static relation points
         const solenoidValves = [
-          { label: '2', type: 'Valve', x: 68, y: 47, status: 'Off' },
-          { label: '1', type: 'Valve', x: 48, y: 58, status: 'Off' },
-          { label: '19', type: 'Valve', x: 61.3, y: 21, status: 'Off' },
-          { label: '3', type: 'Valve', x: 72.5, y: 47, status: 'Off' },
-          { label: '4', type: 'Valve', x: 77, y: 47, status: 'Off' },
-          { label: '5', type: 'Valve', x: 81.7, y: 47, status: 'Off' },
-          { label: '6', type: 'Valve', x: 86.5, y: 47, status: 'Off' },
-          { label: '7', type: 'Valve', x: 68, y: 55, status: 'Off' },
-          { label: '8', type: 'Valve', x: 72.5, y: 55, status: 'Off' },
-          { label: '9', type: 'Valve', x: 77, y: 55, status: 'Off' },
-          { label: '10', type: 'Valve', x: 81.7, y: 55, status: 'Off' },
-          { label: '11', type: 'Valve', x: 86.5, y: 55, status: 'Off' },
-          { label: '12', type: 'Valve', x: 68, y: 62.5, status: 'Off' },
-          { label: '13', type: 'Valve', x: 72.6, y: 62.5, status: 'Off' },
-          { label: '14', type: 'Valve', x: 77.3, y: 62.5, status: 'Off' },
-          { label: '15', type: 'Valve', x: 81.9, y: 62.5, status: 'Off' },
-          { label: '16', type: 'Valve', x: 86.7, y: 62.5, status: 'Off' },
-          { label: '17', type: 'Valve', x: 68, y: 70, status: 'Off' },
-          { label: '18', type: 'Valve', x: 72.7, y: 70, status: 'Off' },
+          { label: '2', type: 'Valve', x: 73.6, y: 41, status: 'Off' },
+          { label: '1', type: 'Valve', x: 51, y: 53, status: 'Off' },
+          { label: '19', type: 'Valve', x: 62.3, y: 19, status: 'Off' },
+          { label: '3', type: 'Valve', x: 77, y: 41, status: 'Off' },
+          { label: '4', type: 'Valve', x: 81, y: 41, status: 'Off' },
+          { label: '5', type: 'Valve', x: 84.5, y: 41, status: 'Off' },
+          { label: '6', type: 'Valve', x: 88.5, y: 41, status: 'Off' },
+          { label: '7', type: 'Valve', x: 73.6, y: 53, status: 'Off' },
+          { label: '8', type: 'Valve', x: 77, y: 53, status: 'Off' },
+          { label: '9', type: 'Valve', x: 81, y: 53, status: 'Off' },
+          { label: '10', type: 'Valve', x: 84.5, y: 53, status: 'Off' },
+          { label: '11', type: 'Valve', x: 88.5, y: 53, status: 'Off' },
+          { label: '12', type: 'Valve', x: 73.6, y: 64.5, status: 'Off' },
+          { label: '13', type: 'Valve', x: 77, y: 64.5, status: 'Off' },
+          { label: '14', type: 'Valve', x: 81, y: 64.5, status: 'Off' },
+          { label: '15', type: 'Valve', x: 84.5, y: 64.5, status: 'Off' },
+          { label: '16', type: 'Valve', x: 88.5, y: 64.5, status: 'Off' },
+          { label: '17', type: 'Valve', x: 73.6, y: 76, status: 'Off' },
+          { label: '18', type: 'Valve', x: 77, y: 76, status: 'Off' },
         ];
 
         const additionalPoints = [
@@ -778,14 +775,17 @@ h2 {
 }
 
 .relation-point {
-  padding: 5px;
-  border-radius: 50%;
+  padding: 21px;
+  /* border-radius: 50%; */
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  /* background-color: grey; */
   font-weight: bold;
   position: relative;
+  /* visibility: hidden; */
+  color: transparent;
 }
 
 .point-number {
@@ -797,6 +797,7 @@ h2 {
   font-size: 0.6rem;
   white-space: pre-line;
   text-align: center;
+  visibility: hidden;
 }
 
 .point-label-break {

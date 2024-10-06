@@ -11,14 +11,12 @@
             <div class="col-md-1">
               <div class="people-counter-info">
                 <div class="male-counter-box">
-                  <h5>Male Toilet Counter</h5>
-                  <p>In: {{ icons[1].periodIn }}</p>
-                  <p>Out: {{ icons[1].periodOut }}</p>
+                  <h5>Occupancy (Male Toilet)</h5>
+                  <p>{{ icons[1].periodIn - icons[1].periodOut}} Pax</p>
                 </div>
                 <div class="female-counter-box">
-                  <h5>Female Toilet Counter</h5>
-                  <p>In: {{ icons[0].periodIn }}</p>
-                  <p>Out: {{ icons[0].periodOut }}</p>
+                  <h5>Occupancy (Female Toilet)</h5>
+                  <p>{{ icons[0].periodIn - icons[0].periodOut}} Pax</p>
                 </div>
               </div>
             </div>
@@ -178,7 +176,7 @@ export default {
       // Send a notification and store it in the state and local storage
       const timestamp = new Date().toLocaleString();
       const alert = { message, timestamp };
-      
+
       // Add the alert to the notifications array
       this.notifications.push(alert);
 
@@ -392,8 +390,8 @@ h2 {
   cursor: pointer;
 }
 
-.modal-title{
-  color:black;
+.modal-title {
+  color: black;
 }
 
 .map-container {
@@ -408,23 +406,27 @@ h2 {
 
 /* Container for people counters placed on the left side */
 .people-counter-info {
-  margin-right: 10px; /* Space between the counter boxes and the floorplan */
+  margin-right: 10px;
+  /* Space between the counter boxes and the floorplan */
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.male-counter-box, .female-counter-box {
+.male-counter-box,
+.female-counter-box {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 10px;
   border-radius: 5px;
   color: white;
   text-align: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  width: 150px; /* Adjust the width as needed */
+  width: 150px;
+  /* Adjust the width as needed */
 }
 
-.male-counter-box h5, .female-counter-box h5 {
+.male-counter-box h5,
+.female-counter-box h5 {
   margin-bottom: 10px;
   font-weight: bold;
 }
@@ -475,6 +477,4 @@ h2 {
   white-space: nowrap;
   font-size: 18px;
 }
-
-
 </style>

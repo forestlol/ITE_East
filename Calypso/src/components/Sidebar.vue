@@ -10,7 +10,7 @@
         <li class="nav-item">
           <router-link class="nav-link" to="/" exact>
             <i :class="['fas', 'fa-home', { 'active-icon': $route.path === '/' }]"></i>
-            <span class="nav-text">Overview</span>
+            <span class="nav-text">Home</span>
           </router-link>
         </li>
         <li class="nav-item">

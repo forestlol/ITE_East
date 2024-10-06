@@ -100,8 +100,8 @@
         </div>
 
         <!-- Fan controls positioned below the floorplan -->
-        <div class="fan-controls-below">
-          <div class="fan-controls-bottom-left">
+        <div class="fan-controls-below" v-if="selectedBoxId === 1 || selectedBoxId === 2">
+          <div class="fan-controls-bottom-left" v-if="selectedBoxId === 1 || selectedBoxId === 2">
             <div v-for="fan in fans.slice(0, 1)" :key="fan.id" class="fan-control">
               <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
               <label class="slider-container">
@@ -111,7 +111,7 @@
             </div>
           </div>
 
-          <div class="fan-controls-bottom-right">
+          <div class="fan-controls-bottom-right" v-if="selectedBoxId === 1 || selectedBoxId === 2">
             <div v-for="fan in fans.slice(1, 2)" :key="fan.id" class="fan-control">
               <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
               <label class="slider-container">
@@ -450,7 +450,7 @@ export default {
 }
 
 .modal-content {
-  background: linear-gradient(to top, #09203f 0%, #ADD8E6 100%);
+  background: linear-gradient(to top, #09203f 10%, #00008B 100%);
   padding: 20px;
   border-radius: 10px;
   width: 40%;
@@ -568,7 +568,8 @@ export default {
 .floorplan-container {
   position: relative;
   width: 100%;
-  margin-bottom: 20px; /* Adds spacing between the image and the controls */
+  margin-bottom: 20px;
+  /* Adds spacing between the image and the controls */
 }
 
 .fan-controls-below {

@@ -194,8 +194,7 @@ export default {
                 { top: '51%', left: '45.5%', name: 'Zone 4', isOnline: false, deviceEUI: '0004ED0100001704' }  // Initially ON
             ],
             toggleDevices: [
-                { name: 'MDU 3', isOnline: false, deviceEUI: '24E124756E049153', top: '41%', left: '57%' },  // Initially ON
-                { name: 'MDU 4', isOnline: false, deviceEUI: '24E124756E049154', top: '25%', left: '63%' },  // Initially ON
+                { name: 'MDU 4', isOnline: false, deviceEUI: '24E124756E049153', top: '55%', left: '64%' },  // Initially ON
                 { name: 'FCU 2-1', isOnline: false, airconIndex: 1, top: '69%', left: '42%' },               // Initially ON
                 { name: 'FCU 2-2', isOnline: false, airconIndex: 2, top: '69%', left: '56%' }                // Initially ON
             ],

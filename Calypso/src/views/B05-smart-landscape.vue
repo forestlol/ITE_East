@@ -2,45 +2,40 @@
     <div class="container">
         <h2 class="text-center mb-4">SMART LANDSCAPE [B05]</h2>
 
-        <!-- First Row: Sensor Data and ALL ON Control Panel -->
+        <!-- Sensor Data Section with Dropdown -->
         <div class="row">
-            <!-- Sensor Data Section -->
-            <div class="col-lg-6 section-container">
-                <h3 class="section-title">Sensor Data</h3>
-                <div class="sensor-grid">
-                    <div class="sensor-box" v-for="(sensor, key) in sensorData" :key="key">
-                        <p><b>{{ key.toUpperCase() }}:</b></p>
-                        <p>{{ sensor }} {{ getUnit(key) }}</p>
-                        <div class="face-indicator">
-                            <i :class="getFaceClass(sensor, key)" class="face-icon"></i>
-                        </div>
-                    </div>
+            <!-- Dropdown on the Left -->
+            <div class="col-lg-3 section-container">
+                <h3 class="section-title">Select Sensor</h3>
+
+                <!-- Sensor Dropdown -->
+                <div class="dropdown-section">
+                    <select v-model="selectedSensorIndex" class="form-select" @change="updateSelectedSensor">
+                        <option v-for="(sensor, index) in sensorData" :key="sensor.devEUI" :value="index">
+                            Planter Pot {{ index + 1 }}
+                        </option>
+                    </select>
                 </div>
             </div>
 
-            <!-- ALL ON Control Panel Section (with Main and Dosage Pumps) -->
+            <!-- Sensor Data Display on the Right -->
             <div class="col-lg-6 section-container">
-                <h3 class="section-title">Control Panel (ALL ON)</h3>
-                <div class="console-box">
-                    <!-- ALL ON/OFF Toggle -->
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="allValvesToggle" v-model="areAllValvesOn" @change="toggleAllValves">
-                        <label for="allValvesToggle">{{ areAllValvesOn ? 'ALL VALVES OFF' : 'ALL VALVES ON' }}</label>
-                    </div>
+                <h3 class="section-title">Planter Pot Data</h3>
 
-                    <!-- Main Pump and Dosage Pump Toggles -->
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="mainPumpToggle" v-model="isMainPumpOn" @change="toggleMainPump">
-                        <label for="mainPumpToggle">Main Pump (Valve 1)</label>
-                    </div>
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn"
-                            @change="toggleDosagePump">
-                        <label for="dosagePumpToggle">Dosage Pump (Valve 19)</label>
-                    </div>
+                <!-- Display Sensor Data -->
+                <div class="sensor-box">
+                    <p><b>Temperature:</b> {{ currentSensor.Temperature }} °C</p>
+                    <p><b>Soil Moisture:</b> {{ currentSensor.SoilMoisture }} %</p>
+                    <p><b>pH Level:</b> {{ currentSensor.pH }}</p>
+                    <p><b>Electrical Conductivity (EC):</b> {{ currentSensor.EC }} µS/cm</p>
+                    <p><b>Nitrogen:</b> {{ currentSensor.N }} ppm</p>
+                    <p><b>Phosphorus:</b> {{ currentSensor.P }} ppm</p>
+                    <p><b>Potassium:</b> {{ currentSensor.K }} ppm</p>
+                    <p><b>Battery Voltage:</b> {{ currentSensor.BatteryVoltage }} V</p>
                 </div>
             </div>
         </div>
+
 
         <!-- Second Row: Room Layout and Main Control Panel -->
         <div class="row mt-4">
@@ -61,9 +56,27 @@
                     </div>
                 </div>
             </div>
-
             <!-- Control Panel Section for Individual Valves and Pumps -->
             <div class="col-lg-4 section-container">
+                <h3 class="section-title">Control Panel (ALL ON)</h3>
+                <div class="console-box">
+                    <!-- ALL ON/OFF Toggle -->
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="allValvesToggle" v-model="areAllValvesOn" @change="toggleAllValves">
+                        <label for="allValvesToggle">{{ areAllValvesOn ? 'ALL VALVES OFF' : 'ALL VALVES ON' }}</label>
+                    </div>
+
+                    <!-- Main Pump and Dosage Pump Toggles -->
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="mainPumpToggle" v-model="isMainPumpOn" @change="toggleMainPump">
+                        <label for="mainPumpToggle">Main Pump (Valve 1)</label>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="dosagePumpToggle" v-model="isDosagePumpOn"
+                            @change="toggleDosagePump">
+                        <label for="dosagePumpToggle">Dosage Pump (Valve 19)</label>
+                    </div>
+                </div>
                 <h3 class="section-title">Control Panel (Individual)</h3>
                 <div class="console-box">
                     <!-- Planter Pots Valves -->
@@ -111,38 +124,33 @@ import planterPotIcon from '@/assets/planter-pot-icon.png';
 export default {
     data() {
         return {
-
-            sensorData: {
-                co2: null,
-                temperature: null,
-                humidity: null,
-                pm2_5: null,
-                pm10: null
-            },
+            selectedSensorIndex: 0,  // This will store the index of the selected sensor
+            currentSensor: {},  // This will store the data of the selected sensor
+            sensorData: [],  // This will store all 17 sensors' data
             isMainPumpOn: false,
             areAllValvesOn: false,
             isDosagePumpOn: false,
             floorplanImage: require('@/assets/Sub System and Icons/V2/smart Landscape system_full.png'),
             icons: [
-                { x: 84.5, y: 49.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
-                { x: 88, y: 50, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
-                { x: 91, y: 52.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
-                { x: 88, y: 59.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
-                { x: 83, y: 68, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
-                { x: 82.5, y: 54, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
-                { x: 72, y: 64, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
-                { x: 72, y: 76, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
-                { x: 65.3, y: 78, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
-                { x: 28.5, y: 70, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
-                { x: 18.5, y: 76, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
-                { x: 18, y: 56, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
-                { x: 8.6, y: 76, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
-                { x: 9.4, y: 57.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
-                { x: 4.5, y: 51, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
-                { x: 19.5, y: 44.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
-                { x: 34, y: 45.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
-                { x: 53, y: 45, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
-                { x: 71.5, y: 45, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
+                { x: 91.5, y: 25.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
+                { x: 95, y: 23, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
+                { x: 97, y: 30.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
+                { x: 95, y: 38.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
+                { x: 89, y: 51, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
+                { x: 88.5, y: 33, src: planterPotIcon, name: 'Planter Pot 4', switchNumber: 5, isOn: false },
+                { x: 77, y: 46, src: planterPotIcon, name: 'Planter Pot 5', switchNumber: 6, isOn: false },
+                { x: 77, y: 63, src: planterPotIcon, name: 'Planter Pot 6', switchNumber: 7, isOn: false },
+                { x: 69.3, y: 64, src: planterPotIcon, name: 'Planter Pot 7', switchNumber: 8, isOn: false },
+                { x: 28.5, y: 59, src: planterPotIcon, name: 'Planter Pot 8', switchNumber: 9, isOn: false },
+                { x: 17.5, y: 34, src: planterPotIcon, name: 'Planter Pot 9', switchNumber: 10, isOn: false },
+                { x: 18, y: 59, src: planterPotIcon, name: 'Planter Pot 10', switchNumber: 11, isOn: false },
+                { x: 6.6, y: 63, src: planterPotIcon, name: 'Planter Pot 11', switchNumber: 12, isOn: false },
+                { x: 7.4, y: 42.3, src: planterPotIcon, name: 'Planter Pot 12', switchNumber: 13, isOn: false },
+                { x: 1.5, y: 40, src: planterPotIcon, name: 'Planter Pot 13', switchNumber: 14, isOn: false },
+                { x: 19.5, y: 22.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
+                { x: 34, y: 22.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
+                { x: 56, y: 22, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
+                { x: 74.5, y: 22, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
             ],
             showIconModal: false,
             activeIcon: null,
@@ -153,6 +161,56 @@ export default {
         };
     },
     methods: {
+        updateSelectedSensor() {
+            this.currentSensor = this.sensorData[this.selectedSensorIndex];
+        },
+
+        async fetchSensorData() {
+            try {
+                const response = await axios.get("https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/outdoor");
+                const data = response.data;
+
+                // Storing relevant sensor data into the sensorData array
+                let originalSensorData = [
+                    data['aaaa202406140017'],
+                    data['aaaa202406140009'],
+                    data['aaaa202406140005'],
+                    data['aaaa202406140006'],
+                    data['aaaa202406140007'],
+                    data['aaaa202406140008'],
+                    data['aaaa202406140010'],
+                    data['aaaa202406140011'],
+                    data['aaaa202406140012'],
+                    data['aaaa202406140015'],
+                    data['aaaa202406140004'],
+                    data['aaaa202406140001'],
+                    data['aaaa202406140002'],
+                ];
+
+                // Randomly duplicate 4 sensors from the original 13 to make it 17
+                const randomIndexes = [];
+                while (randomIndexes.length < 4) {
+                    const randomIndex = Math.floor(Math.random() * originalSensorData.length);
+                    if (!randomIndexes.includes(randomIndex)) {
+                        randomIndexes.push(randomIndex);
+                    }
+                }
+
+                // Duplicating the randomly selected sensors
+                const duplicatedSensors = randomIndexes.map(index => originalSensorData[index]);
+
+                // Combine original sensor data with duplicated sensors
+                this.sensorData = [...originalSensorData, ...duplicatedSensors];
+
+                // Set the first sensor data as the default on load
+                this.currentSensor = this.sensorData[0];
+
+                console.log("Final sensorData array:", this.sensorData); // For debugging
+
+            } catch (error) {
+                console.error("Error fetching sensor data:", error);
+            }
+        },
         getUnit(key) {
             const units = {
                 co2: 'ppm',
@@ -203,19 +261,6 @@ export default {
             if (deviceEUI === '24e124756e049564') return this.switchStatesOutdoor1;
             else if (deviceEUI === '24e124756e049516') return this.switchStatesOutdoor2;
             else return this.switchStatesOutdoor3;
-        },
-        async fetchSensorData() {
-            try {
-                const response = await axios.get("https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ");
-                const data = response.data["24e124710d481996"];
-                this.sensorData.co2 = data.co2;
-                this.sensorData.temperature = data.temperature;
-                this.sensorData.humidity = data.humidity;
-                this.sensorData.pm2_5 = data.pm2_5;
-                this.sensorData.pm10 = data.pm10;
-            } catch (error) {
-                console.error("Error fetching sensor data:", error);
-            }
         },
         async sendSwitchCommand(deviceEUI, switchStates) {
             const url = `https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558`;
