@@ -181,7 +181,7 @@ export default {
     // Function to create and start a Hyperbeam session
     async startHyperbeamSession() {
       try {
-        const response = await axios.post('http://localhost:3000/create-session');
+        const response = await axios.post('https://cctv.rshare.io/create-session');
         const embedUrl = response.data.embed_url;
 
         // Dynamically set iframe source
