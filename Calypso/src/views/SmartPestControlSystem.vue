@@ -127,6 +127,7 @@ export default {
   computed: {
     isBothSensorsClosed() {
       return this.magneticSensors.every(sensor => sensor.magnet_status === '1');
+      //push
     }
   },
   methods: {
