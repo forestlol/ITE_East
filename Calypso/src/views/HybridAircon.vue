@@ -156,8 +156,8 @@ export default {
         { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
       ],
       sensors: [
-        { id: 1, top: '40%', left: '44%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 3', isOnline: false },
-        { id: 2, top: '53%', left: '80%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MDU 4', isOnline: false },
+        { id: 1, top: '40%', left: '44%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MCD 3', isOnline: false },
+        { id: 2, top: '53%', left: '80%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MCD 4', isOnline: false },
       ],
       airconBoxes: [
         { top: '66%', left: '39%', name: 'FCU 1-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/1' },
@@ -266,9 +266,9 @@ export default {
 
       // Map the aircon to the corresponding MDU that needs to be turned off
       if (airconId === 'FCU 1-1' || airconId === 'FCU 1-2') {
-        mduId = 'MDU 1';  // Example MDU for FCU 1
+        mduId = 'MCD 1';  // Example MDU for FCU 1
       } else if (airconId === 'FCU 2-1' || airconId === 'FCU 2-2') {
-        mduId = 'MDU 2';  // Example MDU for FCU 2
+        mduId = 'MCD 2';  // Example MDU for FCU 2
       }
 
       const mdu = this.sensors.find(sensor => sensor.name === mduId);
@@ -285,9 +285,9 @@ export default {
 
       // Map the aircon to the corresponding MDU that needs to be turned on
       if (airconId === 'FCU 1-1' || airconId === 'FCU 1-2') {
-        mduId = 'MDU 1';  // Example MDU for FCU 1
+        mduId = 'MCD 1';  // Example MDU for FCU 1
       } else if (airconId === 'FCU 2-1' || airconId === 'FCU 2-2') {
-        mduId = 'MDU 2';  // Example MDU for FCU 2
+        mduId = 'MCD 2';  // Example MDU for FCU 2
       }
 
       const mdu = this.sensors.find(sensor => sensor.name === mduId);

@@ -483,10 +483,12 @@ h2 {
 
 .online {
   background-color: green;
+  border: solid white 0.5px;
 }
 
 .offline {
   background-color: red;
+  border: solid white 0.5px;
 }
 
 .modal-overlay {
@@ -650,14 +652,6 @@ input:checked+.slider:before {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-}
-
-.online {
-  background-color: green;
-}
-
-.offline {
-  background-color: red;
 }
 
 .sensor-control-container {

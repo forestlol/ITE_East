@@ -135,7 +135,6 @@
                     <p>Nitrogen (N): {{ point.data.n }} mg/L</p>
                     <p>Phosphorus (P): {{ point.data.p }} mg/L</p>
                     <p>Potassium (K): {{ point.data.k }} mg/L</p>
-                    <p>Battery Voltage: {{ point.data.batteryVoltage }} V</p>
                   </template>
                 </span>
               </div>
@@ -163,7 +162,6 @@
                 <p><strong>Nitrogen (N):</strong> {{ sensor.data.n }} mg/L</p>
                 <p><strong>Phosphorus (P):</strong> {{ sensor.data.p }} mg/L</p>
                 <p><strong>Potassium (K):</strong> {{ sensor.data.k }} mg/L</p>
-                <p><strong>Battery Voltage:</strong> {{ sensor.data.batteryVoltage }} V</p>
               </div>
             </div>
           </div>
@@ -865,10 +863,12 @@ h2 {
 
 .online {
   background-color: green;
+  border: solid white 0.5px;
 }
 
 .offline {
   background-color: red;
+  border: solid white 0.5px;
 }
 
 .device-status-card {

@@ -194,7 +194,7 @@ export default {
                 { top: '51%', left: '45.5%', name: 'Zone 4', isOnline: false, deviceEUI: '0004ED0100001704' }  // Initially ON
             ],
             toggleDevices: [
-                { name: 'MDU 4', isOnline: false, deviceEUI: '24E124756E049153', top: '55%', left: '64%' },  // Initially ON
+                { name: 'MCD 4', isOnline: false, deviceEUI: '24E124756E049153', top: '55%', left: '64%' },  // Initially ON
                 { name: 'FCU 2-1', isOnline: false, airconIndex: 1, top: '69%', left: '42%' },               // Initially ON
                 { name: 'FCU 2-2', isOnline: false, airconIndex: 2, top: '69%', left: '56%' }                // Initially ON
             ],
@@ -300,7 +300,7 @@ export default {
             console.log('Toggling all MDUs');
             this.isTogglingMDU = true;  // Disable the toggle switch for MDUs
 
-            const devices = this.toggleDevices.filter(device => device.name.startsWith('MDU'));
+            const devices = this.toggleDevices.filter(device => device.name.startsWith('MCD'));
             const newState = this.allOnMDU;  // Determine new state (should only affect MDUs)
 
             try {
@@ -334,7 +334,7 @@ export default {
             if (device.name.startsWith('FCU')) {
                 // Toggle aircon state for FCU
                 await this.sendAirconState(!device.isOnline, device.airconIndex);
-            } else if (device.name.startsWith('MDU')) {
+            } else if (device.name.startsWith('MCD')) {
                 // Toggle MDU sensor state
                 await this.toggleSensor(device, !device.isOnline);
             }
