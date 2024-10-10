@@ -6,10 +6,8 @@
         <div class="relation-section">
           <h4>Livecam</h4>
           <div class="sensor-detection-diagram position-relative" style="height:88%">
-            <!-- Hyperbeam Session Button -->
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="startHyperbeamSession">Start
-              Hyperbeam Session</button>
-            <iframe id="hyperbeamIframe" allow="autoplay" style="border: 0; width:100%; height:100%" src=""></iframe>
+            <iframe v-if="isBothSensorsClosed" id="hyperbeamIframe" allow="autoplay"
+              style="border: 0; width:100%; height:100%" src=""></iframe>
           </div>
         </div>
       </div>
@@ -126,6 +124,11 @@ export default {
       displayedCondition: '',
     };
   },
+  computed: {
+    isBothSensorsClosed() {
+      return this.magneticSensors.every(sensor => sensor.magnet_status === '1');
+    }
+  },
   methods: {
     async fetchMagneticSensorData() {
       try {
@@ -146,6 +149,11 @@ export default {
             showInfo: false
           }
         ];
+
+        // If both sensors are closed, automatically start Hyperbeam session
+        if (this.isBothSensorsClosed) {
+          this.startHyperbeamSession();
+        }
       } catch (error) {
         console.error('Error fetching magnetic sensor data:', error);
       }
@@ -172,7 +180,7 @@ export default {
     // Function to create and start a Hyperbeam session
     async startHyperbeamSession() {
       try {
-        const response = await axios.post('https://cctv.rshare.io/create-session');
+        const response = await axios.post('http://localhost:3000/create-session');
         const embedUrl = response.data.embed_url;
 
         // Dynamically set iframe source
@@ -238,7 +246,8 @@ h2 {
   cursor: pointer;
   width: 24px;
   height: 24px;
-  background-color: transparent; /* No icon, but clickable area remains */
+  background-color: transparent;
+  /* No icon, but clickable area remains */
 }
 
 .sensor-info {
