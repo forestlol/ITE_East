@@ -179,6 +179,7 @@ export default {
       sensor.showInfo = false;
     },
     // Function to create and start a Hyperbeam session
+    // Update the Axios POST request to point to the actual server
     async startHyperbeamSession() {
       try {
         const response = await axios.post('https://cctv.rshare.io/create-session');

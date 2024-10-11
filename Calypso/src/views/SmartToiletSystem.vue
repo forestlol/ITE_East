@@ -6,21 +6,28 @@
         <div class="map-section position-relative">
           <h4>B05 Toilet</h4>
 
-          <!-- Info boxes for Male and Female people counters outside the floorplan -->
+          <!-- Row to display occupancy info (4 parts) and floorplan (8 parts) side by side -->
           <div class="row">
-            <div class="col-md-1">
+            <!-- Occupancy Info section (4 parts) -->
+            <div class="col-md-2">
               <div class="people-counter-info">
                 <div class="male-counter-box">
                   <h5>Occupancy (Male Toilet)</h5>
-                  <p>{{ icons[1].periodIn - icons[1].periodOut}} Pax</p>
+                  <p>{{ icons[1].periodIn - icons[1].periodOut }} Pax</p>
                 </div>
-                <div class="female-counter-box">
+                <div class="female-counter-box mt-4">
                   <h5>Occupancy (Female Toilet)</h5>
-                  <p>{{ icons[0].periodIn - icons[0].periodOut}} Pax</p>
+                  <p>{{ icons[0].periodIn - icons[0].periodOut }} Pax</p>
+                </div>
+                <div class="female-counter-box mt-4">
+                  <h5>Water Flow Measurement</h5>
+                  <p>-</p>
                 </div>
               </div>
             </div>
-            <div class="col-md-11">
+
+            <!-- Floorplan section (8 parts) -->
+            <div class="col-md-10">
               <div class="map-container">
                 <img src="@/assets/Sub System and Icons/V2/smart washroom_full1.png" alt="Map View" class="map-image">
                 <!-- Multiple Icons on the Floorplan -->
@@ -52,6 +59,14 @@
                   <button @click="openThresholdModal" class="btn btn-primary">Set Threshold</button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Chart section below the floorplan -->
+          <div class="row mt-4">
+            <div class="col-md-12 chart-container">
+              <h5>Daily Water Consumption</h5>
+              <canvas id="waterChart" style="max-height: 400px;"></canvas> <!-- Set max height -->
             </div>
           </div>
         </div>
@@ -94,11 +109,25 @@
 </template>
 
 
+
 <script>
 import axios from 'axios';
 import peopleCounterIcon from '@/assets/peopleCounter.png';
 import odorIcon from '@/assets/Odor.png';
 import waterMeterIcon from '@/assets/water-meter-sensor.png';
+import {
+  Chart,
+  BarController,
+  LineController,
+  BarElement,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 export default {
   name: 'SmartWashroomSystem',
@@ -217,16 +246,81 @@ export default {
       console.log('Threshold saved:', this.threshold);
       this.closeThresholdModal();
     },
-    navigateTo3DLandscape() {
-      window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=92';
-    },
     getStoredAlerts() {
       return JSON.parse(localStorage.getItem('alerts')) || [];
     },
+    generateChart() {
+      Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+
+      const ctx = document.getElementById('waterChart').getContext('2d');
+      const last7DaysData = [0, 0, 0, 0, 0, 0, 0]; // Example data
+      const differences = last7DaysData.map((value, index, array) => (index === 0 ? 0 : value - array[index - 1]));
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+          datasets: [
+            {
+              label: 'Water Consumption (liters)',
+              data: last7DaysData,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+              type: 'bar',
+              yAxisID: 'y' // Assign to the left Y-axis
+            },
+            {
+              label: 'Difference Between Days',
+              data: differences,
+              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderWidth: 2,
+              fill: false,
+              type: 'line',
+              yAxisID: 'differenceAxis' // Assign to the right Y-axis
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Liters', color: 'white' },
+              ticks: { color: 'white' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            differenceAxis: {
+              position: 'right',
+              beginAtZero: true,
+              title: { display: true, text: 'Difference (Liters)', color: 'white' },
+              ticks: { color: 'white' },
+              grid: { drawOnChartArea: false } // Ensure grid lines don't overlap
+            },
+            x: {
+              title: { display: true, text: 'Days', color: 'white' },
+              ticks: { color: 'white' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: 'white' } },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              titleColor: 'white',
+              bodyColor: 'white'
+            }
+          }
+        }
+      });
+    }
   },
   mounted() {
     this.fetchData();
-  },
+    this.generateChart(); // Ensure chart is generated after DOM update
+  }
 };
 </script>
 
@@ -286,7 +380,6 @@ h2 {
   visibility: hidden;
 }
 
-
 /* Tooltip for Sensor Value */
 .value-tooltip {
   position: absolute;
@@ -304,21 +397,6 @@ h2 {
   position: absolute;
   bottom: 30px;
   right: 10px;
-}
-
-.link-button {
-  display: flex;
-  justify-content: center;
-  /* Center horizontally */
-  align-items: center;
-  /* Center vertically */
-  margin-top: 20px;
-}
-
-.link-button .btn {
-  padding: 10px 20px;
-  font-size: 1.25rem;
-  text-align: center;
 }
 
 /* Pulsating Ring */
@@ -429,52 +507,5 @@ h2 {
 .female-counter-box h5 {
   margin-bottom: 10px;
   font-weight: bold;
-}
-
-.map-section {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  height: 100%;
-}
-
-.map-container {
-  overflow: hidden;
-  height: 100%;
-  position: relative;
-  cursor: default;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Other existing styles */
-.map-image {
-  width: 100%;
-  height: auto;
-}
-
-.icon-container {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-  z-index: 1000;
-}
-
-/* Tooltip for Sensor Value */
-.value-tooltip {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 5px;
-  border-radius: 5px;
-  white-space: nowrap;
-  font-size: 18px;
 }
 </style>

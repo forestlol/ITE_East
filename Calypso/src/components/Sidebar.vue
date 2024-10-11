@@ -3,7 +3,8 @@
     <div class="sidebar" :class="{ 'expanded': isExpanded }">
       <div class="sidebar-header">
         <router-link to="/">
-          <img src="@/assets/ITE_LOGO.png" alt="ITE Logo" class="logo-image">
+          <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/ITE_LOGO.png"
+            alt="ITE Logo" class="logo-image">
         </router-link>
       </div>
       <ul class="sidebar-nav">
@@ -77,6 +78,11 @@
           </router-link>
         </li>
       </ul>
+
+      <!-- Cavill Logo at the bottom -->
+      <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/cavill logo.png"
+        alt="Cavill Logo" class="cavill-logo">
+
       <button class="toggle-button" @click="toggleSidebar">
         <i :class="isExpanded ? 'fas fa-angle-left' : 'fas fa-angle-right'"></i>
       </button>
@@ -209,12 +215,17 @@ export default {
 }
 
 .sidebar-header {
-  padding: 20px;
   display: flex;
   justify-content: center;
-  color: white;
-  /* White text */
+  align-items: center;
+  height: 85px;
+  /* Adjust this value as per your sidebar's height */
+  width: 100%;
+  /* Make sure it takes full width */
+  flex-direction: column;
+  /* Ensure content is stacked vertically */
 }
+
 
 .sidebar-nav {
   list-style: none;
@@ -314,7 +325,7 @@ export default {
   border: none;
   cursor: pointer;
   margin-top: auto;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 10px;
   color: white;
   /* White text */
@@ -437,22 +448,49 @@ export default {
   /* Darker hover effect */
 }
 
-.sidebar-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 150px;
-  /* Adjust as per your sidebar height */
-  width: 100%;
-  /* Make sure it takes full width */
+.logo-image {
+  transition: all 0.3s ease;
 }
 
-.logo-image {
-  max-width: 50%;
+/* Sidebar and other styles remain unchanged */
+
+.cavill-logo {
+  position: absolute;
+  bottom: 60px;
+  /* Place it just above the collapse button */
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.3s ease;
+}
+
+.collapsed-logo {
+  max-width: 40px;
+  /* Smaller size when collapsed */
   height: auto;
-  object-fit: contain;
+  margin: 0 auto;
   display: block;
 }
+
+.expanded-logo {
+  max-width: 45px;
+  /* Full size when expanded */
+  height: auto;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  bottom: 10px;
+  /* Collapse button at the bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  color: white;
+}
+
+
 
 
 .app-container {

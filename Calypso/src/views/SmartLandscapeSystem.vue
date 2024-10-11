@@ -317,8 +317,8 @@ export default {
         { time: '1:00 PM', duration: 20 }
       ],
       icons: [
-        { x: 91.5, y: 25.6, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
-        { x: 95, y: 23, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
+        { x: 91, y: 21, src: mainPumpIcon, name: 'Main Pump', switchNumber: 1, isOn: false },
+        { x: 87.5, y: 16.6, src: dosagePumpIcon, name: 'Dosage Pump', switchNumber: 19, isOn: false },
         { x: 97, y: 30.5, src: planterPotIcon, name: 'Planter Pot 1', switchNumber: 2, isOn: false },
         { x: 95, y: 38.5, src: planterPotIcon, name: 'Planter Pot 2', switchNumber: 3, isOn: false },
         { x: 89, y: 51, src: planterPotIcon, name: 'Planter Pot 3', switchNumber: 4, isOn: false },
@@ -335,7 +335,7 @@ export default {
         { x: 19.5, y: 14.5, src: planterPotIcon, name: 'Planter Pot 14', switchNumber: 15, isOn: false },
         { x: 34, y: 17.3, src: planterPotIcon, name: 'Planter Pot 15', switchNumber: 16, isOn: false },
         { x: 56, y: 18, src: planterPotIcon, name: 'Planter Pot 16', switchNumber: 17, isOn: false },
-        { x: 74.5, y: 18, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
+        { x: 76.5, y: 18, src: planterPotIcon, name: 'Planter Pot 17', switchNumber: 18, isOn: false },
       ],
       sensors: [],
       isAllOn1: false, // Track if "ALL ON 1" is active or not
@@ -401,25 +401,25 @@ export default {
 
         // Include the Solenoid Valves and other static relation points
         const solenoidValves = [
-          { label: '2', type: 'Valve', x: 73.6, y: 41, status: 'Off' },
           { label: '1', type: 'Valve', x: 51, y: 53, status: 'Off' },
+          { label: '2', type: 'Valve', x: 72.6, y: 41, status: 'Off' },
+          { label: '3', type: 'Valve', x: 76, y: 41, status: 'Off' },
+          { label: '4', type: 'Valve', x: 79.7, y: 41, status: 'Off' },
+          { label: '5', type: 'Valve', x: 83.5, y: 41, status: 'Off' },
+          { label: '6', type: 'Valve', x: 86.9, y: 41, status: 'Off' },
+          { label: '7', type: 'Valve', x: 72.6, y: 53, status: 'Off' },
+          { label: '8', type: 'Valve', x: 76, y: 53, status: 'Off' },
+          { label: '9', type: 'Valve', x: 79.7, y: 53, status: 'Off' },
+          { label: '10', type: 'Valve', x: 83.5, y: 53, status: 'Off' },
+          { label: '11', type: 'Valve', x: 86.9, y: 53, status: 'Off' },
+          { label: '12', type: 'Valve', x: 72.6, y: 63, status: 'Off' },
+          { label: '13', type: 'Valve', x: 76, y: 63, status: 'Off' },
+          { label: '14', type: 'Valve', x: 79.7, y: 63, status: 'Off' },
+          { label: '15', type: 'Valve', x: 83.5, y: 63, status: 'Off' },
+          { label: '16', type: 'Valve', x: 86.9, y: 63, status: 'Off' },
+          { label: '17', type: 'Valve', x: 72.6, y: 73.5, status: 'Off' },
+          { label: '18', type: 'Valve', x: 76, y: 73.5, status: 'Off' },
           { label: '19', type: 'Valve', x: 62.3, y: 19, status: 'Off' },
-          { label: '3', type: 'Valve', x: 77, y: 41, status: 'Off' },
-          { label: '4', type: 'Valve', x: 81, y: 41, status: 'Off' },
-          { label: '5', type: 'Valve', x: 84.5, y: 41, status: 'Off' },
-          { label: '6', type: 'Valve', x: 88.5, y: 41, status: 'Off' },
-          { label: '7', type: 'Valve', x: 73.6, y: 53, status: 'Off' },
-          { label: '8', type: 'Valve', x: 77, y: 53, status: 'Off' },
-          { label: '9', type: 'Valve', x: 81, y: 53, status: 'Off' },
-          { label: '10', type: 'Valve', x: 84.5, y: 53, status: 'Off' },
-          { label: '11', type: 'Valve', x: 88.5, y: 53, status: 'Off' },
-          { label: '12', type: 'Valve', x: 73.6, y: 64.5, status: 'Off' },
-          { label: '13', type: 'Valve', x: 77, y: 64.5, status: 'Off' },
-          { label: '14', type: 'Valve', x: 81, y: 64.5, status: 'Off' },
-          { label: '15', type: 'Valve', x: 84.5, y: 64.5, status: 'Off' },
-          { label: '16', type: 'Valve', x: 88.5, y: 64.5, status: 'Off' },
-          { label: '17', type: 'Valve', x: 73.6, y: 76, status: 'Off' },
-          { label: '18', type: 'Valve', x: 77, y: 76, status: 'Off' },
         ];
 
         const additionalPoints = [

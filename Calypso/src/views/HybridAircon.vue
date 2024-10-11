@@ -156,8 +156,8 @@ export default {
         { id: 6, name: 'Motorized Dampener', type: 'Motorized Dampener', isOnline: true, lastUpdated: '2024-05-29 14:30:00' },
       ],
       sensors: [
-        { id: 1, top: '40%', left: '44%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MCD 3', isOnline: false },
-        { id: 2, top: '53%', left: '80%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MCD 4', isOnline: false },
+        { id: 1, top: '42%', left: '45%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MCD 3', isOnline: false },
+        { id: 2, top: '55%', left: '81.2%', type: 'dampener', deviceEUI: '24E124756E049153', name: 'MCD 4', isOnline: false },
       ],
       airconBoxes: [
         { top: '66%', left: '39%', name: 'FCU 1-1', isOnline: false, apiUrl: 'https://aircon.rshare.io/aircon/read/1' },
