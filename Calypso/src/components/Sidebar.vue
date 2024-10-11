@@ -218,12 +218,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 85px;
-  /* Adjust this value as per your sidebar's height */
+  height: 60px;
   width: 100%;
-  /* Make sure it takes full width */
   flex-direction: column;
-  /* Ensure content is stacked vertically */
+  margin: 14px;
 }
 
 
@@ -448,18 +446,23 @@ export default {
   /* Darker hover effect */
 }
 
+/* Styles for the ITE logo */
 .logo-image {
+  width: 60px; /* Set ITE logo to 60px */
+  height: auto;
   transition: all 0.3s ease;
 }
 
 /* Sidebar and other styles remain unchanged */
-
+/* Styles for the Cavill logo */
 .cavill-logo {
   position: absolute;
   bottom: 60px;
   /* Place it just above the collapse button */
   left: 50%;
   transform: translateX(-50%);
+  width: 40px; /* Set Cavill logo to 45px */
+  height: auto;
   transition: all 0.3s ease;
 }
 
@@ -472,8 +475,7 @@ export default {
 }
 
 .expanded-logo {
-  max-width: 45px;
-  /* Full size when expanded */
+  max-width: 80px; /* Full size when expanded */
   height: auto;
 }
 
@@ -489,9 +491,6 @@ export default {
   padding: 10px;
   color: white;
 }
-
-
-
 
 .app-container {
   display: flex;
