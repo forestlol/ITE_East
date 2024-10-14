@@ -36,7 +36,7 @@
         <li class="nav-item">
           <router-link class="nav-link" to="/smart-toilet-system">
             <i :class="['fas', 'fa-toilet', { 'active-icon': $route.path === '/smart-toilet-system' }]"></i>
-            <span class="nav-text">Smart Toilet System</span>
+            <span class="nav-text">Smart Wash Room System</span>
           </router-link>
         </li>
         <li class="nav-item">
