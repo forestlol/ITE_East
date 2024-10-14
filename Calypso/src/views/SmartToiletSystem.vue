@@ -4,8 +4,6 @@
     <div class="row justify-content-center">
       <div class="col-md-8">
         <div class="map-section position-relative">
-          <h4>B05 Toilet</h4>
-
           <!-- Row to display occupancy info (4 parts) and floorplan (8 parts) side by side -->
           <div class="row">
             <!-- Occupancy Info section (4 parts) -->
