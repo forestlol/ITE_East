@@ -73,7 +73,7 @@
                       <input type="checkbox" :checked="allAirconOn" @change="toggleAllAircons" ref="airconCheckbox">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ allAirconOn ? 'All Aircons Closed' : 'All Aircons Open' }}</span>
+                    <span>{{ allAirconOn ? 'All Aircons ON' : 'All Aircons OFF' }}</span>
                   </div>
 
                   <div class="slider-control">
@@ -81,7 +81,7 @@
                       <input type="checkbox" v-model="allDampenerOn" @change="toggleAllDampeners">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ allDampenerOn ? 'All Dampeners Closed' : 'All Dampeners Open' }}</span>
+                    <span>{{ allDampenerOn ? 'All Dampeners OPEN' : 'All Dampeners CLOSED' }}</span>
                   </div>
                 </div>
 
@@ -93,7 +93,7 @@
                         @change="sendAirconState($event.target.checked, aircon.name)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'Closed' : 'Open' }}</span>
+                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'ON' : 'OFF' }}</span>
                   </div>
 
                   <!-- MDU 3 -->
@@ -102,7 +102,7 @@
                       <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'Closed' : 'Open' }}</span>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'OPEN' : 'CLOSED' }}</span>
                   </div>
 
                   <!-- FCU 2-1 and FCU 2-2 -->
@@ -112,7 +112,7 @@
                         @change="sendAirconState($event.target.checked, aircon.name)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'Closed' : 'Open' }}</span>
+                    <span>{{ aircon.name }} {{ aircon.isOnline ? 'ON' : 'OFF' }}</span>
                   </div>
 
                   <!-- MDU 4 -->
@@ -121,7 +121,7 @@
                       <input type="checkbox" v-model="sensor.isOnline" @change="toggleSensor(sensor)">
                       <span class="slider round"></span>
                     </label>
-                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'Closed' : 'Open' }}</span>
+                    <span>{{ sensor.name }} {{ sensor.isOnline ? 'OPEN' : 'CLOSED' }}</span>
                   </div>
                 </div>
 

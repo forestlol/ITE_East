@@ -103,7 +103,7 @@
         <div class="fan-controls-below" v-if="selectedBoxId === 1 || selectedBoxId === 2">
           <div class="fan-controls-bottom-left" v-if="selectedBoxId === 1 || selectedBoxId === 2">
             <div v-for="fan in fans.slice(0, 1)" :key="fan.id" class="fan-control">
-              <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
+              <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'ON' : 'OFF' }}</p>
               <label class="slider-container">
                 <input type="checkbox" v-model="fan.isOn" @change="sendFanCommand(fan, fan.isOn)">
                 <span class="slider round"></span>
@@ -113,7 +113,7 @@
 
           <div class="fan-controls-bottom-right" v-if="selectedBoxId === 1 || selectedBoxId === 2">
             <div v-for="fan in fans.slice(1, 2)" :key="fan.id" class="fan-control">
-              <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'On' : 'Off' }}</p>
+              <p><b>{{ fan.name }}</b> - {{ fan.isOn ? 'ON' : 'OFF' }}</p>
               <label class="slider-container">
                 <input type="checkbox" v-model="fan.isOn" @change="sendFanCommand(fan, fan.isOn)">
                 <span class="slider round"></span>

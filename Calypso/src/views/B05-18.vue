@@ -43,6 +43,13 @@
                             <i :class="getFaceClass(sensorData.pm10, 'pm10')" class="face-icon"></i>
                         </div>
                     </div>
+
+                    <!-- Button to open new window -->
+                    <div class="button-box">
+                        <button class="btn btn-primary float-right" @click="openPopupWindow">Best
+                            Guidelines</button>
+                    </div>
+
                 </div>
             </div>
 
@@ -88,6 +95,163 @@ export default {
         };
     },
     methods: {
+        openPopupWindow() {
+            // Open a new window with specific dimensions
+            const newWindow = window.open('', '_blank', 'width=800,height=500');
+            newWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Best Guidelines</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          h3, h4 {
+            color: #333;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #f2f2f2;
+          }
+          .note {
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #555;
+            margin-top: -10px;
+          }
+        </style>
+      </head>
+      <body>
+        <h3>Best Guidelines</h3>
+        <div>
+          <h4>Table 1: Guideline Maximum Concentration for Specific Indoor Air Contaminants</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameters</th>
+                <th>Average Time</th>
+                <th>Limit for Acceptance</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Carbon dioxide</td>
+                <td>8 hours</td>
+                <td>1800 / 1000</td>
+                <td>mg/m3 / ppm</td>
+              </tr>
+              <tr>
+                <td>Carbon monoxide</td>
+                <td>8 hours</td>
+                <td>10 / 9</td>
+                <td>mg/m3 / ppm</td>
+              </tr>
+              <tr>
+                <td>Formaldehyde</td>
+                <td>8 hours</td>
+                <td>120 / 0.1</td>
+                <td>mg/m3 / ppm</td>
+              </tr>
+              <tr>
+                <td>Ozone</td>
+                <td>8 hours</td>
+                <td>100 / 0.05</td>
+                <td>mg/m3 / ppm</td>
+              </tr>
+              <!-- Additional row to show the ppm information -->
+              <tr>
+                <td colspan="4" class="note">ppm – part per million (measurement of concentration) 1 ppm = 1 mg/l</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Table 2: Recommended Maximum Concentrations for Specific Classes of Contaminants</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameters</th>
+                <th>Limit for Acceptable Indoor Air Quality</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Suspended particulate matter*</td>
+                <td>150</td>
+                <td>mg/m3 / ppm</td>
+              </tr>
+              <tr>
+                <td>Volatile organic compounds</td>
+                <td>3</td>
+                <td>ppm</td>
+              </tr>
+              <tr>
+                <td>Total bacteria counts</td>
+                <td>500</td>
+                <td>CFU**/m3</td>
+              </tr>
+              <tr>
+                <td>Total fungal counts</td>
+                <td>500</td>
+                <td>CFU/m3</td>
+              </tr>
+              <!-- Footnote for Table 2 -->
+              <tr>
+                <td colspan="3" class="note">* Respirable particles with aerodynamic diameters less than 10 μm.<br>** Colony-forming units</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Table 3: Guideline Values for Specific Physical Parameters</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameters</th>
+                <th>Range for Acceptable Indoor Air Quality</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Air temperature</td>
+                <td>22.5 - 25.5</td>
+                <td>°C</td>
+              </tr>
+              <tr>
+                <td>Relative humidity</td>
+                <td>&lt; 70</td>
+                <td>%</td>
+              </tr>
+              <tr>
+                <td>Air movement*</td>
+                <td>&lt; 0.25</td>
+                <td>m/s</td>
+              </tr>
+              <!-- Footnote for Table 3 -->
+              <tr>
+                <td colspan="3" class="note">* At workstation within occupied zone.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </body>
+      </html>
+    `);
+        },
         async fetchSensorData() {
             try {
                 const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
@@ -306,6 +470,7 @@ export default {
 }
 
 @media (min-width: 1400px) {
+
     .container,
     .container-lg,
     .container-md,
@@ -314,5 +479,12 @@ export default {
     .container-xxl {
         max-width: 99%;
     }
+}
+
+.button-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 }
 </style>
