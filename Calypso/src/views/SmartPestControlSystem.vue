@@ -23,7 +23,7 @@
               @mouseover="showSensorInfo(sensor)" @mouseleave="hideSensorInfo(sensor)">
               <div class="sensor-info" v-if="sensor.showInfo">
                 <h5>Magnetic Sensor</h5>
-                <p>Status: {{ sensor.magnet_status === '1' ? 'Closed' : 'Open' }}</p>
+                <p>Status: {{ sensor.magnet_status === '1' ? 'Open' : 'Closed' }}</p>
               </div>
             </div>
 
@@ -122,11 +122,12 @@ export default {
       ],
       selectedCondition: '',
       displayedCondition: '',
+      hyperbeamSessionStarted: false, // New flag to track if Hyperbeam session is started
     };
   },
   computed: {
     isBothSensorsClosed() {
-      return this.magneticSensors.every(sensor => sensor.magnet_status === '1');
+      return this.magneticSensors.every(sensor => sensor.magnet_status === '0');
       //push
     }
   },
@@ -151,9 +152,13 @@ export default {
           }
         ];
 
-        // If both sensors are closed, automatically start Hyperbeam session
+        // If both sensors are closed, check if the session has already started
         if (this.isBothSensorsClosed) {
-          this.startHyperbeamSession();
+          if (!this.hyperbeamSessionStarted) {
+            this.startHyperbeamSession(); // Start session only if not already started
+          } else {
+            console.log('Hyperbeam session is already running.');
+          }
         }
       } catch (error) {
         console.error('Error fetching magnetic sensor data:', error);
@@ -187,13 +192,22 @@ export default {
 
         // Dynamically set iframe source
         document.getElementById('hyperbeamIframe').src = embedUrl;
+        // Mark the session as started
+        this.hyperbeamSessionStarted = true;
       } catch (error) {
         console.error('Error starting Hyperbeam session:', error);
       }
     },
+    startDataRefresh() {
+      setInterval(async () => {
+        await this.fetchMagneticSensorData();
+        console.log('refreshing magnetic sensor data...');
+      }, 30000); // Refresh data every 30 seconds
+    },
   },
   mounted() {
     this.fetchMagneticSensorData();
+    this.startDataRefresh();
 
     if (this.conditions.length > 0) {
       this.selectedCondition = this.conditions[0];
