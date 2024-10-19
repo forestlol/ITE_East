@@ -192,7 +192,7 @@ export default {
 
         const response = await axios.get(`https://api.github.com/gists/${savedGistId}`, {
           headers: {
-            Authorization: `Bearer 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`, // Access token from .env
+            Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Access token from .env
           },
         });
 
@@ -255,7 +255,7 @@ export default {
             },
             {
               headers: {
-                Authorization: `Bearer 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`, // Replace with your token
+                Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Replace with your token
               },
             }
           );
