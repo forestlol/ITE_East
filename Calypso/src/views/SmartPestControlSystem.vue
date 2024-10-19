@@ -181,7 +181,6 @@ export default {
       }
     },
     // Function to check if there is an existing session
-    // Function to check if there is an existing session
     async checkExistingSession() {
       try {
         const savedGistId = sessionStorage.getItem('gistId');
@@ -193,7 +192,7 @@ export default {
 
         const response = await axios.get(`https://api.github.com/gists/${savedGistId}`, {
           headers: {
-            Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Access token from .env
+            Authorization: `Bearer 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`, // Access token from .env
           },
         });
 
@@ -256,7 +255,7 @@ export default {
             },
             {
               headers: {
-                Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Replace with your token
+                Authorization: `Bearer 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`, // Replace with your token
               },
             }
           );
