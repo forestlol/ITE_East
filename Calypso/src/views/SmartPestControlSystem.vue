@@ -167,9 +167,33 @@ export default {
           // No valid session found, manually start a new session when the button is clicked
           await this.startNewSession();
         }
+        // Start the timer from 2 hours (7200000 milliseconds)
+        this.startCountdown(2 * 60 * 60 * 1000); // Start countdown for 2 hours
       } catch (error) {
         console.error('Error starting or resuming session:', error);
       }
+    },
+    // Start the countdown timer
+    startCountdown(duration) {
+      let remainingTime = duration;
+
+      const countdownInterval = setInterval(() => {
+        if (remainingTime <= 0) {
+          clearInterval(countdownInterval);
+          this.timer = 'Session Expired';
+          this.sessionActive = false; // Session inactive when expired
+        } else {
+          const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+          const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+          // Display the countdown time in the format hh:mm:ss
+          this.timer = `${hours}h ${minutes}m ${seconds}s remaining`;
+
+          // Subtract 1 second (1000 milliseconds) from remaining time
+          remainingTime -= 1000;
+        }
+      }, 1000); // Update every second
     },
     embedHyperbeamIframe(embedUrl) {
       const iframe = document.getElementById('hyperbeamIframe');
