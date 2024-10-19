@@ -255,7 +255,7 @@ export default {
             },
             {
               headers: {
-                Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Replace with your token
+                Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Access token from .env
               },
             }
           );
