@@ -6,7 +6,20 @@
         <div class="relation-section">
           <h4>Livecam</h4>
           <div class="sensor-detection-diagram position-relative" style="height:88%">
-            <iframe v-if="isBothSensorsClosed" id="hyperbeamIframe" allow="autoplay"
+            <!-- Button to create or resume session -->
+            <button @click="startOrResumeSession" :disabled="sessionActive"
+              class="btn btn-primary mb-3 floating-livecam-button">
+              <span v-if="sessionActive">Session Active: {{ timer }}</span>
+              <span v-else>Start or Resume Session</span>
+            </button>
+
+            <!-- Show message if session has not started yet -->
+            <div v-if="!hyperbeamSessionStarted" class="no-session-text">
+              Session has not started yet.
+            </div>
+
+            <!-- Display iframe only after session has started -->
+            <iframe v-if="hyperbeamSessionStarted" id="hyperbeamIframe" allow="autoplay"
               style="border: 0; width:100%; height:100%" src=""></iframe>
           </div>
         </div>
@@ -26,8 +39,6 @@
                 <p>Status: {{ sensor.magnet_status === '1' ? 'Open' : 'Closed' }}</p>
               </div>
             </div>
-
-
           </div>
         </div>
       </div>
@@ -123,6 +134,11 @@ export default {
       selectedCondition: '',
       displayedCondition: '',
       hyperbeamSessionStarted: false, // New flag to track if Hyperbeam session is started
+      sessionActive: false,           // Flag to indicate if a session is active
+      timer: '',                      // Holds the timer display string
+      sessionDuration: 2 * 60 * 60 * 1000, // 2 hours in milliseconds
+      sessionStarted: false,
+
     };
   },
   computed: {
@@ -132,11 +148,160 @@ export default {
     }
   },
   methods: {
+    // Function to manually start a session (either resume or new)
+    async startOrResumeSession() {
+      try {
+        const session = await this.checkExistingSession();
+
+        if (session && this.isSessionValid(session.timestamp)) {
+          // If a valid session exists, resume it
+          console.log('Resuming existing session');
+          this.sessionActive = true;
+          this.hyperbeamSessionStarted = true;
+
+          // Resume the session using the existing embedUrl
+          this.$nextTick(() => {
+            this.startHyperbeamSession(session.embedUrl);
+          });
+        } else {
+          // No valid session found, manually start a new session when the button is clicked
+          await this.startNewSession();
+        }
+      } catch (error) {
+        console.error('Error starting or resuming session:', error);
+      }
+    },
+    embedHyperbeamIframe(embedUrl) {
+      const iframe = document.getElementById('hyperbeamIframe');
+      if (iframe) {
+        iframe.src = embedUrl;  // Set the session URL to the iframe src
+        console.log('Hyperbeam session started or resumed:', embedUrl);
+      } else {
+        console.error('Unable to find the iframe.');
+      }
+    },
+    // Function to check if there is an existing session
+    // Function to check if there is an existing session
+    async checkExistingSession() {
+      try {
+        const savedGistId = sessionStorage.getItem('gistId');
+
+        if (!savedGistId) {
+          console.log('No Gist ID found. No existing session.');
+          return null;
+        }
+
+        const response = await axios.get(`https://api.github.com/gists/${savedGistId}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Access token from .env
+          },
+        });
+
+        const content = response.data.files['session.txt'].content;
+        const [embedUrl, timestamp] = content.split('\n');
+        this.hyperbeamSessionStarted = true;
+        console.log('Existing session found:', { embedUrl, timestamp });
+
+        const parsedTimestamp = parseInt(timestamp, 10);
+        this.updateTimer(parsedTimestamp); // Update the timer display for existing session
+
+        return { embedUrl, timestamp: parsedTimestamp };
+      } catch (error) {
+        console.error('Error checking existing session:', error);
+        return null;
+      }
+    },
+
+    // Function to start a new session when the user clicks the button
+    async startNewSession() {
+      try {
+        console.log('Creating a new session');
+        const hyperbeamResponse = await axios.post('https://cctv.rshare.io/create-session');
+        const embedUrl = hyperbeamResponse.data.embed_url;
+        const timestamp = new Date().getTime();
+
+        // Store the session details
+        await this.storeSessionData(embedUrl, timestamp);
+
+        // Mark session as started and active
+        this.sessionActive = true;
+        this.hyperbeamSessionStarted = true;
+
+        // Set the iframe src with the new session URL
+        this.$nextTick(() => {
+          this.startHyperbeamSession(embedUrl);
+        });
+      } catch (error) {
+        console.error('Error starting a new session:', error);
+      }
+    },
+
+    // Function to store session data (gist)
+    async storeSessionData(embedUrl, timestamp) {
+      try {
+        const savedGistId = sessionStorage.getItem('gistId');
+
+        // If there's no saved Gist ID, create a new one
+        if (!savedGistId) {
+          const gistResponse = await axios.post(
+            'https://api.github.com/gists',
+            {
+              description: 'Session Start Status',
+              public: false,
+              files: {
+                'session.txt': {
+                  content: `${embedUrl}\n${timestamp}`,
+                },
+              },
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${process.env.VUE_APP_GITHUB_TOKEN}`, // Replace with your token
+              },
+            }
+          );
+
+          const newGistId = gistResponse.data.id;
+          sessionStorage.setItem('gistId', newGistId);
+          console.log('New Gist ID stored in sessionStorage:', newGistId);
+        } else {
+          console.log('Valid session already exists, no need to update.');
+        }
+      } catch (error) {
+        console.error('Error storing session data:', error);
+      }
+    },
+
+    isSessionValid(timestamp) {
+      const currentTime = new Date().getTime();
+      return currentTime - timestamp < this.sessionDuration;
+    },
+
+    updateTimer(storedTimestamp) {
+      const interval = setInterval(() => {
+        const currentTime = new Date().getTime(); // Get the current time
+        const elapsedTime = currentTime - storedTimestamp; // Calculate how much time has passed since the session started
+        const remainingTime = this.sessionDuration - elapsedTime; // Subtract elapsed time from total session duration
+
+        if (remainingTime <= 0) {
+          clearInterval(interval);
+          this.timer = 'Session Expired'; // Display session expired message
+          this.sessionActive = false; // Mark session as inactive
+        } else {
+          const hours = Math.floor(remainingTime / 3600000); // Convert remaining time to hours
+          const minutes = Math.floor((remainingTime % 3600000) / 60000); // Convert remaining time to minutes
+          const seconds = Math.floor((remainingTime % 60000) / 1000); // Convert remaining time to seconds
+          this.timer = `${hours}h ${minutes}m ${seconds}s remaining`; // Update the timer display
+        }
+      }, 1000); // Update the timer every second
+    },
+
     async fetchMagneticSensorData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/Magnetic');
         const data = response.data;
 
+        // Update magnetic sensor positions and statuses
         this.magneticSensors = [
           {
             ...data['24e124141e151801'],
@@ -152,13 +317,21 @@ export default {
           }
         ];
 
-        // If both sensors are closed, check if the session has already started
+        this.updateDeviceStatuses(); // Update device statuses based on sensor data
+
+        // Check if both sensors are closed and session is not yet started
         if (this.isBothSensorsClosed) {
-          if (!this.hyperbeamSessionStarted) {
-            this.startHyperbeamSession(); // Start session only if not already started
+          if (this.hyperbeamSessionStarted && !this.sessionStarted) {
+            // If session has not started, start the session
+            console.log('Starting Hyperbeam session for the first time.');
+            this.startHyperbeamSession();
+            this.sessionStarted = true;
           } else {
-            console.log('Hyperbeam session is already running.');
+            // If session is already running, log a message
+            console.log('Hyperbeam session is already running. No need to start again.');
           }
+        } else {
+          console.log('Sensors are not closed. Session will not start.');
         }
       } catch (error) {
         console.error('Error fetching magnetic sensor data:', error);
@@ -185,17 +358,54 @@ export default {
     },
     // Function to create and start a Hyperbeam session
     // Update the Axios POST request to point to the actual server
-    async startHyperbeamSession() {
+    async startHyperbeamSession(embedUrl = null) {
       try {
-        const response = await axios.post('https://cctv.rshare.io/create-session');
-        const embedUrl = response.data.embed_url;
+        // If no embedUrl is provided, create a new session
+        if (!embedUrl) {
+          const response = await axios.post('https://cctv.rshare.io/create-session');
+          embedUrl = response.data.embed_url;
+          const timestamp = new Date().getTime();
 
-        // Dynamically set iframe source
-        document.getElementById('hyperbeamIframe').src = embedUrl;
-        // Mark the session as started
-        this.hyperbeamSessionStarted = true;
+          // Store the session details in Gist (only for new sessions)
+          await this.storeSessionData(embedUrl, timestamp);
+
+          // Update the session timer and mark session as active
+          this.sessionActive = true;
+          this.hyperbeamSessionStarted = true;
+        }
+
+        // Dynamically set iframe source after session starts or resumes
+        this.$nextTick(() => {
+          const iframe = document.getElementById('hyperbeamIframe');
+          if (iframe) {
+            iframe.src = embedUrl;  // Set the session URL to the iframe src
+            console.log('Hyperbeam session started or resumed:', embedUrl);
+          } else {
+            console.error('Unable to find the iframe.');
+          }
+        });
       } catch (error) {
-        console.error('Error starting Hyperbeam session:', error);
+        console.error('Error starting or resuming session:', error);
+      }
+    },
+    updateDeviceStatuses() {
+      // If both magnetic sensors are open
+      if (this.magneticSensors.every(sensor => sensor.magnet_status === '1')) {
+        // Update relevant devices to "Not Activated"
+        this.devices = this.devices.map(device => {
+          if (device.name === 'Magnetic Lock' || device.name === 'Camera' || device.name === 'Rat Trap') {
+            return { ...device, status: 'Not Activated' };
+          }
+          return device; // Keep PIR Sensor unchanged
+        });
+      } else if (this.magneticSensors.some(sensor => sensor.magnet_status === '0')) {
+        // If at least one magnetic sensor is closed
+        this.devices = this.devices.map(device => {
+          if (device.name === 'Magnetic Lock' || device.name === 'Camera' || device.name === 'Rat Trap') {
+            return { ...device, status: 'Activated' };
+          }
+          return device; // Keep PIR Sensor unchanged
+        });
       }
     },
     startDataRefresh() {
@@ -203,9 +413,10 @@ export default {
         await this.fetchMagneticSensorData();
         console.log('refreshing magnetic sensor data...');
       }, 30000); // Refresh data every 30 seconds
-    },
+    }
   },
   mounted() {
+    this.checkExistingSession();
     this.fetchMagneticSensorData();
     this.startDataRefresh();
 
@@ -362,5 +573,32 @@ h2 {
 
 .condition-input {
   margin-bottom: 10px;
+}
+
+.no-livecam-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: red;
+  text-align: center;
+}
+
+.no-session-text {
+  font-size: 1.5rem;
+  color: red;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.floating-livecam-button {
+  position: absolute;
+  bottom: 10px;
+  /* Distance from the bottom of the livecam div */
+  right: 10px;
+  /* Distance from the right of the livecam div */
+  z-index: 10;
+  /* Make sure it is above other content inside the livecam div */
 }
 </style>
