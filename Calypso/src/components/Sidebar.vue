@@ -80,9 +80,14 @@
         </li> -->
       </ul>
 
-      <!-- Cavill Logo at the bottom -->
-      <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/cavill logo.png"
-        alt="Cavill Logo" class="cavill-logo">
+      <div class="logo-container">
+        <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/cavill_logo.png"
+          alt="Cavill Logo" class="logo-image">
+          <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/willowglen_logo.jpg"
+          alt="Willowglen Logo" class="logo-image">
+      </div>
+
+
 
       <button class="toggle-button" @click="toggleSidebar">
         <i :class="isExpanded ? 'fas fa-angle-left' : 'fas fa-angle-right'"></i>
@@ -449,7 +454,8 @@ export default {
 
 /* Styles for the ITE logo */
 .logo-image {
-  width: 60px; /* Set ITE logo to 60px */
+  width: 60px;
+  /* Set ITE logo to 60px */
   height: auto;
   transition: all 0.3s ease;
 }
@@ -462,7 +468,8 @@ export default {
   /* Place it just above the collapse button */
   left: 50%;
   transform: translateX(-50%);
-  width: 40px; /* Set Cavill logo to 45px */
+  width: 40px;
+  /* Set Cavill logo to 45px */
   height: auto;
   transition: all 0.3s ease;
 }
@@ -476,7 +483,8 @@ export default {
 }
 
 .expanded-logo {
-  max-width: 80px; /* Full size when expanded */
+  max-width: 80px;
+  /* Full size when expanded */
   height: auto;
 }
 
@@ -497,4 +505,67 @@ export default {
   display: flex;
   background: linear-gradient(to right, #0d47a1, #1565c0);
 }
+
+/* Adjusted logo-container styles */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  /* Centers logos horizontally */
+  align-items: center;
+  /* Centers logos vertically */
+  gap: 20px;
+  /* Space between logos */
+  width: 100%;
+  /* Use full width of the container */
+  position: absolute;
+  bottom: 60px;
+  /* Adjust this value if needed */
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.3s ease;
+}
+
+/* Ensure both logos have the same style */
+.logo-image {
+  width: 40px;
+  /* Adjust the size as needed */
+  height: auto;
+  transition: all 0.3s ease;
+  object-fit: contain;
+  /* Ensures image fits nicely */
+}
+
+/* Adjust the logo-container when the sidebar is collapsed */
+.sidebar:not(.expanded) .logo-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Align logos towards the bottom */
+  align-items: center;
+  height: 100%; /* Take the full height of the sidebar */
+  padding-bottom: 20px; /* Adjust padding to position the top logo correctly */
+  position: relative;
+  gap: 15px; /* Gap between the top and bottom logos */
+}
+
+/* Adjust the logo when the sidebar is collapsed */
+.sidebar:not(.expanded) .logo-image {
+  margin: 0;
+  align-self: center;
+  width: 40px; /* Ensure consistent size */
+}
+
+
+/* Adjust logo-container when sidebar is expanded */
+.sidebar.expanded .logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  position: absolute;
+  bottom: 60px; /* Place them above the collapse button */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+}
+
 </style>
