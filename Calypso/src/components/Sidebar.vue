@@ -83,8 +83,9 @@
       <div class="logo-container">
         <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/cavill_logo.png"
           alt="Cavill Logo" class="logo-image">
-          <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/willowglen_logo.jpg"
-          alt="Willowglen Logo" class="logo-image">
+        <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded, 'willowglen-logo': true }"
+          src="@/assets/willowglen_logo.png" alt="Willowglen Logo" class="logo-image">
+
       </div>
 
 
@@ -539,19 +540,24 @@ export default {
 .sidebar:not(.expanded) .logo-container {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* Align logos towards the bottom */
+  justify-content: flex-end;
+  /* Align logos towards the bottom */
   align-items: center;
-  height: 100%; /* Take the full height of the sidebar */
-  padding-bottom: 20px; /* Adjust padding to position the top logo correctly */
+  height: 100%;
+  /* Take the full height of the sidebar */
+  padding-bottom: 20px;
+  /* Adjust padding to position the top logo correctly */
   position: relative;
-  gap: 15px; /* Gap between the top and bottom logos */
+  gap: 15px;
+  /* Gap between the top and bottom logos */
 }
 
 /* Adjust the logo when the sidebar is collapsed */
 .sidebar:not(.expanded) .logo-image {
   margin: 0;
   align-self: center;
-  width: 40px; /* Ensure consistent size */
+  width: 40px;
+  /* Ensure consistent size */
 }
 
 
@@ -562,10 +568,32 @@ export default {
   align-items: center;
   gap: 20px;
   position: absolute;
-  bottom: 60px; /* Place them above the collapse button */
+  bottom: 60px;
+  /* Place them above the collapse button */
   left: 50%;
   transform: translateX(-50%);
   width: auto;
 }
 
+/* Style for the Willowglen logo to make it bigger */
+.willowglen-logo {
+  width: 100px;
+  /* Increase size as needed */
+  max-width: 100px;
+  /* Adjust maximum size as needed */
+  height: auto;
+  transition: all 0.3s ease;
+}
+
+/* When sidebar is collapsed */
+.sidebar:not(.expanded) .willowglen-logo {
+  width: 55px;
+  /* Adjust size when collapsed */
+}
+
+/* When sidebar is expanded */
+.sidebar.expanded .willowglen-logo {
+  width: 100px;
+  /* Adjust size when expanded */
+}
 </style>
