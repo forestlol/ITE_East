@@ -84,7 +84,7 @@
         <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded }" src="@/assets/cavill_logo.png"
           alt="Cavill Logo" class="logo-image">
         <img :class="{ 'collapsed-logo': !isExpanded, 'expanded-logo': isExpanded, 'willowglen-logo': true }"
-          src="@/assets/willowglen_logo.png" alt="Willowglen Logo" class="logo-image">
+          src="@/assets/willowglen_logo.jpg" alt="Willowglen Logo" class="logo-image">
 
       </div>
 
