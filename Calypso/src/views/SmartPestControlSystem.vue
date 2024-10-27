@@ -4,14 +4,19 @@
     <div class="row">
       <div class="col-md-6">
         <div class="relation-section">
-          <h4>Livecam</h4>
-          <div class="sensor-detection-diagram position-relative" style="height:88%">
-            <!-- Button to create or resume session -->
-            <button @click="startOrResumeSession" :disabled="sessionActive"
-              class="btn btn-primary mb-3 floating-livecam-button">
-              <span v-if="sessionActive">Session Active: {{ timer }}</span>
-              <span v-else>Start or Resume Session</span>
+          <h4 class="livecam-title">
+            Livecam
+            <!-- Button to start/resume session, only visible if session is not active -->
+            <button v-if="!sessionActive" @click="startOrResumeSession"
+              class="btn btn-primary floating-livecam-button-icon">
+              <i class="fas fa-plus"></i>
             </button>
+
+            <!-- Timer display, only visible if session is active -->
+            <div v-if="sessionActive" class="timer-display">{{ timer }}</div>
+
+          </h4>
+          <div class="sensor-detection-diagram position-relative" style="height:88%">
 
             <!-- Show message if session has not started yet -->
             <div v-if="!hyperbeamSessionStarted" class="no-session-text">
@@ -148,7 +153,6 @@ export default {
     }
   },
   methods: {
-    // Function to manually start a session (either resume or new)
     async startOrResumeSession() {
       try {
         const session = await this.checkExistingSession();
@@ -163,17 +167,25 @@ export default {
           this.$nextTick(() => {
             this.startHyperbeamSession(session.embedUrl);
           });
+
+          // Calculate remaining time and start the countdown
+          const remainingTime = this.sessionDuration - (new Date().getTime() - session.timestamp);
+          this.startCountdown(remainingTime); // Start countdown from remaining time
         } else {
           // No valid session found, manually start a new session when the button is clicked
           await this.startNewSession();
+
+          // Start the timer from 2 hours (7200000 milliseconds)
+          this.startCountdown(this.sessionDuration); // Start countdown for 2 hours
         }
-        // Start the timer from 2 hours (7200000 milliseconds)
-        this.startCountdown(2 * 60 * 60 * 1000); // Start countdown for 2 hours
+
+        // Set sessionActive to true to hide the button and show the timer
+        this.sessionActive = true;
+
       } catch (error) {
         console.error('Error starting or resuming session:', error);
       }
     },
-    // Start the countdown timer
     startCountdown(duration) {
       let remainingTime = duration;
 
@@ -187,7 +199,7 @@ export default {
           const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
-          // Display the countdown time in the format hh:mm:ss
+          // Update the reactive timer variable
           this.timer = `${hours}h ${minutes}m ${seconds}s remaining`;
 
           // Subtract 1 second (1000 milliseconds) from remaining time
@@ -417,7 +429,7 @@ export default {
         // Update relevant devices to "Not Activated"
         this.devices = this.devices.map(device => {
           if (device.name === 'Magnetic Lock' || device.name === 'Camera' || device.name === 'Rat Trap') {
-            return { ...device, status: 'Not Activated' };
+            return { ...device, status: 'Activated' };
           }
           return device; // Keep PIR Sensor unchanged
         });
@@ -425,7 +437,7 @@ export default {
         // If at least one magnetic sensor is closed
         this.devices = this.devices.map(device => {
           if (device.name === 'Magnetic Lock' || device.name === 'Camera' || device.name === 'Rat Trap') {
-            return { ...device, status: 'Activated' };
+            return { ...device, status: 'Not Activated' };
           }
           return device; // Keep PIR Sensor unchanged
         });
@@ -435,7 +447,7 @@ export default {
       setInterval(async () => {
         await this.fetchMagneticSensorData();
         console.log('refreshing magnetic sensor data...');
-      }, 30000); // Refresh data every 30 seconds
+      }, 15000); // Refresh data every 15 seconds
     }
   },
   mounted() {
@@ -623,5 +635,53 @@ h2 {
   /* Distance from the right of the livecam div */
   z-index: 10;
   /* Make sure it is above other content inside the livecam div */
+}
+
+/* Adjust button position relative to the Livecam title */
+.livecam-title {
+  position: relative;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.floating-livecam-button-icon:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Style for the + button */
+.floating-livecam-button-icon {
+  position: absolute;
+  top: 10px;
+  /* Position at the top-right corner */
+  right: 10px;
+  z-index: 10;
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Timer display style, in the same spot as the button */
+.timer-display {
+  position: absolute;
+  top: 0px;
+  /* Same position as the button */
+  right: 0px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  z-index: 10;
+  text-align: center;
 }
 </style>
