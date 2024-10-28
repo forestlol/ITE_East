@@ -70,14 +70,13 @@
             <span class="nav-text">Indoor Air Quality System</span>
           </router-link>
         </li>
-        <!-- To be unhide on MONDAY 28 OCTOBER -->
-        <!-- <li class="nav-item">
+        <li class="nav-item">
           <router-link class="nav-link" to="/hybrid-aircon">
             <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image"
               :class="{ 'active-icon': $route.path === '/hybrid-aircon' }">
             <span class="nav-text">Hybrid Aircon System</span>
           </router-link>
-        </li> -->
+        </li>
       </ul>
 
       <div class="logo-container">
