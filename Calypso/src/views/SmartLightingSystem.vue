@@ -77,12 +77,23 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title">{{ modalTitle }}</h5>
-                <button type="button" class="btn-close" @click="closeModal">×</button>
+                <button type="button" class="btn-close" @click="closeModal"></button>
               </div>
               <div class="modal-body text-center">
                 <!-- On/Off Buttons -->
-                <button @click="setZoneState(true, currentSensor)" class="btn btn-primary mb-3">ON</button>
-                <button @click="setZoneState(false, currentSensor)" class="btn btn-danger mb-3">OFF</button>
+                <label class="switch">
+                  <input type="checkbox" v-model="currentSensor.isOnline"
+                    @change="setZoneState(currentSensor.isOnline, currentSensor)">
+                  <span class="slider round"></span>
+                </label>
+                <span>{{ currentSensor.isOnline ? 'ON' : 'OFF' }}</span>
+
+                <label class="switch">
+                  <input type="checkbox" v-model="currentSensor.isOnline"
+                    @change="setZoneState(currentSensor.isOnline, currentSensor)">
+                  <span class="slider round"></span>
+                </label>
+                <span>{{ currentSensor.isOnline ? 'ON' : 'OFF' }}</span>
 
                 <!-- Sliders for B05-11/12 zones -->
                 <div v-if="selectedImage === 'B05-11-12_full_empty.png'" class="zone-control">
@@ -193,12 +204,16 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{{ modalTitle }}</h5>
-            <button type="button" class="btn-close" @click="closeModal">×</button>
+            <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body text-center">
             <!-- On/Off Buttons -->
-            <button @click="setZoneState(true, currentSensor)" class="btn btn-primary mb-3">ON</button>
-            <button @click="setZoneState(false, currentSensor)" class="btn btn-danger mb-3">OFF</button>
+            <span>{{ currentSensor.isOnline ? 'ON' : 'OFF' }}</span><br>
+            <label class="switch">
+              <input type="checkbox" v-model="currentSensor.isOnline"
+                @change="setZoneState(currentSensor.isOnline, currentSensor)">
+              <span class="slider round"></span>
+            </label>
 
             <!-- Sliders for B05-11/12 -->
             <div v-if="selectedImage === 'B05-11-12_full_empty.png'" class="zone-control">
@@ -804,5 +819,4 @@ input:checked+.slider:before {
 .form-select {
   font-size: 1.2rem;
 }
-
 </style>

@@ -153,6 +153,28 @@ export default {
     }
   },
   methods: {
+    checkAndLogMagneticSensorStatus() {
+      const closedSensor = this.magneticSensors.find(sensor => sensor.magnet_status === '0');
+      if (closedSensor) {
+        const currentTime = new Date().getTime();
+        const storedAlerts = JSON.parse(localStorage.getItem('alerts')) || [];
+
+        // Check if a recent alert for the same message exists within the last 5 minutes
+        const recentAlert = storedAlerts.find(alert =>
+          alert.message.includes('Magnetic Sensor is Closed') &&
+          currentTime - new Date(alert.timestamp).getTime() < 5 * 60 * 1000
+        );
+
+        if (!recentAlert) {
+          const alertMessage = `Magnetic Sensor is Closed. Time: ${new Date().toLocaleString()}`;
+          storedAlerts.push({ message: alertMessage, timestamp: new Date().toLocaleString() });
+          localStorage.setItem('alerts', JSON.stringify(storedAlerts));
+          console.log('Alert added to local storage:', alertMessage);
+        } else {
+          console.log('Recent alert already exists, not adding a new one.');
+        }
+      }
+    },
     async startOrResumeSession() {
       try {
         const session = await this.checkExistingSession();
@@ -331,12 +353,12 @@ export default {
       }, 1000); // Update the timer every second
     },
 
+    // Call this at the end of fetching sensor data
     async fetchMagneticSensorData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/Magnetic');
         const data = response.data;
 
-        // Update magnetic sensor positions and statuses
         this.magneticSensors = [
           {
             ...data['24e124141e151801'],
@@ -352,22 +374,10 @@ export default {
           }
         ];
 
-        this.updateDeviceStatuses(); // Update device statuses based on sensor data
+        this.updateDeviceStatuses();
 
-        // Check if both sensors are closed and session is not yet started
-        if (this.isBothSensorsClosed) {
-          if (this.hyperbeamSessionStarted && !this.sessionStarted) {
-            // If session has not started, start the session
-            console.log('Starting Hyperbeam session for the first time.');
-            this.startHyperbeamSession();
-            this.sessionStarted = true;
-          } else {
-            // If session is already running, log a message
-            console.log('Hyperbeam session is already running. No need to start again.');
-          }
-        } else {
-          console.log('Sensors are not closed. Session will not start.');
-        }
+        // Check and log the magnetic sensor status
+        this.checkAndLogMagneticSensorStatus();
       } catch (error) {
         console.error('Error fetching magnetic sensor data:', error);
       }

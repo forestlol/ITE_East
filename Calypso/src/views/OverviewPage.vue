@@ -94,6 +94,7 @@
       </div>
     </div> -->
 
+    <!-- Subsystems Section -->
     <div class="subsystems-container">
       <div class="subsystems-title">
         <h2>ROOMS</h2>
@@ -101,13 +102,12 @@
       <div class="subsystems-content">
         <div v-for="(subsystem, index) in displayedSubsystems" :key="index" class="subsystem-card">
           <div class="subsystem-header">
-            <!-- Title in the center -->
+            <!-- Title and Room Number -->
             <span class="subsystem-title">{{ subsystem.name }}</span>
-
-            <!-- Room number above the smiley face -->
             <div class="subsystem-info">
               <span class="subsystem-room">{{ subsystem.room }}</span>
-              <i class="fas fa-smile status-icon" :style="{ color: 'lightgreen' }"></i>
+              <!-- Dynamic status icon -->
+              <i :class="getOverallFaceClass(subsystem)"></i>
             </div>
           </div>
           <button class="go-button" @click="goToPage(subsystem.link)">Go</button>
@@ -122,9 +122,12 @@
         <router-link to="/alarms-notifications" class="view-all-link">View All</router-link>
         <div class="feed-wrapper">
           <div class="feed-content">
-            <div v-for="(feed, index) in feedData" :key="index" class="feed-item">
+            <div v-if="feedData.length === 0" class="no-feed">
+              No feed to display
+            </div>
+            <div v-else v-for="(feed, index) in feedData" :key="index" class="feed-item">
               <p>{{ feed.message }}</p>
-              <small>{{ feed.time }}</small>
+              <small>{{ feed.timestamp }}</small>
             </div>
           </div>
         </div>
@@ -154,6 +157,7 @@
 <script>
 // import SemiCircleProgressBar from '@/components/SemiCircleProgressBar.vue';
 // import CircularProgressBar from '@/components/CircularProgressBar.vue';
+import axios from 'axios';
 
 export default {
   name: 'OverviewPage',
@@ -163,6 +167,7 @@ export default {
   },
   data() {
     return {
+      sensorData: {},
       announcementIndex: 0, // Add this to track the current announcement index
       semsData: [], // Store SEMS sensor data
       allSEMSSensorsWorking: false, // Flag to indicate if all SEMS sensors are working
@@ -199,17 +204,18 @@ export default {
         { label: 'Device Operational', value: 100 },
       ],
       subsystemData: [
-        { name: 'Integrated Operation Centre', type: 'semi-circle', operational: 100, link: '/integrated-operation-centre', room: 'B05-11' },
-        { name: 'ICE (VDE) Room', type: 'semi-circle', operational: 100, link: '/ice-room', room: 'B05-12' },
-        { name: 'Smart Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/smart-vertical-transport-room', room: 'B05-13/14' },
-        { name: 'Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/vertical-transport-room', room: 'B05-15/16' },
-        { name: 'WSH Room', type: 'semi-circle', operational: 100, link: '/wsh-room', room: 'B05-18' },
-        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-07', room: 'B05-07' },
-        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-08', room: 'B05-08' },
-        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-09', room: 'B05-09' },
-        { name: 'Smart Washroom', type: 'semi-circle', operational: 100, link: '/smart-washroom-room', room: 'B05' },
-        { name: 'Smart Landscape', type: 'semi-circle', operational: 100, link: '/smart-landscape-room', room: 'B05' },
+        { name: 'Integrated Operation Centre', type: 'semi-circle', operational: 100, link: '/integrated-operation-centre', room: 'B05-11', deviceId: '24e124710d480176' },
+        { name: 'ICE (VDC) Room', type: 'semi-circle', operational: 100, link: '/ice-room', room: 'B05-12', deviceId: '24e124710d480413' },
+        { name: 'Smart Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/smart-vertical-transport-room', room: 'B05-13/14', deviceId: '24e124710d480081' },
+        { name: 'Vertical Transport Room', type: 'semi-circle', operational: 100, link: '/vertical-transport-room', room: 'B05-15/16', deviceId: '24e124710d481996' },
+        { name: 'WSH Room', type: 'semi-circle', operational: 100, link: '/wsh-room', room: 'B05-18', deviceId: '24e124710d480413' },
+        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-07', room: 'B05-07', deviceId: '24e124710d482090' },
+        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-08', room: 'B05-08', deviceId: '24e124710d482388' },
+        { name: 'Collaborative Design Centre', type: 'semi-circle', operational: 100, link: '/collaborative-design-centre-09', room: 'B05-09', deviceId: '24e124710d482648' },
+        { name: 'Smart Washroom', type: 'semi-circle', operational: 100, link: '/smart-washroom-room', room: 'B05', deviceId: null },
+        { name: 'Smart Landscape', type: 'semi-circle', operational: 100, link: '/smart-landscape-room', room: 'B05', deviceId: null },
       ],
+
       fireAlarms: [
         { name: 'Fire Alarm System Overview', operational: 100 },
         { name: 'SAP-1', status: 'Online', lastUpdated: '2024-05-29 14:30:00' },
@@ -321,8 +327,56 @@ export default {
     this.loadMessages();  // Load stored messages on component mount
     this.fetchFASData();  // Fetch the FAS data when the component mounts
     this.startAnnouncementLoop(); // Start the announcement loop
+    this.fetchSensorData();
   },
   methods: {
+    loadAlerts() {
+      const storedAlerts = JSON.parse(localStorage.getItem('alerts')) || [];
+      this.feedData = storedAlerts;
+    },
+    async fetchSensorData() {
+      try {
+        const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
+        this.sensorData = response.data;
+      } catch (error) {
+        console.error('Error fetching sensor data:', error);
+      }
+    },
+    getOverallFaceClass(subsystem) {
+      const roomID = this.getRoomID(subsystem.room);
+      const data = this.sensorData[roomID];
+
+      if (data) {
+        const thresholds = {
+          co2: 1000,
+          temperature: 25,
+          humidity: 70,
+          pm2_5: 35,
+          pm10: 50,
+        };
+
+        for (const [key, value] of Object.entries(thresholds)) {
+          if (data[key] > value) {
+            return 'fas fa-frown text-danger';
+          }
+        }
+        return 'fas fa-smile text-success';
+      }
+      return 'fas fa-smile text-success';
+    },
+    getRoomID(room) {
+      const roomMap = {
+        'B05-11': '24e124710d480176',
+        'B05-12': '24e124710d480413',
+        'B05-07': '24e124710d482090',
+        'B05-08': '24e124710d482388',
+        'B05-09': '24e124710d482648',
+        'B05-13/14': '24e124710d480081',
+        'B05-15/16': '24e124710d481996',
+        'B05-18': '24e124710d480413',
+      };
+      return roomMap[room] || null;
+    },
     // Remove a message at a specific index
     removeMessage(index) {
       this.messages.splice(index, 1);
@@ -884,6 +938,7 @@ export default {
     this.fetchSWSData(); // Fetch SWS data when the component is created
     this.fetchSPCSData(); // Fetch SPCS data when the component is created
     this.fetchSEMSData();
+    this.loadAlerts(); // Load alerts from local storage when the component is created
   },
 };
 </script>

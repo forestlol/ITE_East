@@ -2,70 +2,57 @@
   <div class="container mt-5 bordered-container">
     <h2 class="text-center mb-4">Fire Alarm System</h2>
     <div class="view-switcher">
-      <button @click="toggleView('relation')" :class="{'active': currentView === 'relation'}">Schematic</button>
-      <button @click="toggleView('devices')" :class="{'active': currentView === 'devices'}">Zones</button>
+      <button @click="toggleView('relation')" :class="{ 'active': currentView === 'relation' }">Schematic</button>
+      <button @click="toggleView('devices')" :class="{ 'active': currentView === 'devices' }">Zones</button>
     </div>
 
     <div v-if="currentView === 'relation'" class="map-container">
       <!-- Fire Command Center Image (fire-alarm-finder.png) -->
-      <div class="fire-command-center" :style="{ top: fireCommandCenterPosition.top, left: fireCommandCenterPosition.left }">
+      <div class="fire-command-center"
+        :style="{ top: fireCommandCenterPosition.top, left: fireCommandCenterPosition.left }">
         <img src="@/assets/fire-alarm-finder.png" alt="Fire Command Center" class="fire-command-center-image" />
       </div>
 
       <!-- Fire Alarm Images with SAP Labels and Zones (Hover to show status) -->
-      <div
-        v-for="(position, index) in fireAlarmPositions"
-        :key="index"
-        class="fire-alarm-container"
-        :style="{ top: position.top, left: position.left }"
-        @mouseenter="hoveredZone = index"
-        @mouseleave="hoveredZone = null"
-      >
+      <div v-for="(alarm, index) in alarms" :key="index" class="fire-alarm-container"
+        :style="{ top: fireAlarmPositions[index]?.top, left: fireAlarmPositions[index]?.left }"
+        @mouseenter="hoveredZone = index" @mouseleave="hoveredZone = null">
         <!-- Fire Alarm Image -->
         <img src="@/assets/fire-alarm.png" alt="Fire Alarm" class="fire-alarm-image" />
-        
+
         <!-- SAP Label and Zone Information -->
         <div class="fire-alarm-labels">
           <p class="sap-label">SAP-{{ index + 1 }}</p>
-          <p class="zone-label">Zone {{ index + 1 }} (8 Zones)</p>
+          <p class="zone-label">Zone {{ index + 1 }}</p>
         </div>
 
         <!-- Show Zone Status on Hover -->
         <div v-if="hoveredZone === index" class="zone-status-popup">
           <p><strong>Zone {{ index + 1 }}</strong></p>
-          <p>Status: <span :class="zoneStatuses[index] === 'Online' ? 'text-success' : 'text-danger'">{{ zoneStatuses[index] }}</span></p>
-          <p>Last Updated: {{ lastUpdatedTimes[index] }}</p>
+          <p>Status: <span :class="alarm.status === 'Online' ? 'text-success' : 'text-danger'">{{ alarm.status || 'N/A'
+              }}</span></p>
+          <p>Last Updated: {{ alarm.dateTimeRecorded || 'N/A' }}</p>
         </div>
       </div>
 
       <img src="@/assets/ite_firealarm_relations.png" alt="Floor Plan" class="map-image">
 
       <!-- Alarm Statuses -->
-      <div
-        v-for="(alarm, index) in sortedAlarms"
-        :key="index"
-        class="alarm-status"
-        :style="alarmPositions[index]"
-        @mouseenter="hoveredAlarm = index"
-        @mouseleave="hoveredAlarm = null"
-        :class="{ 'highlight': hoveredAlarm === index }"
-      >
-        <span :class="{'online': alarm.status === 'ON', 'offline': alarm.status === 'OFF'}"></span>
+      <div v-for="(alarm, index) in sortedAlarms" :key="index" class="alarm-status" :style="alarmPositions[index]"
+        @mouseenter="hoveredAlarm = index" @mouseleave="hoveredAlarm = null"
+        :class="{ 'highlight': hoveredAlarm === index }">
+        <span :class="{ 'online': alarm.status === 'ON', 'offline': alarm.status === 'OFF' }"></span>
       </div>
     </div>
 
     <div v-if="currentView === 'devices'" class="devices-grid">
-      <div
-        v-for="(alarm, index) in sortedAlarms"
-        :key="index"
-        :class="['device-item', { 'highlight': hoveredAlarm === index }]"
-        @mouseenter="hoveredAlarm = index"
-        @mouseleave="hoveredAlarm = null"
-      >
+      <div v-for="(alarm, index) in sortedAlarms" :key="index"
+        :class="['device-item', { 'highlight': hoveredAlarm === index }]" @mouseenter="hoveredAlarm = index"
+        @mouseleave="hoveredAlarm = null">
         <h5>{{ alarm.name }}</h5>
         <p>
           Status:
-          <span :class="{'text-success': alarm.status === 'OFF', 'text-danger': alarm.status === 'ON'}">
+          <span :class="{ 'text-success': alarm.status === 'OFF', 'text-danger': alarm.status === 'ON' }">
             {{ alarm.status === 'ON' ? 'Offline' : 'Online' }}
           </span>
         </p>
@@ -81,20 +68,19 @@ export default {
     return {
       currentView: 'relation',
       hoveredAlarm: null,
-      hoveredZone: null, // Added to track which zone is being hovered
+      hoveredZone: null,
       alarms: [],
       fireCommandCenterPosition: {
-        top: '9%', // Adjust the top position of the fire command center
-        left: '12.5%', // Adjust the left position of the fire command center
+        top: '9%',
+        left: '12.5%',
       },
-      // Positions for 6 fire alarms
       fireAlarmPositions: [
-        { top: '9%', left: '73.3%' },   // Fire Alarm 1
-        { top: '9%', left: '52.5%' },   // Fire Alarm 2
-        { top: '9%', left: '31%' },  // Fire Alarm 3
-        { top: '56%', left: '73.3%' },  // Fire Alarm 4
-        { top: '56%', left: '52.5%' },  // Fire Alarm 5
-        { top: '56%', left: '31%' },  // Fire Alarm 6
+        { top: '9%', left: '73.3%' },
+        { top: '9%', left: '52.5%' },
+        { top: '9%', left: '31%' },
+        { top: '56%', left: '73.3%' },
+        { top: '56%', left: '52.5%' },
+        { top: '56%', left: '31%' },
       ],
       alarmPositions: [
         { top: '41.1%', left: '84.2%' },
@@ -104,16 +90,6 @@ export default {
         { top: '87.9%', left: '63.3%' },
         { top: '87.9%', left: '42.3%' },
       ],
-      // Sample statuses and last updated times for each zone
-      zoneStatuses: ['Online', 'Online', 'Online', 'Online', 'Online', 'Online'],
-      lastUpdatedTimes: [
-        '08/23/2024 19:58:55',
-        '08/23/2024 19:58:56',
-        '08/23/2024 19:58:57',
-        '08/23/2024 19:58:57',
-        '08/23/2024 19:58:58',
-        '08/23/2024 19:58:58'
-      ]
     };
   },
   async created() {
@@ -154,17 +130,20 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .section-title {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
 }
+
 .view-switcher {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 }
+
 .view-switcher button {
   background-color: #f8f9fa;
   border: none;
@@ -174,10 +153,12 @@ export default {
   font-size: 1rem;
   transition: background-color 0.3s;
 }
+
 .view-switcher button.active {
   background-color: #007bff;
   color: white;
 }
+
 .map-container {
   position: relative;
   display: flex;
@@ -187,35 +168,46 @@ export default {
   border: 1px solid lightgrey;
   border-radius: 5px;
 }
+
 .map-image {
   width: 100%;
   height: auto;
 }
+
 .fire-command-center {
-  position: absolute; /* Allow positioning of the fire-alarm-finder */
+  position: absolute;
+  /* Allow positioning of the fire-alarm-finder */
 }
+
 .fire-command-center-image {
-  width: 73%; /* Adjust the size of the fire command center image */
+  width: 73%;
+  /* Adjust the size of the fire command center image */
 }
 
 .fire-alarm-container {
-  position: absolute; /* Position for each fire alarm and its labels */
+  position: absolute;
+  /* Position for each fire alarm and its labels */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
+
 .fire-alarm-image {
-  width: 50%; /* Adjust size of the fire alarm image */
+  width: 50%;
+  /* Adjust size of the fire alarm image */
 }
+
 .fire-alarm-labels {
   margin-top: 5px;
 }
+
 .sap-label {
   font-weight: bold;
   font-size: 1rem;
   margin: 0;
 }
+
 .zone-label {
   font-size: 0.875rem;
   margin: 0;
@@ -223,13 +215,14 @@ export default {
 
 .zone-status-popup {
   position: absolute;
-  top: 100%; /* Adjust so it appears below the fire alarm */
+  top: 100%;
+  /* Adjust so it appears below the fire alarm */
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
   padding: 10px;
   background-color: black;
-  color:white;
+  color: white;
   border: 1px solid lightgray;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
@@ -242,36 +235,44 @@ export default {
   height: 28px;
   border: 1px solid black;
 }
+
 .alarm-status span {
   display: block;
   width: 100%;
   height: 100%;
 }
+
 .online {
   background-color: red;
   border-radius: 2px;
   border: 1px solid black;
 }
+
 .offline {
   background-color: green;
   border-radius: 2px;
   border: 1px solid black;
 }
+
 .text-danger {
   color: #dc3545 !important;
 }
+
 .text-success {
   color: #28a745 !important;
 }
+
 .highlight {
   border: 2px solid #00BCD4;
   border-radius: 2px;
 }
+
 .devices-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
+
 .device-item {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 10px;
@@ -280,9 +281,11 @@ export default {
   border: 1px solid lightgrey;
   transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .device-item:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
+
 .device-item h5 {
   margin-bottom: 10px;
   font-size: 1.25rem;
