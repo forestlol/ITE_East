@@ -222,14 +222,41 @@ export default {
             return units[key] || '';
         },
         getFaceClass(value, type) {
-            let thresholds = {
-                co2: 1000,
-                temperature: 25,
-                humidity: 70,
-                pm2_5: 35,
-                pm10: 50
-            };
-            return value > thresholds[type] ? "fas fa-frown text-danger" : "fas fa-smile";
+            let goodLimit, badLimit;
+
+            switch (type) {
+                case 'co2':
+                    goodLimit = 1000;
+                    badLimit = 1500;
+                    break;
+                case 'temperature':
+                    goodLimit = 25.5; // Acceptable range is 22.5°C to 25.5°C
+                    badLimit = 27.5;
+                    break;
+                case 'humidity':
+                    goodLimit = 70; // Acceptable range is < 70%
+                    badLimit = 71;
+                    break;
+                case 'pm2_5':
+                    goodLimit = 35; // Acceptable range < 35 µg/m³
+                    badLimit = 75;
+                    break;
+                case 'pm10':
+                    goodLimit = 100; // Acceptable range < 100 µg/m³
+                    badLimit = 150;
+                    break;
+                default:
+                    goodLimit = 0;
+                    badLimit = 0;
+            }
+
+            if (value < goodLimit) {
+                return 'fas fa-smile modal-face-icon'; // Green smiley face for good values
+            } else if (value >= goodLimit && value < badLimit) {
+                return 'fas fa-meh text-warning modal-face-icon'; // Orange neutral face for moderate values
+            } else {
+                return 'fas fa-frown text-danger modal-face-icon'; // Red frown face for bad values
+            }
         },
         toggleIndividualValve(switchNumber) {
             const deviceEUI = this.getDeviceEUI(switchNumber);

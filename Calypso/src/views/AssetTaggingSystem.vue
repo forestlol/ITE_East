@@ -149,10 +149,10 @@ export default {
             }
           });
 
-          // When 28 sensors are filled, switch to checking every 30 seconds
+          // When 28 sensors are filled, switch to checking every 10 seconds
           if (this.allSensors.length >= 28) {
             clearInterval(this.interval);
-            this.interval = setInterval(this.fetchData, 30000);
+            this.interval = setInterval(this.fetchData, 10);
           }
         })
         .catch(error => console.error('Error fetching data:', error));

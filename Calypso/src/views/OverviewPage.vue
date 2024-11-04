@@ -107,7 +107,9 @@
             <div class="subsystem-info">
               <span class="subsystem-room">{{ subsystem.room }}</span>
               <!-- Dynamic status icon -->
-              <i :class="getOverallFaceClass(subsystem)"></i>
+              <div class="face-display" style="display: flex; align-items: center;">
+                <i :class="getOverallFaceClass(subsystem)"></i>
+              </div>
             </div>
           </div>
           <button class="go-button" @click="goToPage(subsystem.link)">Go</button>
@@ -348,21 +350,28 @@ export default {
 
       if (data) {
         const thresholds = {
-          co2: 1000,
-          temperature: 25,
-          humidity: 70,
-          pm2_5: 35,
-          pm10: 50,
+          co2: { goodLimit: 1000, badLimit: 1500 },
+          temperature: { goodLimit: 25.5, badLimit: 27.5 },
+          humidity: { goodLimit: 70, badLimit: 71 },
+          pm2_5: { goodLimit: 35, badLimit: 75 },
+          pm10: { goodLimit: 100, badLimit: 150 }
         };
 
-        for (const [key, value] of Object.entries(thresholds)) {
-          if (data[key] > value) {
-            return 'fas fa-frown text-danger';
+        let worstClass = 'fas fa-smile modal-face-icon'; // Default to happy
+
+        for (const [key, limits] of Object.entries(thresholds)) {
+          if (data[key] >= limits.goodLimit && data[key] < limits.badLimit) {
+            worstClass = 'fas fa-meh text-warning modal-face-icon'; // Update to neutral if within bad range
+          }
+          if (data[key] >= limits.badLimit) {
+            worstClass = 'fas fa-frown text-danger modal-face-icon'; // Update to sad if beyond bad limit
           }
         }
-        return 'fas fa-smile';
+
+        return worstClass;
       }
-      return 'fas fa-smile';
+
+      return 'fas fa-smile modal-face-icon'; // Default when no data is available
     },
     getRoomID(room) {
       const roomMap = {
@@ -1992,7 +2001,7 @@ button {
 }
 
 .fas.fa-smile {
-  color: #90ee90; /* Light green */
+  color: #90ee90;
+  /* Light green */
 }
-
 </style>

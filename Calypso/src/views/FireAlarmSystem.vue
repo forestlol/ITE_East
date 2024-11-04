@@ -16,7 +16,7 @@
       <!-- Fire Alarm Images with SAP Labels and Zones (Hover to show status) -->
       <div v-for="(alarm, index) in alarms" :key="index" class="fire-alarm-container"
         :style="{ top: fireAlarmPositions[index]?.top, left: fireAlarmPositions[index]?.left }"
-        @mouseenter="hoveredZone = index" @mouseleave="hoveredZone = null">
+        @mouseenter="onHover(index)" @mouseleave="onLeave(index)">
         <!-- Fire Alarm Image -->
         <img src="@/assets/fire-alarm.png" alt="Fire Alarm" class="fire-alarm-image" />
 
@@ -27,19 +27,20 @@
         </div>
 
         <!-- Show Zone Status on Hover -->
-        <div v-if="hoveredZone === index" class="zone-status-popup">
-          <p><strong>Zone {{ index + 1 }}</strong></p>
-          <p>Status: <span :class="alarm.status === 'Online' ? 'text-success' : 'text-danger'">{{ alarm.status || 'N/A'
-              }}</span></p>
-          <p>Last Updated: {{ alarm.dateTimeRecorded || 'N/A' }}</p>
-        </div>
+        <transition name="fade">
+          <div v-if="hoveredZone === index" class="zone-status-popup">
+            <p><strong>Zone {{ index + 1 }}</strong></p>
+            <p>Status: <span :class="alarm.status === 'Online' ? 'text-success' : 'text-danger'">{{ alarm.status || 'N/A' }}</span></p>
+            <p>Last Updated: {{ alarm.dateTimeRecorded || 'N/A' }}</p>
+          </div>
+        </transition>
       </div>
 
       <img src="@/assets/ite_firealarm_relations.png" alt="Floor Plan" class="map-image">
 
       <!-- Alarm Statuses -->
       <div v-for="(alarm, index) in sortedAlarms" :key="index" class="alarm-status" :style="alarmPositions[index]"
-        @mouseenter="hoveredAlarm = index" @mouseleave="hoveredAlarm = null"
+        @mouseenter="onHover(index)" @mouseleave="onLeave(index)"
         :class="{ 'highlight': hoveredAlarm === index }">
         <span :class="{ 'online': alarm.status === 'ON', 'offline': alarm.status === 'OFF' }"></span>
       </div>
@@ -47,8 +48,8 @@
 
     <div v-if="currentView === 'devices'" class="devices-grid">
       <div v-for="(alarm, index) in sortedAlarms" :key="index"
-        :class="['device-item', { 'highlight': hoveredAlarm === index }]" @mouseenter="hoveredAlarm = index"
-        @mouseleave="hoveredAlarm = null">
+        :class="['device-item', { 'highlight': hoveredAlarm === index }]" @mouseenter="onHover(index)"
+        @mouseleave="onLeave(index)">
         <h5>{{ alarm.name }}</h5>
         <p>
           Status:
@@ -61,6 +62,7 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'FireAlarmSystem',
@@ -120,9 +122,18 @@ export default {
         console.error('Error fetching alarms:', error);
       }
     },
+    onHover(index) {
+      this.hoveredZone = index;
+      this.hoveredAlarm = index;
+    },
+    onLeave(index) {
+      if (this.hoveredZone === index) this.hoveredZone = null;
+      if (this.hoveredAlarm === index) this.hoveredAlarm = null;
+    },
   },
 };
 </script>
+
 <style scoped>
 .container {
   max-width: 1200px;

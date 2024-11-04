@@ -12,51 +12,97 @@
                         <p><b>CO2:</b></p>
                         <p>{{ sensorData.co2 }} ppm</p>
                         <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.co2, 'co2')" class="face-icon"></i>
+                            <div class="face-display" style="display: flex; align-items: center;">
+                                <i :class="getFaceClass(sensorData.co2, 'co2')" class="face-icon"></i>
+                                <span style="margin-left: 8px;">
+                                    <span v-if="getFaceClass(sensorData.co2, 'co2').includes('fa-smile')">Ideal</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.co2, 'co2').includes('fa-meh')">Average</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.co2, 'co2').includes('fa-frown')">Unsatisfactory</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="sensor-box">
                         <p><b>Temperature:</b></p>
                         <p>{{ sensorData.temperature }}°C</p>
                         <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.temperature, 'temperature')" class="face-icon"></i>
+                            <div class="face-display" style="display: flex; align-items: center;">
+                                <i :class="getFaceClass(sensorData.temperature, 'temperature')" class="face-icon"></i>
+                                <span style="margin-left: 8px;">
+                                    <span
+                                        v-if="getFaceClass(sensorData.temperature, 'temperature').includes('fa-smile')">Ideal</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.temperature, 'temperature').includes('fa-meh')">Average</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.temperature, 'temperature').includes('fa-frown')">Unsatisfactory</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="sensor-box">
                         <p><b>Humidity:</b></p>
                         <p>{{ sensorData.humidity }}%</p>
                         <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.humidity, 'humidity')" class="face-icon"></i>
+                            <div class="face-display" style="display: flex; align-items: center;">
+                                <i :class="getFaceClass(sensorData.temperature, 'temperature')" class="face-icon"></i>
+                                <span style="margin-left: 8px;">
+                                    <span
+                                        v-if="getFaceClass(sensorData.temperature, 'temperature').includes('fa-smile')">Ideal</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.temperature, 'temperature').includes('fa-meh')">Average</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.temperature, 'temperature').includes('fa-frown')">Unsatisfactory</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="sensor-box">
                         <p><b>PM2.5:</b></p>
                         <p>{{ sensorData.pm2_5 }} µg/m³</p>
                         <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.pm2_5, 'pm2_5')" class="face-icon"></i>
+                            <div class="face-display" style="display: flex; align-items: center;">
+                                <i :class="getFaceClass(sensorData.pm2_5, 'pm2_5')" class="face-icon"></i>
+                                <span style="margin-left: 8px;">
+                                    <span
+                                        v-if="getFaceClass(sensorData.pm2_5, 'pm2_5').includes('fa-smile')">Ideal</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.pm2_5, 'pm2_5').includes('fa-meh')">Average</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.pm2_5, 'pm2_5').includes('fa-frown')">Unsatisfactory</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="sensor-box">
                         <p><b>PM10:</b></p>
                         <p>{{ sensorData.pm10 }} µg/m³</p>
                         <div class="face-indicator">
-                            <i :class="getFaceClass(sensorData.pm10, 'pm10')" class="face-icon"></i>
+                            <div class="face-display" style="display: flex; align-items: center;">
+                                <i :class="getFaceClass(sensorData.pm10, 'pm10')" class="face-icon"></i>
+                                <span style="margin-left: 8px;">
+                                    <span v-if="getFaceClass(sensorData.pm10, 'pm10').includes('fa-smile')">Ideal</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.pm10, 'pm10').includes('fa-meh')">Average</span>
+                                    <span
+                                        v-else-if="getFaceClass(sensorData.pm10, 'pm10').includes('fa-frown')">Unsatisfactory</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
-
                     <!-- Button to open new window -->
                     <div class="button-box">
                         <button class="btn btn-primary float-right" @click="openPopupWindow">Best
                             Guidelines</button>
                     </div>
-
                 </div>
             </div>
 
             <!-- Chart Section -->
             <div class="col-lg-6 section-container chart-container">
                 <div class="chart-box">
-                    <h3 class="section-title">KWH Consumption (Last 7 Days)</h3>
+                    <h3 class="section-title">KWH Daily Consumption</h3>
                     <canvas id="kwhChart"></canvas>
                 </div>
             </div>
@@ -267,14 +313,41 @@ export default {
             }
         },
         getFaceClass(value, type) {
-            let thresholds = {
-                co2: 1000,
-                temperature: 25,
-                humidity: 70,
-                pm2_5: 35,
-                pm10: 50
-            };
-            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile';
+            let goodLimit, badLimit;
+
+            switch (type) {
+                case 'co2':
+                    goodLimit = 1000;
+                    badLimit = 1500;
+                    break;
+                case 'temperature':
+                    goodLimit = 25.5; // Acceptable range is 22.5°C to 25.5°C
+                    badLimit = 27.5;
+                    break;
+                case 'humidity':
+                    goodLimit = 70; // Acceptable range is < 70%
+                    badLimit = 71;
+                    break;
+                case 'pm2_5':
+                    goodLimit = 35; // Acceptable range < 35 µg/m³
+                    badLimit = 75;
+                    break;
+                case 'pm10':
+                    goodLimit = 100; // Acceptable range < 100 µg/m³
+                    badLimit = 150;
+                    break;
+                default:
+                    goodLimit = 0;
+                    badLimit = 0;
+            }
+
+            if (value < goodLimit) {
+                return 'fas fa-smile modal-face-icon'; // Green smiley face for good values
+            } else if (value >= goodLimit && value < badLimit) {
+                return 'fas fa-meh text-warning modal-face-icon'; // Orange neutral face for moderate values
+            } else {
+                return 'fas fa-frown text-danger modal-face-icon'; // Red frown face for bad values
+            }
         },
         generateChart() {
             // Register required components for Bar and Line charts

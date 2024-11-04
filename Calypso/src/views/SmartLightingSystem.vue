@@ -86,14 +86,14 @@
                     @change="setZoneState(currentSensor.isOnline, currentSensor)">
                   <span class="slider round"></span>
                 </label>
-                <span>{{ currentSensor.isOnline ? 'ON' : 'OFF' }}</span>
+                <span>{{ currentSensor.isOnline ? 'OFF' : 'ON' }}</span>
 
                 <label class="switch">
                   <input type="checkbox" v-model="currentSensor.isOnline"
                     @change="setZoneState(currentSensor.isOnline, currentSensor)">
                   <span class="slider round"></span>
                 </label>
-                <span>{{ currentSensor.isOnline ? 'ON' : 'OFF' }}</span>
+                <span>{{ currentSensor.isOnline ? 'OFF' : 'ON' }}</span>
 
                 <!-- Sliders for B05-11/12 zones -->
                 <div v-if="selectedImage === 'B05-11-12_full_empty.png'" class="zone-control">
@@ -203,12 +203,12 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ modalTitle }}</h5>
+            <h5 class="modal-title">{{ modalTitle }} Controls</h5>
             <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body text-center">
             <!-- On/Off Buttons -->
-            <span>{{ currentSensor.isOnline ? 'OFF' : 'ON' }}</span><br>
+            <label><b>Lights: {{ currentSensor.isOnline ? 'ON' : 'OFF' }}</b></label><br>
             <label class="switch">
               <input type="checkbox" v-model="currentSensor.isOnline"
                 @change="setZoneState(currentSensor.isOnline, currentSensor)">
@@ -217,7 +217,6 @@
 
             <!-- Sliders for B05-11/12 -->
             <div v-if="selectedImage === 'B05-11-12_full_empty.png'" class="zone-control">
-              <h5>{{ currentSensor.name }} Control</h5>
               <label>Color Temperature (Level 1): {{ currentSensor.level1 }}</label>
               <input type="range" v-model="currentSensor.level1" min="0" max="100" step="100" />
 
