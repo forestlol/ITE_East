@@ -401,7 +401,7 @@ export default {
             };
             return value > thresholds[type]
                 ? 'fas fa-frown text-danger'
-                : 'fas fa-smile text-success';
+                : 'fas fa-smile';
         },
         async fetchSensorData() {
             try {
@@ -890,5 +890,9 @@ input:checked+.slider:before {
     justify-content: center;
     align-items: center;
     height: 100%;
+}
+
+.fas.fa-smile {
+  color: #90ee90; /* Light green */
 }
 </style>

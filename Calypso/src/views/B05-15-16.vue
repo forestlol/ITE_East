@@ -272,7 +272,7 @@ export default {
                 pm2_5: 35,
                 pm10: 50
             };
-            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile text-success';
+            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile';
         },
         generateChart() {
             // Register the required components for Bar and Line charts
@@ -492,5 +492,9 @@ export default {
     justify-content: center;
     align-items: center;
     height: 100%;
+}
+
+.fas.fa-smile {
+  color: #90ee90; /* Light green */
 }
 </style>

@@ -217,7 +217,7 @@ export default {
                 temperature: 25,
                 humidity: 70,
             };
-            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile text-success';
+            return value > thresholds[type] ? 'fas fa-frown text-danger' : 'fas fa-smile';
         },
         showValue(index, event) {
             const containerRect = event.currentTarget.getBoundingClientRect();
@@ -390,5 +390,9 @@ export default {
     .container-xxl {
         max-width: 99%;
     }
+}
+
+.fas.fa-smile {
+  color: #90ee90; /* Light green */
 }
 </style>

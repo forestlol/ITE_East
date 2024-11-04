@@ -229,7 +229,7 @@ export default {
                 pm2_5: 35,
                 pm10: 50
             };
-            return value > thresholds[type] ? "fas fa-frown text-danger" : "fas fa-smile text-success";
+            return value > thresholds[type] ? "fas fa-frown text-danger" : "fas fa-smile";
         },
         toggleIndividualValve(switchNumber) {
             const deviceEUI = this.getDeviceEUI(switchNumber);
@@ -630,5 +630,9 @@ input:checked+.slider:before {
     .container-xxl {
         max-width: 99%;
     }
+}
+
+.fas.fa-smile {
+  color: #90ee90; /* Light green */
 }
 </style>

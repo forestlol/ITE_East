@@ -360,9 +360,9 @@ export default {
             return 'fas fa-frown text-danger';
           }
         }
-        return 'fas fa-smile text-success';
+        return 'fas fa-smile';
       }
-      return 'fas fa-smile text-success';
+      return 'fas fa-smile';
     },
     getRoomID(room) {
       const roomMap = {
@@ -1990,4 +1990,9 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
+
+.fas.fa-smile {
+  color: #90ee90; /* Light green */
+}
+
 </style>

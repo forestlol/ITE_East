@@ -208,7 +208,7 @@
           </div>
           <div class="modal-body text-center">
             <!-- On/Off Buttons -->
-            <span>{{ currentSensor.isOnline ? 'ON' : 'OFF' }}</span><br>
+            <span>{{ currentSensor.isOnline ? 'OFF' : 'ON' }}</span><br>
             <label class="switch">
               <input type="checkbox" v-model="currentSensor.isOnline"
                 @change="setZoneState(currentSensor.isOnline, currentSensor)">
