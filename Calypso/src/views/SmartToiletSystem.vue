@@ -93,16 +93,7 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Alerts Display -->
-    <div class="overview-alerts mt-4">
-      <ul>
-        <li v-for="alert in getStoredAlerts()" :key="alert.timestamp">
-          {{ alert.timestamp }} - {{ alert.message }}
-        </li>
-      </ul>
-    </div>
+    </div>  
   </div>
 </template>
 

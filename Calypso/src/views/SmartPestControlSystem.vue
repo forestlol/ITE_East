@@ -40,7 +40,8 @@
               :style="{ top: sensor.top, left: sensor.left, width: '24px', height: '24px', backgroundColor: 'transparent' }"
               @mouseover="showSensorInfo(sensor)" @mouseleave="hideSensorInfo(sensor)">
               <div class="sensor-info" v-if="sensor.showInfo">
-                <h5>Magnetic Sensor</h5>
+                <h5>{{ sensor.devEUI === '24e124141e151801' ? 'Fixed Magnetic Sensor' : 'Portable Magnetic Sensor' }}
+                </h5>
                 <p>Status: {{ sensor.magnet_status === '1' ? 'Open' : 'Closed' }}</p>
               </div>
             </div>

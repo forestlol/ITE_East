@@ -416,7 +416,7 @@ export default {
   /* Add margin-top to avoid overlapping with the navbar */
   transition: margin-left 0.3s;
   color: white;
-  padding-bottom: 3%
+  padding-bottom: 15%
     /* White text in the content area */
 }
 

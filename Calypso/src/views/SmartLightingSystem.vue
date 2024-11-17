@@ -45,7 +45,7 @@
                     <!-- Control Button for B05-11/12 -->
                     <button :class="sensor.isOnline ? 'btn btn-danger' : 'btn btn-primary'"
                       @click="toggleModal(sensor)">
-                      {{ sensor.isOnline ? 'Control OFF' : 'Control ON' }}
+                      {{ sensor.isOnline ? 'Set' : 'Set' }}
                     </button>
                   </div>
                 </div>
@@ -247,7 +247,10 @@ export default {
         { value: 'B05-07_empty.png', label: 'B05-07' },
         { value: 'B05-08_empty_light.png', label: 'B05-08' },
         { value: 'B05-09_full_lighting.png', label: 'B05-09' },
-        { value: 'B05-11-12_full_empty.png', label: 'B05-11 & 12' }
+        { value: 'B05-11-12_full_empty.png', label: 'B05-11 & 12' },
+        // { value: 'B05 13-14_lighting.png', label: 'B05-13 & 14' },
+        { value: 'B05 15-16_full_lighting.png', label: 'B05-15 & 16' },
+        { value: '2B05-18_full1_lighting.png', label: 'B05-18' },
       ],
       sensors: {
         'B05-07_empty.png': [
@@ -283,6 +286,35 @@ export default {
           { top: '15%', left: '38%', name: 'Zone 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001711', level1: 0, level2: 0 },
           { top: '15%', left: '30%', name: 'Zone 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000170F', level1: 0, level2: 0 },
           { top: '15%', left: '21.5%', name: 'Zone 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000173B', level1: 0, level2: 0 },
+        ],
+        // 'B05 13-14_lighting.png': [
+        //   { top: '15%', left: '78%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001720', level1: 0, level2: 0 },
+        //   { top: '15%', left: '70%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001713', level1: 0, level2: 0 },
+        //   { top: '15%', left: '62%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000166B', level1: 0, level2: 0 },
+        //   { top: '36%', left: '62%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001704', level1: 0, level2: 0 },
+        //   { top: '15%', left: '45.5%', name: 'Zone 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001716', level1: 0, level2: 0 },
+        //   { top: '15%', left: '38%', name: 'Zone 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED0100001711', level1: 0, level2: 0 },
+        //   { top: '15%', left: '30%', name: 'Zone 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000170F', level1: 0, level2: 0 },
+        //   { top: '15%', left: '21.5%', name: 'Zone 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '0004ED010000173B', level1: 0, level2: 0 },
+        // ],
+        'B05 15-16_full_lighting.png': [
+          { top: '23%', left: '44%', name: 'Zone 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+          { top: '14%', left: '41%', name: 'Zone 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+          { top: '14%', left: '34%', name: 'Zone 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131818' },
+          { top: '14%', left: '27%', name: 'Zone 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
+          { top: '14%', left: '21%', name: 'Zone 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131803' },
+          { top: '23%', left: '53%', name: 'Zone 6', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' },
+          { top: '14%', left: '59%', name: 'Zone 7', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' },
+          { top: '14%', left: '66%', name: 'Zone 8', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131779' },
+          { top: '14%', left: '75%', name: 'Zone 9', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
+          { top: '14%', left: '82%', name: 'Zone 10', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131201' },
+        ],
+        '2B05-18_full1_lighting.png': [
+          { top: '23%', left: '40%', name: 'Row 1', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131156' }, // Row 1
+          { top: '15%', left: '45%', name: 'Row 2', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D139009' }, // Row 2
+          { top: '15%', left: '52%', name: 'Row 3', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131050' }, // Row 3
+          { top: '15%', left: '62%', name: 'Row 4', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131870' }, // Row 4
+          { top: '14%', left: '69%', name: 'Row 5', isOnline: false, lastUpdated: '2024-05-29 14:30:00', deviceEUI: '24E124782D131793' }, // Row 5
         ]
       },
       showModal: false,
@@ -310,21 +342,32 @@ export default {
     closeModal() {
       this.showModal = false;
     },
-    // Function to send switch command for specific sensors
-    async sendSwitchCommand(deviceEUI, switchStates) {
+    async sendSwitchCommand(deviceEUI, switchStates, zoneIndex) {
       try {
-        console.log('Sending switch command to device:', deviceEUI, 'with states:', switchStates);
-        const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503', {
-          deviceEui: deviceEUI,
-          switchStates: switchStates
-        });
+        console.log(
+          `Sending switch command to device: ${deviceEUI} for zone index: ${zoneIndex} with states:`,
+          switchStates
+        );
+
+        const response = await axios.post(
+          'https://hammerhead-app-kva7n.ondigitalocean.app/command/ws503',
+          {
+            deviceEui: deviceEUI,
+            switchStates: switchStates,
+          }
+        );
+
         if (response && response.data) {
           console.log('Switch command response:', response.data);
-          const sensor = this.currentSensors.find(s => s.deviceEUI === deviceEUI);
+
+          // Update only the specific sensor in the current zone
+          const sensor = this.currentSensors[zoneIndex];
           if (sensor) {
-            sensor.isOnline = switchStates.every(state => state === 1);
-            // Close the modal after sending the update
-            this.closeModal();
+            // Determine if any of the states in switchStates is ON (1)
+            sensor.isOnline = switchStates.some((state) => state === 1);
+            console.log(
+              `Zone ${zoneIndex + 1} updated: ${sensor.isOnline ? 'ON' : 'OFF'}`
+            );
           }
         } else {
           console.warn('Switch command sent but no data returned from server');
@@ -335,29 +378,76 @@ export default {
     },
     // Function to toggle all devices ON or OFF
     async toggleAllDevices() {
-      if (['B05-07_empty.png', 'B05-08_empty_light.png', 'B05-09_full_lighting.png'].includes(this.selectedImage)) {
-        // Use sendSwitchCommand for B05-07, B05-08, and B05-09
-        const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];  // 1 for ON, 0 for OFF
-        for (const sensor of this.currentSensors) {
-          await this.sendSwitchCommand(sensor.deviceEUI, switchStates);  // Send command for each sensor
-        }
-      } else {
-        // For other floorplans, use the default API for turning devices ON/OFF
-        const apiUrl = this.allOn
-          ? `https://lumani.rshare.io/device/on`
-          : `https://lumani.rshare.io/device/off`;
+      console.log(`Toggling All Devices: ${this.allOn ? 'ON' : 'OFF'}`);
+      const apiUrl = this.allOn
+        ? `https://lumani.rshare.io/device/on`
+        : `https://lumani.rshare.io/device/off`;
 
-        const deviceIds = this.currentSensors.reduce((acc, sensor, index) => {
-          acc[`deviceId${index + 1}`] = sensor.deviceEUI;  // Construct deviceId1, deviceId2, ...
+      if (this.selectedImage === 'B05-11-12_full_empty.png') {
+        // For B05-11 & 12, send a single API request for all devices
+        const payload = this.currentSensors.reduce((acc, sensor, index) => {
+          acc[`deviceId${index + 1}`] = sensor.deviceEUI;
           return acc;
         }, {});
 
         try {
-          const response = await axios.post(apiUrl, deviceIds);
-          console.log('All devices state response:', response.data);
+          const response = await axios.post(apiUrl, payload);
+          console.log('All devices state response for B05-11 & 12:', response.data);
 
-          // Update the online status of each sensor based on the action
-          this.currentSensors.forEach(sensor => sensor.isOnline = this.allOn);
+          // Update the online status of each sensor
+          this.currentSensors.forEach(sensor => (sensor.isOnline = this.allOn));
+        } catch (error) {
+          console.error('Error toggling devices in B05-11 & 12:', error);
+        }
+      } else if (['B05-07_empty.png', 'B05-08_empty_light.png', 'B05-09_full_lighting.png'].includes(this.selectedImage)) {
+        // Handle B05-07, B05-08, and B05-09
+        const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];
+        for (const sensor of this.currentSensors) {
+          await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+        }
+      } else if (this.selectedImage === 'B05 15-16_full_lighting.png') {
+        // Handle B05-15 & 16
+        for (const [index, sensor] of this.currentSensors.entries()) {
+          let zoneStates = [];
+          switch (index) {
+            case 0:
+            case 3:
+            case 5:
+            case 8:
+              zoneStates = this.allOn ? [1, 0, 0] : [0, 0, 0];
+              break;
+            case 1:
+            case 4:
+            case 6:
+            case 9:
+              zoneStates = this.allOn ? [0, 1, 0] : [0, 0, 0];
+              break;
+            case 2:
+            case 7:
+              zoneStates = this.allOn ? [0, 0, 1] : [0, 0, 0];
+              break;
+            default:
+              zoneStates = [0, 0, 0];
+          }
+          await this.sendSwitchCommand(sensor.deviceEUI, zoneStates);
+        }
+      } else if (this.selectedImage === '2B05-18_full1_lighting.png') {
+        // Handle B05-18
+        const switchStates = this.allOn ? [1, 1, 1] : [0, 0, 0];
+        for (const sensor of this.currentSensors) {
+          await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+        }
+      } else {
+        // Default case for other floorplans
+        const payload = this.currentSensors.reduce((acc, sensor, index) => {
+          acc[`deviceId${index + 1}`] = sensor.deviceEUI;
+          return acc;
+        }, {});
+
+        try {
+          const response = await axios.post(apiUrl, payload);
+          console.log('All devices state response:', response.data);
+          this.currentSensors.forEach(sensor => (sensor.isOnline = this.allOn));
         } catch (error) {
           console.error('Error setting all devices state:', error);
         }
@@ -365,24 +455,65 @@ export default {
     },
     // Function to handle zone state changes (ON/OFF)
     async setZoneState(state, sensor) {
-      if (['B05-07_empty.png', 'B05-08_empty_light.png', 'B05-09_full_lighting.png'].includes(this.selectedImage)) {
-        // Send switch command using sendSwitchCommand for B05-07, B05-08, and B05-09
-        const switchStates = state ? [1, 1, 1] : [0, 0, 0];  // Use 1 for ON and 0 for OFF
-        await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
-      } else {
-        // For other floorplans, use the default API for turning devices ON/OFF
+      if (this.selectedImage === 'B05-11-12_full_empty.png') {
+        // For B05-11 & 12, send an individual API request
         const apiUrl = state
           ? `https://lumani.rshare.io/device/on`
           : `https://lumani.rshare.io/device/off`;
 
         try {
           const response = await axios.post(apiUrl, { deviceId: sensor.deviceEUI });
-          console.log('Individual device state response:', response.data);
+          console.log(`Device ${sensor.deviceEUI} state response:`, response.data);
 
           // Update the sensor status locally
           sensor.isOnline = state;
         } catch (error) {
-          console.error('Error setting individual device state:', error);
+          console.error(`Error toggling device ${sensor.deviceEUI} state:`, error);
+        }
+      } else if (['B05-07_empty.png', 'B05-08_empty_light.png', 'B05-09_full_lighting.png'].includes(this.selectedImage)) {
+        // Handle B05-07, B05-08, and B05-09
+        const switchStates = state ? [1, 1, 1] : [0, 0, 0];
+        await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      } else if (this.selectedImage === 'B05 15-16_full_lighting.png' || this.selectedImage === '2B05-18_full1_lighting.png') {
+        // Handle B05-15 & 16 or B05-18
+        let switchStates = [];
+        const zoneIndex = this.currentSensors.indexOf(sensor);
+
+        switch (zoneIndex) {
+          case 0:
+          case 3:
+          case 5:
+          case 8:
+            switchStates = state ? [1, 0, 0] : [0, 0, 0];
+            break;
+          case 1:
+          case 4:
+          case 6:
+          case 9:
+            switchStates = state ? [0, 1, 0] : [0, 0, 0];
+            break;
+          case 2:
+          case 7:
+            switchStates = state ? [0, 0, 1] : [0, 0, 0];
+            break;
+          default:
+            switchStates = [0, 0, 0];
+        }
+        await this.sendSwitchCommand(sensor.deviceEUI, switchStates);
+      } else {
+        // Default handling
+        const apiUrl = state
+          ? `https://lumani.rshare.io/device/on`
+          : `https://lumani.rshare.io/device/off`;
+
+        try {
+          const response = await axios.post(apiUrl, { deviceId: sensor.deviceEUI });
+          console.log(`Device ${sensor.deviceEUI} state response:`, response.data);
+
+          // Update the sensor status locally
+          sensor.isOnline = state;
+        } catch (error) {
+          console.error(`Error toggling device ${sensor.deviceEUI} state:`, error);
         }
       }
     },
