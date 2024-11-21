@@ -28,12 +28,6 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/smart-landscape-system">
-            <i :class="['fas', 'fa-seedling', { 'active-icon': $route.path === '/smart-landscape-system' }]"></i>
-            <span class="nav-text">Smart Landscape System</span>
-          </router-link>
-        </li>
-        <li class="nav-item">
           <router-link class="nav-link" to="/smart-toilet-system">
             <i :class="['fas', 'fa-toilet', { 'active-icon': $route.path === '/smart-toilet-system' }]"></i>
             <span class="nav-text">Smart Wash Room System</span>
@@ -75,6 +69,12 @@
             <img :src="airconIcon" alt="Hybrid Aircon System" class="icon-image"
               :class="{ 'active-icon': $route.path === '/hybrid-aircon' }">
             <span class="nav-text">Hybrid Aircon System</span>
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" to="/smart-landscape-system">
+            <i :class="['fas', 'fa-seedling', { 'active-icon': $route.path === '/smart-landscape-system' }]"></i>
+            <span class="nav-text">Smart Landscape System</span>
           </router-link>
         </li>
       </ul>
