@@ -49,8 +49,16 @@
                       <p>Temperature: {{ icon.temperature }}°C</p>
                       <p>Humidity: {{ icon.humidity }}%</p>
                     </template>
+                    <template v-else-if="icon.type === 'Water Meter'">
+                      <p v-if="icon.dailyUsage.length > 0">
+                        Daily Water Usage: {{ icon.dailyUsage[icon.dailyUsage.length - 1].usage.toFixed(2) }} L
+                      </p>
+                      <p v-else>No data available</p>
+                    </template>
+
                   </div>
                 </div>
+
 
                 <!-- Button to Set Threshold at Bottom Right of Floorplan -->
                 <div class="threshold-button">
@@ -93,17 +101,16 @@
           </div>
         </div>
       </div>
-    </div>  
+    </div>
   </div>
 </template>
-
-
 
 <script>
 import axios from 'axios';
 import peopleCounterIcon from '@/assets/peopleCounter.png';
 import odorIcon from '@/assets/Odor.png';
 import waterMeterIcon from '@/assets/water-meter-sensor.png';
+import Papa from 'papaparse';
 import {
   Chart,
   BarController,
@@ -122,6 +129,11 @@ export default {
   name: 'SmartWashroomSystem',
   data() {
     return {
+      chartSeries: [], // Ensure this matches your chart data
+      chartOptions: {}, // Chart options
+      chartInstance: null, // Store the chart instance
+      chartLabels: [], // Labels for the chart
+      chartData: [], // Data for the chart
       hoveredIndex: null,
       tooltipX: 0,
       tooltipY: 0,
@@ -132,12 +144,18 @@ export default {
         { top: '40.6%', left: '44%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
         { top: '37.6%', left: '64.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
         { top: '36%', left: '18%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
-        { top: '46%', left: '51.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', waterFlow: 15, waterConsumption: 1200 },
+        { top: '46%', left: '51.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', dailyUsage: [] }, // Add dailyUsage as an array
       ],
       notifications: [], // Store notifications in the state
     };
   },
   methods: {
+    updateWaterMeterData(dailyUsage) {
+      const waterMeterIcon = this.icons.find(icon => icon.type === 'Water Meter');
+      if (waterMeterIcon) {
+        waterMeterIcon.dailyUsage = dailyUsage;
+      }
+    },
     async fetchData() {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/toilet');
@@ -239,76 +257,171 @@ export default {
       return JSON.parse(localStorage.getItem('alerts')) || [];
     },
     generateChart() {
+      // Ensure Chart.js is registered
       Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
-      const ctx = document.getElementById('waterChart').getContext('2d');
-      const last7DaysData = [0, 0, 0, 0, 0, 0, 0]; // Example data
-      const differences = last7DaysData.map((value, index, array) => (index === 0 ? 0 : value - array[index - 1]));
+      const canvas = document.getElementById('waterChart');
+      const ctx = canvas.getContext('2d');
 
-      new Chart(ctx, {
+      // Destroy existing chart instance if it exists
+      if (this.chartInstance) {
+        this.chartInstance.destroy();
+      }
+
+      // Create a new Chart.js instance
+      this.chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+          labels: this.chartLabels, // Use reactive labels
           datasets: [
             {
               label: 'Water Consumption (liters)',
-              data: last7DaysData,
+              data: this.chartData, // Use reactive data
               backgroundColor: 'rgba(75, 192, 192, 0.6)',
               borderColor: 'rgba(75, 192, 192, 1)',
               borderWidth: 1,
-              type: 'bar',
-              yAxisID: 'y' // Assign to the left Y-axis
             },
-            {
-              label: 'Difference Between Days',
-              data: differences,
-              borderColor: 'rgba(255, 99, 132, 1)',
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              borderWidth: 2,
-              fill: false,
-              type: 'line',
-              yAxisID: 'differenceAxis' // Assign to the right Y-axis
-            }
-          ]
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: { display: true, text: 'Liters', color: 'white' },
-              ticks: { color: 'white' },
-              grid: { color: 'rgba(255, 255, 255, 0.1)' }
-            },
-            differenceAxis: {
-              position: 'right',
-              beginAtZero: true,
-              title: { display: true, text: 'Difference (Liters)', color: 'white' },
-              ticks: { color: 'white' },
-              grid: { drawOnChartArea: false } // Ensure grid lines don't overlap
-            },
-            x: {
-              title: { display: true, text: 'Days', color: 'white' },
-              ticks: { color: 'white' },
-              grid: { color: 'rgba(255, 255, 255, 0.1)' }
-            }
-          },
           plugins: {
-            legend: { labels: { color: 'white' } },
+            legend: {
+              labels: {
+                color: 'white', // Set legend text color to white
+              },
+            },
+            title: {
+              display: true,
+              text: 'Daily Water Consumption',
+              color: 'white', // Set chart title color to white
+            },
             tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              titleColor: 'white',
-              bodyColor: 'white'
-            }
-          }
-        }
+              titleColor: 'white', // Tooltip title color
+              bodyColor: 'white', // Tooltip body text color
+              backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tooltip background color
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Date',
+                color: 'white', // Set X-axis title color to white
+              },
+              ticks: {
+                color: 'white', // Set X-axis ticks color to white
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)', // X-axis grid line color
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Liters',
+                color: 'white', // Set Y-axis title color to white
+              },
+              ticks: {
+                color: 'white', // Set Y-axis ticks color to white
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)', // Y-axis grid line color
+              },
+            },
+          },
+        },
       });
-    }
+    },
+    async fetchDataAndCalculateUsage() {
+      try {
+        console.log('Starting to fetch data from the CSV file...');
+
+        // Fetch the CSV file
+        const response = await axios.get('/watermeter_data.csv');
+        const csvData = response.data;
+
+        console.log('Raw CSV Data:', csvData);
+
+        // Parse CSV data
+        const parsedData = Papa.parse(csvData, { header: true }).data;
+
+        console.log('Parsed Data:', parsedData);
+
+        // Check if data exists
+        if (!parsedData || parsedData.length === 0) {
+          console.warn('No data available in the CSV file.');
+          this.chartLabels = [];
+          this.chartData = [];
+          return;
+        }
+
+        // Filter and process the data
+        const dailyReadings = parsedData
+          .filter(row => {
+            const reading = parseFloat(row['Daily Reading']);
+            return !isNaN(reading); // Exclude rows with NaN readings
+          })
+          .map(row => ({
+            date: row['Interval Timestamp'].split(' ')[0], // Extract date
+            reading: parseFloat(row['Daily Reading']),
+          }));
+
+        console.log('Valid Daily Readings:', dailyReadings);
+
+        // Check if enough data exists to calculate usage
+        if (dailyReadings.length < 2) {
+          console.warn('Insufficient data for calculating daily usage.');
+          this.chartLabels = [];
+          this.chartData = [];
+          return;
+        }
+
+        // Calculate daily usage
+        // Modify this part of your fetchDataAndCalculateUsage function:
+        const dailyUsage = dailyReadings.map((current, index, array) => {
+          if (index === 0) return null; // Skip the first day
+          return {
+            date: `${current.date.substring(0, 2)}/${current.date.substring(2, 4)}/${current.date.substring(4)}`, // Convert 21112024 to 21/11/2024
+            usage: current.reading - array[index - 1].reading,
+          };
+        }).filter(Boolean);
+
+        console.log('Calculated Daily Usage:', dailyUsage);
+
+        // Take the last 3 days for the chart
+        const last3Days = dailyUsage.slice(-3);
+
+        console.log('Last 3 Days of Usage:', last3Days);
+
+        // Update chart data
+        this.chartLabels = last3Days.map(data => data.date);
+        this.chartData = last3Days.map(data => data.usage);
+
+        console.log('Chart Labels:', this.chartLabels);
+        console.log('Chart Data:', this.chartData);
+
+        // Update dailyUsage for the Water Meter
+        const waterMeterIcon = this.icons.find(icon => icon.type === 'Water Meter');
+        if (waterMeterIcon) {
+          waterMeterIcon.dailyUsage = dailyUsage.map(data => ({
+            date: data.date,
+            usage: data.usage,
+          }));
+        }
+
+        // Generate chart
+        this.generateChart();
+      } catch (error) {
+        console.error('Error fetching and processing data:', error);
+      }
+    },
   },
   mounted() {
     this.fetchData();
     this.generateChart(); // Ensure chart is generated after DOM update
+    this.fetchDataAndCalculateUsage();
   }
 };
 </script>
