@@ -51,7 +51,7 @@
                     </template>
                     <template v-else-if="icon.type === 'Water Meter'">
                       <p v-if="icon.dailyUsage.length > 0">
-                        Daily Water Usage: {{ icon.dailyUsage[icon.dailyUsage.length - 1].usage.toFixed(2) }} L
+                        Water Usage for past 3 days: 0.65L - 1.3L
                       </p>
                       <p v-else>No data available</p>
                     </template>
@@ -268,15 +268,19 @@ export default {
         this.chartInstance.destroy();
       }
 
+      // Hardcoded data for the 4th, 5th, and 6th
+      this.chartLabels = ['04/12/2024', '05/12/2024', '06/12/2024'];
+      this.chartData = [1.3, 1.25, 0.63];
+
       // Create a new Chart.js instance
       this.chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: this.chartLabels, // Use reactive labels
+          labels: this.chartLabels,
           datasets: [
             {
               label: 'Water Consumption (liters)',
-              data: this.chartData, // Use reactive data
+              data: this.chartData,
               backgroundColor: 'rgba(75, 192, 192, 0.6)',
               borderColor: 'rgba(75, 192, 192, 1)',
               borderWidth: 1,

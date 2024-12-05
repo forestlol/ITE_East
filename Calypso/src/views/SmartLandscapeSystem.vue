@@ -110,17 +110,29 @@
           <div class="relation-view-container">
             <div class="relation-view position-relative">
               <img src="@/assets/Smart Landscape Schematic.jpg" alt="Relation View" class="relation-image">
+              <span class="point-label visible-label"
+                style="font-size: 1em; top: 76.4%; left: 10.5%; position: absolute; transform: translate(-50%, -50%);">
+                300lm
+              </span>
+              <span class="point-label visible-label"
+                style="font-size: 1em; top: 76.4%; left: 21.5%; position: absolute; transform: translate(-50%, -50%);">
+                No rain
+              </span>
+              <span class="point-label visible-label"
+                style="font-size: 1em; top: 76.4%; left: 32%; position: absolute; transform: translate(-50%, -50%);">
+                Full
+              </span>
               <div v-for="(point, index) in relationPoints" :key="index"
                 :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
-                @mouseenter="point.type !== 'Valve' && showValue(index, $event)"
-                @mouseleave="point.type !== 'Valve' && hideValue()"
                 :class="['relation-point', { 'point-label-break': point.type === 'break', 'active': isAllOn }]">
+                <!-- For Sensor Points -->
                 <template v-if="point.type === 'sensor'">
                   <span class="point-number">{{ point.number }}</span>
                 </template>
+
+                <!-- For Other Points -->
                 <template v-else>
                   <span class="point-label">{{ formatLabel(point.label) }}</span>
-                  <!-- Add the status dot for the valve based on its status -->
                   <div v-if="point.type === 'Valve'"
                     :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
                 </template>
@@ -423,9 +435,9 @@ export default {
         ];
 
         const additionalPoints = [
-          { label: 'Rainfall Sensor', type: 'reading', x: 15.4, y: 77, reading: '10 mm' },
-          { label: 'Lux Sensor', type: 'reading', x: 24.5, y: 77, reading: '1500 lux' },
-          { label: 'Water Level Sensor', type: 'reading', x: 34, y: 77, reading: '75%' },
+          { label: '300lm', type: 'reading', x: 15.4, y: 77, reading: '10 mm', visibleClass: 'show-label' },
+          { label: 'No rain', type: 'reading', x: 24.5, y: 77, reading: '1500 lux', visibleClass: 'show-label' },
+          { label: 'Full', type: 'reading', x: 34, y: 77, reading: '75%', visibleClass: 'show-label' },
           { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },
           { label: '(Readings/ Threshold)', x: 15.5, y: 85, type: 'break' },
           { label: '(Readings/ Threshold)', x: 24.5, y: 85, type: 'break' },
@@ -1059,5 +1071,9 @@ h2 {
 
 .modal-content {
   color: black;
+}
+
+.visible-label {
+  visibility: visible !important;
 }
 </style>

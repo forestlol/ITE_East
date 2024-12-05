@@ -55,18 +55,13 @@
         <canvas id="kwhChart"></canvas>
       </div>
     </div>
-
+    cumulative energy, current, pf and voltage
     <!-- Tooltip for Sensor Data -->
     <div v-if="tooltipVisible" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }" class="tooltip">
       <h5>{{ tooltipData.meterName || 'Meter Data' }}</h5>
-      <p><strong>Import Energy:</strong> {{ tooltipData.importEnergy }} kWh</p>
-      <p><strong>Export Energy:</strong> {{ tooltipData.exportEnergy }} kWh</p>
-      <p><strong>Energy Quality Count:</strong> {{ tooltipData.energyQualityCount }}</p>
-      <p><strong>Energy Quality Level:</strong> {{ tooltipData.energyQualityLevel }}</p>
+      <p><strong>Cumulative Energy:</strong> {{ tooltipData.importEnergy + tooltipData.exportEnergy}} kWh</p>
       <p><strong>Current:</strong> {{ tooltipData.current }} A</p>
-      <p><strong>Active Power:</strong> {{ tooltipData.activePower }} kW</p>
       <p><strong>Power Factor:</strong> {{ tooltipData.powerFactor }}</p>
-      <p><strong>Reactive Power:</strong> {{ tooltipData.reactivePower }} kVAR</p>
       <p><strong>Voltage:</strong> {{ tooltipData.voltage }} V</p>
     </div>
   </div>
