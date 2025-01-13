@@ -19,7 +19,13 @@
         </div>
       </div>
     </div>
+
     <div v-if="currentView === 'groupings'" class="group-sensors">
+      <div class="button-container">
+        <a href="/BMSData.xlsx" download class="btn btn-primary">
+          Download BMS Data
+        </a>
+      </div>
       <div v-for="(group) in filteredGroups" :key="group._id" class="mb-4">
         <h3>{{ group.name }}</h3>
         <div class="sensor-list">
@@ -305,12 +311,14 @@ export default {
 
 .image-container {
   position: relative;
-  width: 100%; /* Ensure the image container is 100% of the parent */
+  width: 100%;
+  /* Ensure the image container is 100% of the parent */
 }
 
 .background-image {
   width: 100%;
-  height: auto; /* Maintain aspect ratio */
+  height: auto;
+  /* Maintain aspect ratio */
 }
 
 .sensor-value {
@@ -318,8 +326,9 @@ export default {
   padding: 5px;
   border-radius: 3px;
   font-weight: bold;
-  transform: translate(-50%, -50%); /* Center the sensor value on the position */
-  color:black;
+  transform: translate(-50%, -50%);
+  /* Center the sensor value on the position */
+  color: black;
 }
 
 
@@ -421,5 +430,26 @@ export default {
   padding: 5px;
   border-radius: 3px;
   font-weight: bold;
+}
+
+.button-container {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  display: inline-block;
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
 }
 </style>
