@@ -112,7 +112,7 @@
               <img src="@/assets/Smart Landscape Schematic.jpg" alt="Relation View" class="relation-image">
               <span class="point-label visible-label"
                 style="font-size: 1em; top: 76.4%; left: 10.5%; position: absolute; transform: translate(-50%, -50%);">
-                300lm
+                300ml
               </span>
               <span class="point-label visible-label"
                 style="font-size: 1em; top: 76.4%; left: 21.5%; position: absolute; transform: translate(-50%, -50%);">
@@ -435,7 +435,7 @@ export default {
         ];
 
         const additionalPoints = [
-          { label: '300lm', type: 'reading', x: 15.4, y: 77, reading: '10 mm', visibleClass: 'show-label' },
+          { label: '300ml', type: 'reading', x: 15.4, y: 77, reading: '10 mm', visibleClass: 'show-label' },
           { label: 'No rain', type: 'reading', x: 24.5, y: 77, reading: '1500 lux', visibleClass: 'show-label' },
           { label: 'Full', type: 'reading', x: 34, y: 77, reading: '75%', visibleClass: 'show-label' },
           { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },

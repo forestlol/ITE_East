@@ -1111,7 +1111,7 @@ export default {
   flex-direction: column;
   position: absolute;
   top: 0;
-  animation: scroll 20s linear infinite;
+  animation: scroll 120s linear infinite;
   width: 100%;
   /* Ensure it fills the available width */
 }
@@ -1423,8 +1423,7 @@ export default {
   /* Adjust text color for better readability on yellow background */
 }
 
-
-.work-completed {
+.work_completed {
   background-color: lightgreen;
   color: black;
 }
