@@ -111,15 +111,15 @@
             <div class="relation-view position-relative">
               <img src="@/assets/Smart Landscape Schematic.jpg" alt="Relation View" class="relation-image">
               <span class="point-label visible-label"
-                style="font-size: 1em; top: 76.4%; left: 10.5%; position: absolute; transform: translate(-50%, -50%);">
+                style="font-size: 1.4em; top: 76.4%; left: 10.5%; position: absolute; transform: translate(-50%, -50%);">
                 300ml
               </span>
               <span class="point-label visible-label"
-                style="font-size: 1em; top: 76.4%; left: 21.5%; position: absolute; transform: translate(-50%, -50%);">
+                style="font-size: 1.4em; top: 76.4%; left: 21.5%; position: absolute; transform: translate(-50%, -50%);">
                 No rain
               </span>
               <span class="point-label visible-label"
-                style="font-size: 1em; top: 76.4%; left: 32%; position: absolute; transform: translate(-50%, -50%);">
+                style="font-size: 1.4em; top: 76.4%; left: 32%; position: absolute; transform: translate(-50%, -50%);">
                 Full
               </span>
               <div v-for="(point, index) in relationPoints" :key="index"
