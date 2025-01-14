@@ -334,7 +334,7 @@ export default {
   methods: {
     loadAlerts() {
       const storedAlerts = JSON.parse(localStorage.getItem('alerts')) || [];
-      this.feedData = storedAlerts;
+      this.feedData = storedAlerts.slice(-10); // Get only the latest 5 alerts
     },
     async fetchSensorData() {
       try {
@@ -1111,7 +1111,7 @@ export default {
   flex-direction: column;
   position: absolute;
   top: 0;
-  animation: scroll 120s linear infinite;
+  animation: scroll 20s linear infinite;
   width: 100%;
   /* Ensure it fills the available width */
 }
