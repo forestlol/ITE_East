@@ -9,6 +9,10 @@
         <a class="nav-link" :class="{ active: currentView === 'groupings' }"
           @click="toggleView('groupings')">Groupings</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: currentView === 'downloads' }"
+          @click="toggleView('downloads')">Downloads</a>
+      </li>
     </ul>
     <div v-if="currentView === 'bms'" class="tab-content">
       <div class="image-container">
@@ -19,13 +23,22 @@
         </div>
       </div>
     </div>
+    <div v-if="currentView === 'downloads'" class="tab-content">
+      <div class="dropdown-container">
+        <label for="month-year-dropdown">Select Month and Year to download Data:</label>
+        <select id="month-year-dropdown" class="form-select" v-model="selectedMonthYear">
+          <option v-for="(option, index) in downloadOptions" :key="index" :value="option.value"
+            :disabled="option.disabled">
+            {{ option.label }}
+          </option>
+        </select>
+        <button class="btn btn-primary mt-3" :disabled="selectedMonthYear !== '2024-12'" @click="downloadData">
+          Download Data
+        </button>
+      </div>
+    </div>
 
     <div v-if="currentView === 'groupings'" class="group-sensors">
-      <div class="button-container">
-        <a href="/BMSData.xlsx" download class="btn btn-primary">
-          Download BMS Data
-        </a>
-      </div>
       <div v-for="(group) in filteredGroups" :key="group._id" class="mb-4">
         <h3>{{ group.name }}</h3>
         <div class="sensor-list">
@@ -64,6 +77,7 @@ export default {
       latestData: [],
       refreshInterval: null,
       search: '',
+      selectedMonthYear: '2024-12', // Default to December 2024
       sensorPositions: {
         'NCE-02/Energy.DATA.CHW-FLOW-RT': { top: '77.625%', left: '16.33%' },
         'NCE-02/Programming.AGILENT.CH-CHWR-TP': { top: '79.625%', left: '32.25%' },
@@ -94,7 +108,8 @@ export default {
         'OFF 5': { top: '93.125%', left: '8.5%' },
         'ALARM': { top: '93%', left: '82.08%' }
       },
-      lastUpdated: ''
+      lastUpdated: '',
+      downloadOptions: this.generateDownloadOptions()
     };
   },
   async created() {
@@ -117,9 +132,39 @@ export default {
     filteredGroups() {
       const searchTerm = this.search.toLowerCase();
       return this.groups.filter(group => group.name.toLowerCase().includes(searchTerm));
+    },
+    isDecember2024() {
+      return this.selectedMonthYear === '2024-12';
     }
   },
   methods: {
+    generateDownloadOptions() {
+      const startDate = new Date(2024, 11); // December 2024
+      const endDate = new Date(2025, 11); // December 2025
+      const options = [];
+
+      while (startDate <= endDate) {
+        const year = startDate.getFullYear();
+        const month = startDate.toLocaleString('default', { month: 'long' });
+        const value = `${year}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
+
+        options.push({
+          label: `${month} ${year}`,
+          value: value,
+          disabled: value !== '2024-12' // Only enable December 2024
+        });
+
+        startDate.setMonth(startDate.getMonth() + 1);
+      }
+
+      return options;
+    },
+    downloadData() {
+      const link = document.createElement('a');
+      link.href = '/BMSData.xlsx'; // Replace with the correct file path
+      link.download = 'BMSData_December_2024.xlsx';
+      link.click();
+    },
     toggleView(view) {
       this.currentView = view;
     },
@@ -279,6 +324,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 70vh; /* Make the container fill the viewport height */
 }
 
 .section-title {
@@ -451,5 +497,23 @@ export default {
 .btn-primary:hover {
   background-color: #0056b3;
   border-color: #004085;
+}
+
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#month-year-dropdown {
+  width: 300px;
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  margin-top: 15px;
 }
 </style>

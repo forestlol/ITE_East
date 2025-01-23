@@ -35,31 +35,35 @@
       <button @click="goBack" class="back-button">Back to Main</button>
       <h3 class="text-center mb-4">{{ selectedRoom.label }} Sensors</h3>
 
-      <!-- Display 3-Phase Sensors in a centered row -->
-      <div class="three-phase-row">
-        <div v-for="sensor in selectedRoom.sensors.slice(0, 3)" :key="sensor.id" class="sensor-box">
-          <p class="sensor-type">Three-Phase</p>
+      <!-- Only show sensors for B05-11/12 -->
+      <div v-if="selectedRoom.label === 'B05-11/12'">
+        <!-- Display 3-Phase Sensors in a centered row -->
+        <div class="three-phase-row">
+          <div v-for="sensor in selectedRoom.sensors.slice(0, 3)" :key="sensor.id" class="sensor-box">
+            <p class="sensor-type">Three-Phase</p>
+          </div>
+        </div>
+
+        <div class="single-phase-grid">
+          <div v-for="sensor in selectedRoom.sensors" :key="sensor.id" class="sensor-box"
+            @mouseover="showTooltip(sensor, $event)" @mouseleave="hideTooltip">
+            <p class="sensor-type">{{ sensor.type }}</p>
+          </div>
         </div>
       </div>
 
-      <div class="single-phase-grid">
-        <div v-for="sensor in selectedRoom.sensors" :key="sensor.id" class="sensor-box"
-          @mouseover="showTooltip(sensor, $event)" @mouseleave="hideTooltip">
-          <p class="sensor-type">{{ sensor.type }}</p>
-        </div>
-      </div>
-
-      <!-- Chart for B05-11/12 -->
-      <div v-if="selectedRoom.label === 'B05-11/12'" class="chart-section">
+      <!-- Chart for all rooms -->
+      <div class="chart-section">
         <h4 class="text-center mb-4">Daily kWh Trend</h4>
         <canvas id="kwhChart"></canvas>
       </div>
     </div>
+
     cumulative energy, current, pf and voltage
     <!-- Tooltip for Sensor Data -->
     <div v-if="tooltipVisible" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }" class="tooltip">
       <h5>{{ tooltipData.meterName || 'Meter Data' }}</h5>
-      <p><strong>Cumulative Energy:</strong> {{ tooltipData.importEnergy + tooltipData.exportEnergy}} kWh</p>
+      <p><strong>Cumulative Energy:</strong> {{ tooltipData.importEnergy + tooltipData.exportEnergy }} kWh</p>
       <p><strong>Current:</strong> {{ tooltipData.current }} A</p>
       <p><strong>Power Factor:</strong> {{ tooltipData.powerFactor }}</p>
       <p><strong>Voltage:</strong> {{ tooltipData.voltage }} V</p>
@@ -97,12 +101,11 @@ export default {
     };
   },
   methods: {
-    generateChart() {
+    generateChart(roomLabel) {
       Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
       const ctx = document.getElementById('kwhChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'line',
-        data: {
+      const roomSpecificData = roomLabel === 'B05-11/12'
+        ? {
           labels: ['01 Sep', '02 Sep', '03 Sep', '04 Sep', '05 Sep', '06 Sep', '07 Sep'],
           datasets: [
             {
@@ -127,7 +130,23 @@ export default {
               fill: true,
             }
           ]
-        },
+        }
+        : {
+          labels: ['01 Sep', '02 Sep', '03 Sep', '04 Sep', '05 Sep', '06 Sep', '07 Sep'],
+          datasets: [
+            {
+              label: 'Placeholder Data',
+              data: [0, 0, 0, 0, 0, 0, 0],
+              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              fill: true,
+            }
+          ]
+        };
+
+      new Chart(ctx, {
+        type: 'line',
+        data: roomSpecificData,
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -155,16 +174,11 @@ export default {
       });
     },
     handleBoxClick(box) {
-      if (box.label === 'B05-11/12') {
-        this.selectedRoom = box;
-        this.showFirstPage = false;
-        this.$nextTick(() => {
-          this.generateChart();
-        });
-      } else {
-        this.selectedRoom = box;
-        this.showFirstPage = false;
-      }
+      this.selectedRoom = box;
+      this.showFirstPage = false;
+      this.$nextTick(() => {
+        this.generateChart(box.label);
+      });
     },
     goBack() {
       this.showFirstPage = true;
