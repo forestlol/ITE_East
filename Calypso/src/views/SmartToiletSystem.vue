@@ -51,7 +51,7 @@
                     </template>
                     <template v-else-if="icon.type === 'Water Meter'">
                       <p v-if="icon.dailyUsage.length > 0">
-                        Water Usage for past 3 days: 0.65L - 1.3L
+                        Water Usage for past 3 days: 0.64L - 1.28L
                       </p>
                       <p v-else>No data available</p>
                     </template>
@@ -269,8 +269,8 @@ export default {
       }
 
       // Hardcoded data for the 4th, 5th, and 6th
-      this.chartLabels = ['04/12/2024', '05/12/2024', '06/12/2024'];
-      this.chartData = [1.3, 1.25, 0.63];
+      this.chartLabels = ['22/01/2025', '23/01/2025', '24/01/2025'];
+      this.chartData = [1.28, 1.19, 0.64];
 
       // Create a new Chart.js instance
       this.chartInstance = new Chart(ctx, {
