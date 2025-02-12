@@ -300,14 +300,21 @@ export default {
         },
         async fetchSensorData() {
             try {
-                const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
-                const data = response.data['24e124710d480413']; // Fetch data by device ID
-
-                this.sensorData.co2 = data.co2;
-                this.sensorData.temperature = data.temperature;
-                this.sensorData.humidity = data.humidity;
-                this.sensorData.pm2_5 = data.pm2_5;
-                this.sensorData.pm10 = data.pm10;
+                const response = await axios.get(
+                    'https://015d-119-56-103-190.ngrok-free.app/data/latest/IAQ',
+                    { headers: { 'ngrok-skip-browser-warning': 'true' } }
+                );
+                // Use Array.find() to get the sensor with the specific devEUI.
+                const sensorData = response.data.find(sensor => sensor.devEUI === "24e124710d480413");
+                if (sensorData && sensorData.data) {
+                    this.sensorData.co2 = sensorData.data.co2;
+                    this.sensorData.temperature = sensorData.data.temperature;
+                    this.sensorData.humidity = sensorData.data.humidity;
+                    this.sensorData.pm2_5 = sensorData.data.pm2_5;
+                    this.sensorData.pm10 = sensorData.data.pm10;
+                } else {
+                    console.error("Sensor with devEUI '24e124710d480413' not found or missing data.");
+                }
             } catch (error) {
                 console.error('Error fetching sensor data:', error);
             }
@@ -562,6 +569,7 @@ export default {
 }
 
 .fas.fa-smile {
-  color: #90ee90; /* Light green */
+    color: #90ee90;
+    /* Light green */
 }
 </style>

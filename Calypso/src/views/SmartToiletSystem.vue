@@ -51,7 +51,9 @@
                     </template>
                     <template v-else-if="icon.type === 'Water Meter'">
                       <p v-if="icon.dailyUsage.length > 0">
-                        Water Usage for past 3 days: 0.64L - 1.28L
+                        Daily Usage (Past 3 days):
+                        {{ Math.min(...icon.dailyUsage.map(item => item.usage)).toFixed(2) }} m³ -
+                        {{ Math.max(...icon.dailyUsage.map(item => item.usage)).toFixed(2) }} m³
                       </p>
                       <p v-else>No data available</p>
                     </template>
@@ -110,7 +112,6 @@ import axios from 'axios';
 import peopleCounterIcon from '@/assets/peopleCounter.png';
 import odorIcon from '@/assets/Odor.png';
 import waterMeterIcon from '@/assets/water-meter-sensor.png';
-import Papa from 'papaparse';
 import {
   Chart,
   BarController,
@@ -129,24 +130,24 @@ export default {
   name: 'SmartWashroomSystem',
   data() {
     return {
-      chartSeries: [], // Ensure this matches your chart data
-      chartOptions: {}, // Chart options
-      chartInstance: null, // Store the chart instance
-      chartLabels: [], // Labels for the chart
-      chartData: [], // Data for the chart
+      chartSeries: [],
+      chartOptions: {},
+      chartInstance: null,
+      chartLabels: [],
+      chartData: [],
       hoveredIndex: null,
       tooltipX: 0,
       tooltipY: 0,
-      threshold: parseInt(localStorage.getItem('peopleCounterThreshold')) || 20, // Default threshold is 20
-      showThresholdModal: false, // Modal visibility for setting threshold
+      threshold: parseInt(localStorage.getItem('peopleCounterThreshold')) || 20,
+      showThresholdModal: false,
       icons: [
         { top: '51%', left: '66%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
         { top: '40.6%', left: '44%', src: peopleCounterIcon, label: 'People Counter', type: 'People Counter', periodIn: 0, periodOut: 0, oldPeriodIn: 0, oldPeriodOut: 0, pulsating: false },
         { top: '37.6%', left: '64.7%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
         { top: '36%', left: '18%', src: odorIcon, label: 'Bathroom Odor Detector', type: 'Odor Sensor', battery: 0, nh3: 0, h2s: 0, temperature: 0, humidity: 0 },
-        { top: '46%', left: '51.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', dailyUsage: [] }, // Add dailyUsage as an array
+        { top: '46%', left: '51.5%', src: waterMeterIcon, label: 'Water Meter', type: 'Water Meter', dailyUsage: [] }
       ],
-      notifications: [], // Store notifications in the state
+      notifications: []
     };
   },
   methods: {
@@ -160,21 +161,18 @@ export default {
       try {
         const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/toilet');
         const data = response.data;
-
-        console.log('API Response:', data); // Log the API response to check the data
-
+        console.log('API Response:', data);
         // Update the People Counters and trigger animation
-        this.updateCounterData(0, data['24e124716d496395']);
-        this.updateCounterData(1, data['24e124716d496118']);
-
-        // Update the first Odor Sensor
+        // (The original code was updating these using data from the toilet API.)
+        // With the People API, the update will be handled in fetchPeopleData().
+        // You can comment out these lines if not needed:
+        // this.updateCounterData(0, data['24e124716d496395']);
+        // this.updateCounterData(1, data['24e124716d496118']);
+        // Update the Odor Sensors:
         const odorData1 = data['24e124798d482591'];
         this.updateOdorData(2, odorData1);
-
-        // Update the second Odor Sensor
         const odorData2 = data['24e124798d482365'];
         this.updateOdorData(3, odorData2);
-
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -183,53 +181,94 @@ export default {
       const icon = this.icons[index];
       const oldIn = icon.oldPeriodIn;
       const oldOut = icon.oldPeriodOut;
-      const newIn = parseInt(newData.period_in, 10) || 0; // Ensure conversion to integer
-      const newOut = parseInt(newData.period_out, 10) || 0; // Ensure conversion to integer
-
-      console.log(`People Counter ${index + 1} - In: ${newIn}, Out: ${newOut}`); // Log the new values
-
+      const newIn = parseInt(newData.period_in, 10) || 0;
+      const newOut = parseInt(newData.period_out, 10) || 0;
+      console.log(`People Counter ${index + 1} - In: ${newIn}, Out: ${newOut}`);
       icon.periodIn = newIn;
       icon.periodOut = newOut;
-
-      // Trigger pulsating animation if counts have increased
       if (newIn > oldIn || newOut > oldOut) {
         icon.pulsating = true;
         setTimeout(() => {
           icon.pulsating = false;
-        }, 2000); // End pulsating after 2 seconds
+        }, 2000);
       }
-
-      // Store the new values as old values for the next comparison
       icon.oldPeriodIn = newIn;
       icon.oldPeriodOut = newOut;
-
-      // Check if the number of people IN exceeds the threshold and send an alert
       if (newIn > this.threshold) {
         this.sendAlert(`People Counter ${index + 1} exceeded the threshold with ${newIn} people.`);
       }
     },
+    // New method to fetch People data from the API and update the people counters:
+    async fetchPeopleData() {
+      try {
+        const response = await axios.get(
+          'https://015d-119-56-103-190.ngrok-free.app/data/latest/People',
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        const peopleDataArray = response.data;
+        // Map the devEUI values to the corresponding icon index.
+        // For example, here we assume:
+        // devEUI "24e124716d496395" -> icon index 0 (e.g., Occupancy for Female Toilet)
+        // devEUI "24e124716d496118" -> icon index 1 (e.g., Occupancy for Male Toilet)
+        const mapping = {
+          "24e124716d496395": 0,
+          "24e124716d496118": 1
+        };
+        peopleDataArray.forEach(item => {
+          const devEUI = item.devEUI;
+          const index = mapping[devEUI];
+          if (index !== undefined) {
+            this.updateCounterData(index, item.data);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching people data:', error);
+      }
+    },
+    async fetchOdorData() {
+      try {
+        const response = await axios.get(
+          'https://015d-119-56-103-190.ngrok-free.app/data/latest/Odor',
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        const odorDataArray = response.data;
+        // Map devEUI to the icon index:
+        // Here, we assume that:
+        // • "24e124798d482365" should update the icon at index 3
+        // • "24e124798d482591" (if available later) should update the icon at index 2
+        const mapping = {
+          "24e124798d482365": 3,
+          "24e124798d482591": 2,
+        };
+        odorDataArray.forEach(item => {
+          const devEUI = item.devEUI;
+          const index = mapping[devEUI];
+          if (index !== undefined) {
+            this.updateOdorData(index, item);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching odor data:', error);
+      }
+    },
     sendAlert(message) {
-      // Send a notification and store it in the state and local storage
       const timestamp = new Date().toLocaleString();
       const alert = { message, timestamp };
-
-      // Add the alert to the notifications array
       this.notifications.push(alert);
-
-      // Save the alert to local storage
       const storedAlerts = JSON.parse(localStorage.getItem('alerts')) || [];
       storedAlerts.push(alert);
       localStorage.setItem('alerts', JSON.stringify(storedAlerts));
-
       console.log('Alert sent:', message);
     },
     updateOdorData(index, newData) {
+      // Check if the object has a nested "data" property; if so, use that.
+      const data = newData.data ? newData.data : newData;
       const icon = this.icons[index];
-      icon.battery = newData.battery || 0;
-      icon.nh3 = newData.nh3 || 0;
-      icon.h2s = newData.h2s || 0;
-      icon.temperature = newData.temperature || 0;
-      icon.humidity = newData.humidity || 0;
+      icon.battery = data.battery || 0;
+      icon.nh3 = data.nh3 || 0;
+      icon.h2s = data.h2s || 0;
+      icon.temperature = data.temperature || 0;
+      icon.humidity = data.humidity || 0;
     },
     showValue(index, event) {
       const containerRect = event.currentTarget.getBoundingClientRect();
@@ -248,7 +287,6 @@ export default {
       this.showThresholdModal = false;
     },
     saveThreshold() {
-      // Save the threshold to local storage and close the modal
       localStorage.setItem('peopleCounterThreshold', this.threshold);
       console.log('Threshold saved:', this.threshold);
       this.closeThresholdModal();
@@ -257,29 +295,39 @@ export default {
       return JSON.parse(localStorage.getItem('alerts')) || [];
     },
     generateChart() {
-      // Ensure Chart.js is registered
-      Chart.register(BarController, LineController, BarElement, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
-
+      Chart.register(
+        BarController,
+        LineController,
+        BarElement,
+        LineElement,
+        PointElement,
+        LinearScale,
+        CategoryScale,
+        Title,
+        Tooltip,
+        Legend
+      );
       const canvas = document.getElementById('waterChart');
       const ctx = canvas.getContext('2d');
 
-      // Destroy existing chart instance if it exists
       if (this.chartInstance) {
         this.chartInstance.destroy();
       }
 
-      // Hardcoded data for the 4th, 5th, and 6th
-      this.chartLabels = ['22/01/2025', '23/01/2025', '24/01/2025'];
-      this.chartData = [1.28, 1.19, 0.64];
+      // Retrieve chart data from local storage if available.
+      const storedLabels = JSON.parse(localStorage.getItem('waterMeterChartLabels')) || this.chartLabels;
+      const storedData = JSON.parse(localStorage.getItem('waterMeterChartData')) || this.chartData;
 
-      // Create a new Chart.js instance
+      this.chartLabels = storedLabels;
+      this.chartData = storedData;
+
       this.chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: this.chartLabels,
           datasets: [
             {
-              label: 'Water Consumption (liters)',
+              label: 'Water Consumption (m³)',
               data: this.chartData,
               backgroundColor: 'rgba(75, 192, 192, 0.6)',
               borderColor: 'rgba(75, 192, 192, 1)',
@@ -293,18 +341,18 @@ export default {
           plugins: {
             legend: {
               labels: {
-                color: 'white', // Set legend text color to white
+                color: 'white',
               },
             },
             title: {
               display: true,
               text: 'Daily Water Consumption',
-              color: 'white', // Set chart title color to white
+              color: 'white',
             },
             tooltip: {
-              titleColor: 'white', // Tooltip title color
-              bodyColor: 'white', // Tooltip body text color
-              backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tooltip background color
+              titleColor: 'white',
+              bodyColor: 'white',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
             },
           },
           scales: {
@@ -312,26 +360,26 @@ export default {
               title: {
                 display: true,
                 text: 'Date',
-                color: 'white', // Set X-axis title color to white
+                color: 'white',
               },
               ticks: {
-                color: 'white', // Set X-axis ticks color to white
+                color: 'white',
               },
               grid: {
-                color: 'rgba(255, 255, 255, 0.1)', // X-axis grid line color
+                color: 'rgba(255, 255, 255, 0.1)',
               },
             },
             y: {
               title: {
                 display: true,
-                text: 'Liters',
-                color: 'white', // Set Y-axis title color to white
+                text: 'm³',
+                color: 'white',
               },
               ticks: {
-                color: 'white', // Set Y-axis ticks color to white
+                color: 'white',
               },
               grid: {
-                color: 'rgba(255, 255, 255, 0.1)', // Y-axis grid line color
+                color: 'rgba(255, 255, 255, 0.1)',
               },
             },
           },
@@ -340,95 +388,105 @@ export default {
     },
     async fetchDataAndCalculateUsage() {
       try {
-        console.log('Starting to fetch data from the CSV file...');
+        // Set endDate as today (or the desired display end date)
+        const endDate = new Date();
+        // To compute differences for 3 days (e.g., 09/02, 10/02, 11/02) we need the reading from the day before the first desired day.
+        // So, set startDate to 4 days before endDate.
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 4);
 
-        // Fetch the CSV file
-        const response = await axios.get('/watermeter_data.csv');
-        const csvData = response.data;
+        // Convert to ISO strings (the API expects ISO format)
+        const start_date_str = startDate.toISOString();
+        const end_date_str = endDate.toISOString();
 
-        console.log('Raw CSV Data:', csvData);
+        // Build the API URL with dynamic query parameters.
+        const url = `https://015d-119-56-103-190.ngrok-free.app/data/history/WaterMeter?start_date=${start_date_str}&end_date=${end_date_str}`;
+        console.log("Fetching water meter history from:", url);
 
-        // Parse CSV data
-        const parsedData = Papa.parse(csvData, { header: true }).data;
+        // Fetch data with the required header.
+        const response = await axios.get(url, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+        const historyData = response.data; // An array of readings.
+        console.log("Water Meter History Data:", historyData);
 
-        console.log('Parsed Data:', parsedData);
+        // Group the readings by date (YYYY-MM-DD) and take the latest reading for each date.
+        let groupedReadings = {};
+        historyData.forEach(item => {
+          if (item.data && item.data.postDate) {
+            const postDate = item.data.postDate; // e.g., "2025-02-10 11:55:00"
+            const dateKey = postDate.split(" ")[0]; // e.g., "2025-02-10"
+            if (
+              !groupedReadings[dateKey] ||
+              new Date(item.data.postDate) > new Date(groupedReadings[dateKey].data.postDate)
+            ) {
+              groupedReadings[dateKey] = item;
+            }
+          }
+        });
 
-        // Check if data exists
-        if (!parsedData || parsedData.length === 0) {
-          console.warn('No data available in the CSV file.');
-          this.chartLabels = [];
-          this.chartData = [];
-          return;
+        // Convert the grouped object to an array of objects with cumulative reading.
+        let readingsArray = Object.keys(groupedReadings).map(date => ({
+          date: date, // Format: "YYYY-MM-DD"
+          reading: parseFloat(groupedReadings[date].data.dispNum)
+        }));
+        // Sort the readings in ascending order by date.
+        readingsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+        console.log("Readings Array:", readingsArray);
+
+        // Compute daily usage by subtracting the previous day's cumulative reading.
+        // This produces an array of daily differences starting from the second reading.
+        let dailyUsage = [];
+        for (let i = 1; i < readingsArray.length; i++) {
+          dailyUsage.push({
+            date: readingsArray[i].date, // This is the day for which usage is computed.
+            usage: readingsArray[i].reading - readingsArray[i - 1].reading
+          });
+        }
+        console.log("Calculated Daily Usage:", dailyUsage);
+
+        // We want to display daily usage for the last 3 days (excluding today's data).
+        // If endDate is today (say 11/02), we want differences for 09/02, 10/02, and 11/02.
+        // Ensure we have at least 3 dailyUsage entries.
+        const displayDailyUsage = dailyUsage.slice(-3);
+
+        // Update chart data using displayDailyUsage.
+        this.chartLabels = displayDailyUsage.map(item => {
+          const parts = item.date.split("-");
+          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        });
+        this.chartData = displayDailyUsage.map(item => item.usage);
+        console.log("Chart Labels:", this.chartLabels);
+        console.log("Chart Data:", this.chartData);
+
+        // Update the water meter icon's dailyUsage property.
+        const waterMeterIconObj = this.icons.find(icon => icon.type === 'Water Meter');
+        if (waterMeterIconObj) {
+          waterMeterIconObj.dailyUsage = displayDailyUsage;
         }
 
-        // Filter and process the data
-        const dailyReadings = parsedData
-          .filter(row => {
-            const reading = parseFloat(row['Daily Reading']);
-            return !isNaN(reading); // Exclude rows with NaN readings
-          })
-          .map(row => ({
-            date: row['Interval Timestamp'].split(' ')[0], // Extract date
-            reading: parseFloat(row['Daily Reading']),
-          }));
+        // Optionally, store these values in local storage.
+        localStorage.setItem('waterMeterChartLabels', JSON.stringify(this.chartLabels));
+        localStorage.setItem('waterMeterChartData', JSON.stringify(this.chartData));
 
-        console.log('Valid Daily Readings:', dailyReadings);
-
-        // Check if enough data exists to calculate usage
-        if (dailyReadings.length < 2) {
-          console.warn('Insufficient data for calculating daily usage.');
-          this.chartLabels = [];
-          this.chartData = [];
-          return;
-        }
-
-        // Calculate daily usage
-        // Modify this part of your fetchDataAndCalculateUsage function:
-        const dailyUsage = dailyReadings.map((current, index, array) => {
-          if (index === 0) return null; // Skip the first day
-          return {
-            date: `${current.date.substring(0, 2)}/${current.date.substring(2, 4)}/${current.date.substring(4)}`, // Convert 21112024 to 21/11/2024
-            usage: current.reading - array[index - 1].reading,
-          };
-        }).filter(Boolean);
-
-        console.log('Calculated Daily Usage:', dailyUsage);
-
-        // Take the last 3 days for the chart
-        const last3Days = dailyUsage.slice(-3);
-
-        console.log('Last 3 Days of Usage:', last3Days);
-
-        // Update chart data
-        this.chartLabels = last3Days.map(data => data.date);
-        this.chartData = last3Days.map(data => data.usage);
-
-        console.log('Chart Labels:', this.chartLabels);
-        console.log('Chart Data:', this.chartData);
-
-        // Update dailyUsage for the Water Meter
-        const waterMeterIcon = this.icons.find(icon => icon.type === 'Water Meter');
-        if (waterMeterIcon) {
-          waterMeterIcon.dailyUsage = dailyUsage.map(data => ({
-            date: data.date,
-            usage: data.usage,
-          }));
-        }
-
-        // Generate chart
+        // Generate (or update) the chart.
         this.generateChart();
       } catch (error) {
-        console.error('Error fetching and processing data:', error);
+        console.error("Error fetching and processing water meter history data:", error);
       }
-    },
+    }
   },
   mounted() {
+    // Fetch People data from the People API every 5 seconds.
+    this.fetchPeopleData();
+    setInterval(this.fetchPeopleData, 5000);
+    // Other initial data fetches:
     this.fetchData();
-    this.generateChart(); // Ensure chart is generated after DOM update
+    this.generateChart();
     this.fetchDataAndCalculateUsage();
+    this.fetchOdorData();
   }
 };
 </script>
+
 
 <style scoped>
 .container-fluid {

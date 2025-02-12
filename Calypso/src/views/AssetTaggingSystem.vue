@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-  
+
     <!-- Log Dialog Section -->
     <div class="log-dialog mt-4">
       <h4>Logs</h4>
@@ -32,7 +32,7 @@
         <li v-for="(log, index) in logs" :key="index">{{ log }}</li>
       </ul>
     </div>
-  
+
     <!-- Condition Section -->
     <div class="condition mt-4 text-center">
       <select v-model="selectedCondition" class="form-control mt-3">
@@ -42,7 +42,7 @@
         </option>
       </select>
     </div>
-  
+
     <!-- Modal for adjusting BLE Beacon settings -->
     <div v-if="showModal" class="modal-overlay" @click="closeModal"></div>
     <div v-if="showModal" class="modal d-block">
@@ -114,42 +114,48 @@ export default {
     },
     fetchData() {
       console.log("Fetching data...");
-      fetch('https://hammerhead-app-kva7n.ondigitalocean.app/api/AssetTagging/data')
+      fetch('https://015d-119-56-103-190.ngrok-free.app/data/latest/AssetTagging', {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      })
         .then(response => response.json())
         .then(data => {
-          const sensorData = data.data;
-
-          sensorData.forEach(sensor => {
+          // The returned data is an object where each key is a MAC address.
+          Object.keys(data).forEach(mac => {
+            const sensor = data[mac];
             const rssi = sensor.rssi;
-            const mac = sensor.mac;
+            // Convert the provided timestamp (in milliseconds) into a Date object.
+            const sensorTimestamp = sensor.timestamp ? new Date(sensor.timestamp) : new Date();
 
+            // Check if this sensor already exists in the list.
             const existingSensor = this.allSensors.find(s => s.mac === mac);
-
             if (!existingSensor) {
-              // Add new sensor
+              // Add new sensor if the total is less than 28.
               if (this.allSensors.length < 28) {
-                this.allSensors.push({ mac, rssi, lastUpdated: new Date() });
+                this.allSensors.push({ mac, rssi, lastUpdated: sensorTimestamp });
               }
             } else {
-              // Update existing sensor
+              // Update the existing sensor data.
               existingSensor.rssi = rssi;
-              existingSensor.lastUpdated = new Date();
+              existingSensor.lastUpdated = sensorTimestamp;
             }
 
+            // Check if the sensor is out of range based on its RSSI value.
             if (rssi < -90) {
               setTimeout(() => {
-                // Check if the RSSI is still below -90 after 20 seconds
+                // After 20 seconds, if the RSSI is still below -90, add it to the out-of-range list.
                 if (rssi < -90) {
                   this.addToOutOfRange(mac);
                 }
               }, 20000);
             } else {
-              // Immediately remove from out of range if RSSI is greater than -90
+              // Remove sensor from out-of-range list if its RSSI is above the threshold.
               this.removeFromOutOfRange(mac);
             }
           });
 
-          // When 28 sensors are filled, switch to checking every 10 seconds
+          // When 28 sensors are filled, switch to checking every 10 milliseconds (as per your original logic).
           if (this.allSensors.length >= 28) {
             clearInterval(this.interval);
             this.interval = setInterval(this.fetchData, 10);
@@ -186,6 +192,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 .container-fluid {
@@ -246,8 +254,10 @@ h2 {
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 150px; /* Set a maximum height */
-  overflow-y: auto; /* Enable scrolling if the logs exceed max height */
+  max-height: 150px;
+  /* Set a maximum height */
+  overflow-y: auto;
+  /* Enable scrolling if the logs exceed max height */
 }
 
 .log-list {
@@ -321,7 +331,7 @@ h2 {
   margin-bottom: 10px;
 }
 
-.modal-content{
-  color:black;
+.modal-content {
+  color: black;
 }
 </style>

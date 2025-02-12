@@ -24,7 +24,6 @@
 
                 <!-- Display Sensor Data -->
                 <div class="sensor-box">
-                    <p><b>Temperature:</b> {{ currentSensor.Temperature }} °C</p>
                     <p><b>Soil Moisture:</b> {{ currentSensor.SoilMoisture }} %</p>
                     <p><b>pH Level:</b> {{ currentSensor.pH }}</p>
                     <p><b>Electrical Conductivity (EC):</b> {{ currentSensor.EC }} µS/cm</p>
@@ -161,65 +160,100 @@ export default {
         };
     },
     methods: {
+        openIconModal(icon) {
+            this.activeIcon = icon;
+            this.showIconModal = true;
+        },
+
+        // Example of the closeIconModal method if you don't have it yet
+        closeIconModal() {
+            this.showIconModal = false;
+        },
         updateSelectedSensor() {
             this.currentSensor = this.sensorData[this.selectedSensorIndex];
         },
 
         async fetchSensorData() {
             try {
-                const response = await axios.get("https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/outdoor");
-                const data = response.data;
+                const response = await axios.get(
+                    "https://015d-119-56-103-190.ngrok-free.app/data/latest/Soil",
+                    { headers: { 'ngrok-skip-browser-warning': 'true' } }
+                );
+                // The API returns an array of sensor objects.
+                const sensorsArray = response.data;
+                console.log("Sensors array from API:", sensorsArray);
 
-                // Storing relevant sensor data into the sensorData array
-                let originalSensorData = [
-                    data['aaaa202406140017'],
-                    data['aaaa202406140009'],
-                    data['aaaa202406140005'],
-                    data['aaaa202406140006'],
-                    data['aaaa202406140007'],
-                    data['aaaa202406140008'],
-                    data['aaaa202406140010'],
-                    data['aaaa202406140011'],
-                    data['aaaa202406140012'],
-                    data['aaaa202406140015'],
-                    data['aaaa202406140004'],
-                    data['aaaa202406140001'],
-                    data['aaaa202406140002'],
+                // Define the desired devEUIs in the order you want.
+                const desiredDevEUIs = [
+                    'aaaa202406140017',
+                    'aaaa202406140009',
+                    'aaaa202406140005',
+                    'aaaa202406140006',
+                    'aaaa202406140007',
+                    'aaaa202406140008',
+                    'aaaa202406140010',
+                    'aaaa202406140011',
+                    'aaaa202406140012',
+                    'aaaa202406140015',
+                    'aaaa202406140004',
+                    'aaaa202406140001',
+                    'aaaa202406140002'
                 ];
 
-                // Randomly duplicate 4 sensors from the original 13 to make it 17
-                const randomIndexes = [];
-                while (randomIndexes.length < 4) {
-                    const randomIndex = Math.floor(Math.random() * originalSensorData.length);
-                    if (!randomIndexes.includes(randomIndex)) {
-                        randomIndexes.push(randomIndex);
+                // Map each desired devEUI to its corresponding sensor.
+                // We transform the sensor so that its decodedData is spread at the top level.
+                let originalSensorData = desiredDevEUIs
+                    .map(devEUI => {
+                        const sensor = sensorsArray.find(sensor => sensor.devEUI === devEUI);
+                        if (sensor && sensor.data && sensor.data.decodedData) {
+                            return {
+                                // Spread decodedData properties (Temperature, SoilMoisture, pH, etc.)
+                                ...sensor.data.decodedData,
+                                devEUI: sensor.devEUI,
+                                deviceName: sensor.deviceName,
+                                time: sensor.time
+                            };
+                        }
+                        return null;
+                    })
+                    .filter(item => item !== null); // Remove undefined entries
+
+                console.log("Processed sensor data (filtered by devEUI):", originalSensorData);
+
+                // Determine how many duplicates are needed to reach a total of 17 sensors.
+                const totalSensors = 17;
+                const duplicatesNeeded = totalSensors - originalSensorData.length;
+                let duplicatedSensors = [];
+                if (originalSensorData.length > 0 && duplicatesNeeded > 0) {
+                    if (duplicatesNeeded > originalSensorData.length) {
+                        // If duplicatesNeeded exceeds the number of unique sensors, allow repeated duplicates.
+                        for (let i = 0; i < duplicatesNeeded; i++) {
+                            const randomIndex = Math.floor(Math.random() * originalSensorData.length);
+                            duplicatedSensors.push(originalSensorData[randomIndex]);
+                        }
+                    } else {
+                        // Otherwise, choose unique random indices.
+                        const randomIndexes = [];
+                        while (randomIndexes.length < duplicatesNeeded) {
+                            const randomIndex = Math.floor(Math.random() * originalSensorData.length);
+                            if (!randomIndexes.includes(randomIndex)) {
+                                randomIndexes.push(randomIndex);
+                            }
+                        }
+                        duplicatedSensors = randomIndexes.map(index => originalSensorData[index]);
                     }
                 }
 
-                // Duplicating the randomly selected sensors
-                const duplicatedSensors = randomIndexes.map(index => originalSensorData[index]);
-
-                // Combine original sensor data with duplicated sensors
+                // Combine the original sensor data with the duplicated sensors.
                 this.sensorData = [...originalSensorData, ...duplicatedSensors];
 
-                // Set the first sensor data as the default on load
+                // Set the first sensor as the default sensor to display.
                 this.currentSensor = this.sensorData[0];
 
-                console.log("Final sensorData array:", this.sensorData); // For debugging
-
+                console.log("Final sensorData array (17 sensors):", this.sensorData);
             } catch (error) {
                 console.error("Error fetching sensor data:", error);
             }
-        },
-        getUnit(key) {
-            const units = {
-                co2: 'ppm',
-                temperature: '°C',
-                humidity: '%',
-                pm2_5: 'µg/m³',
-                pm10: 'µg/m³'
-            };
-            return units[key] || '';
         },
         getFaceClass(value, type) {
             let goodLimit, badLimit;
@@ -660,6 +694,7 @@ input:checked+.slider:before {
 }
 
 .fas.fa-smile {
-  color: #90ee90; /* Light green */
+    color: #90ee90;
+    /* Light green */
 }
 </style>

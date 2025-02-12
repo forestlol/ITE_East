@@ -357,27 +357,27 @@ export default {
     // Call this at the end of fetching sensor data
     async fetchMagneticSensorData() {
       try {
-        const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/Magnetic');
-        const data = response.data;
+        const response = await axios.get(
+          'https://015d-119-56-103-190.ngrok-free.app/data/latest/Magnetic',
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        const dataArray = response.data; // New API returns an array of sensor objects
 
+        // Find sensors based on their devEUI
+        const sensor1 = dataArray.find(item => item.devEUI === '24e124141e151801');
+        const sensor2 = dataArray.find(item => item.devEUI === '24e124141e151546');
+
+        // Update the magneticSensors array with proper positioning and a flag for displaying info.
         this.magneticSensors = [
-          {
-            ...data['24e124141e151801'],
-            top: '19%',
-            left: '63%',
-            showInfo: false
-          },
-          {
-            ...data['24e124141e151546'],
-            top: '19%',
-            left: '66.2%',
-            showInfo: false
-          }
+          sensor1
+            ? { ...sensor1.data, top: '19%', left: '63%', showInfo: false }
+            : { top: '19%', left: '63%', showInfo: false },
+          sensor2
+            ? { ...sensor2.data, top: '19%', left: '66.2%', showInfo: false }
+            : { top: '19%', left: '66.2%', showInfo: false }
         ];
 
         this.updateDeviceStatuses();
-
-        // Check and log the magnetic sensor status
         this.checkAndLogMagneticSensorStatus();
       } catch (error) {
         console.error('Error fetching magnetic sensor data:', error);

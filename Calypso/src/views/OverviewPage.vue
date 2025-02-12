@@ -338,10 +338,27 @@ export default {
     },
     async fetchSensorData() {
       try {
-        const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
-        this.sensorData = response.data;
+        const response = await axios.get(
+          'https://015d-119-56-103-190.ngrok-free.app/data/latest/IAQ',
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        // The API now returns an array of sensor objects.
+        const sensorsArray = response.data;
+        console.log("IAQ sensor array from API:", sensorsArray);
+
+        // Convert the array into an object keyed by devEUI from sensor.data
+        const sensorDataObj = {};
+        sensorsArray.forEach(sensor => {
+          if (sensor.data && sensor.data.devEUI) {
+            sensorDataObj[sensor.data.devEUI] = sensor.data;
+          }
+        });
+
+        // Update sensorData so that getOverallFaceClass can look it up by devEUI.
+        this.sensorData = sensorDataObj;
+        console.log("Updated sensorData object:", this.sensorData);
       } catch (error) {
-        console.error('Error fetching sensor data:', error);
+        console.error("Error fetching sensor data:", error);
       }
     },
     getOverallFaceClass(subsystem) {

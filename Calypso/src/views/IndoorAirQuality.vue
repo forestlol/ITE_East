@@ -155,7 +155,7 @@ export default {
   name: 'IndoorAirQuality',
   data() {
     return {
-      sensors: [], // Your sensors data
+      sensors: [], // This will hold the mapped sensor data
       fans: [
         { id: 1, name: 'Fresh Air Fan 4 (B05-11)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '39%' },
         { id: 2, name: 'Fresh Air Fan 3 (B05-12)', deviceEUI: '24E124756E049153', isOn: false, top: '49%', left: '78%' }
@@ -167,7 +167,7 @@ export default {
         { id: 2, top: '26%', left: '40%' },
         { id: 3, top: '26%', left: '61%' },
         { id: 4, top: '26%', left: '81%' },
-        { id: 5, top: '74%', left: '19%' },
+        { id: 5, top: '55%', left: '11.6%' }, // B05-18 (will be populated below)
         { id: 6, top: '74%', left: '40%' },
         { id: 7, top: '74%', left: '61%' },
         { id: 8, top: '74%', left: '81%' }
@@ -351,214 +351,156 @@ export default {
       this.selectedFan = fan;
       this.showModal = true;
     },
-
     // Close modal
     closeModal() {
       this.showModal = false;
     },
-
     // Function to send command to control fan (turn it on or off)
     async sendFanCommand(fan, turnOn) {
       const payload = {
         deviceEui: fan.deviceEUI,
         switchStates: turnOn ? [1, 0, 0, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0, 0, 0] // Adjust based on fan control logic
       };
-
       try {
         const response = await axios.post('https://hammerhead-app-kva7n.ondigitalocean.app/command/ws558', payload);
         console.log(`${fan.name} turned ${turnOn ? 'ON' : 'OFF'}`, response.data);
-
         // Update the fan state
         fan.isOn = turnOn;
       } catch (error) {
         console.error(`Error turning ${turnOn ? 'ON' : 'OFF'} ${fan.name}:`, error);
       }
     },
-
     // Method to toggle both fans at once
     toggleAllFans() {
       this.fans.forEach(fan => {
-        fan.isOn = !fan.isOn;  // Toggle the state of both fans
-        this.sendFanCommand(fan, fan.isOn);  // Send the command for each fan
+        fan.isOn = !fan.isOn;  // Toggle the state of each fan
+        this.sendFanCommand(fan, fan.isOn);
       });
     },
-
     getSelectedSensorData(boxId) {
       return this.sensors.find(sensor => sensor.id === boxId);
     },
-
     async fetchSensorData() {
       try {
-        const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/sheet/IAQ');
-        const data = response.data;
-
-        this.sensors = [
-          {
-            id: 1,
-            name: 'B05-11',
-            co2: data['24e124710d480176'].co2,
-            temperature: data['24e124710d480176'].temperature,
-            humidity: data['24e124710d480176'].humidity,
-            pm2_5: data['24e124710d480176'].pm2_5,
-            pm10: data['24e124710d480176'].pm10,
-            pressure: data['24e124710d480176'].pressure,
-            top: '8%',
-            left: '11.6%'
-          },
-          {
-            id: 2,
-            name: 'B05-12',
-            co2: data['24e124710d480413'].co2,
-            temperature: data['24e124710d480413'].temperature,
-            humidity: data['24e124710d480413'].humidity,
-            pm2_5: data['24e124710d480413'].pm2_5,
-            pm10: data['24e124710d480413'].pm10,
-            pressure: data['24e124710d480413'].pressure,
-            top: '8%',
-            left: '32.3%'
-          },
-          {
-            id: 3,
-            name: 'B05-13/14',
-            co2: data['24e124710d480081'].co2,
-            temperature: data['24e124710d480081'].temperature,
-            humidity: data['24e124710d480081'].humidity,
-            pm2_5: data['24e124710d480081'].pm2_5,
-            pm10: data['24e124710d480081'].pm10,
-            pressure: data['24e124710d480081'].pressure,
-            top: '8%',
-            left: '53%'
-          },
-          {
-            id: 4,
-            name: 'B05-15/16',
-            co2: data['24e124710d481996'].co2,
-            temperature: data['24e124710d481996'].temperature,
-            humidity: data['24e124710d481996'].humidity,
-            pm2_5: data['24e124710d481996'].pm2_5,
-            pm10: data['24e124710d481996'].pm10,
-            pressure: data['24e124710d481996'].pressure,
-            top: '8%',
-            left: '73.7%'
-          },
-          {
-            id: 5,
-            name: 'B05-18',
-            co2: data['24e124710d480413'].co2,
-            temperature: data['24e124710d480413'].temperature,
-            humidity: data['24e124710d480413'].humidity,
-            pm2_5: data['24e124710d480413'].pm2_5,
-            pm10: data['24e124710d480413'].pm10,
-            pressure: data['24e124710d480413'].pressure,
-            top: '55%',
-            left: '11.6%'
-          },
-          {
-            id: 6,
-            name: 'B05-07',
-            co2: data['24e124710d482090'].co2,
-            temperature: data['24e124710d482090'].temperature,
-            humidity: data['24e124710d482090'].humidity,
-            pm2_5: data['24e124710d482090'].pm2_5,
-            pm10: data['24e124710d482090'].pm10,
-            pressure: data['24e124710d482090'].pressure,
-            top: '55%',
-            left: '32.3%'
-          },
-          {
-            id: 7,
-            name: 'B05-08',
-            co2: data['24e124710d482388'].co2,
-            temperature: data['24e124710d482388'].temperature,
-            humidity: data['24e124710d482388'].humidity,
-            pm2_5: data['24e124710d482388'].pm2_5,
-            pm10: data['24e124710d482388'].pm10,
-            pressure: data['24e124710d482388'].pressure,
-            top: '55%',
-            left: '53%'
-          },
-          {
-            id: 8,
-            name: 'B05-09',
-            co2: data['24e124710d482648'].co2,
-            temperature: data['24e124710d482648'].temperature,
-            humidity: data['24e124710d482648'].humidity,
-            pm2_5: data['24e124710d482648'].pm2_5,
-            pm10: data['24e124710d482648'].pm10,
-            pressure: data['24e124710d482648'].pressure,
-            top: '55%',
-            left: '73.7%'
+        const response = await axios.get(
+          'https://015d-119-56-103-190.ngrok-free.app/data/latest/IAQ',
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        const dataArray = response.data;
+        // Mapping from devEUI to sensor mapping information.
+        // For devEUI "24e124710d480413", we return an array so that we create two sensor entries:
+        // one for B05-12 (id: 2) and one for B05-18 (id: 5) with custom coordinates and name.
+        const mapping = {
+          "24e124710d480176": { id: 1, top: '8%', left: '11.6%' },  // B05-11
+          "24e124710d480413": [
+            { id: 2, top: '8%', left: '32.3%' },                      // B05-12
+            { id: 5, top: '55%', left: '11.6%', name: 'B05-18' }       // B05-18 (custom override)
+          ],
+          "24e124710d480081": { id: 3, top: '8%', left: '53%' },       // B05-13/14
+          "24e124710d481996": { id: 4, top: '8%', left: '73.7%' },      // B05-15/16
+          "24e124710d482090": { id: 6, top: '55%', left: '32.3%' },      // B05-07
+          "24e124710d482388": { id: 7, top: '55%', left: '53%' },         // B05-08
+          "24e124710d482648": { id: 8, top: '55%', left: '73.7%' }         // B05-09
+        };
+        let sensorsTemp = [];
+        // Process each sensor reading from the returned array.
+        dataArray.forEach(sensorObj => {
+          const devEUI = sensorObj.devEUI;
+          if (mapping[devEUI]) {
+            const mapValue = mapping[devEUI];
+            if (Array.isArray(mapValue)) {
+              // Create a sensor entry for each mapping entry.
+              mapValue.forEach(entry => {
+                sensorsTemp.push({
+                  id: entry.id,
+                  name: entry.name ? entry.name : sensorObj.data.deviceName,
+                  co2: sensorObj.data.co2,
+                  temperature: sensorObj.data.temperature,
+                  humidity: sensorObj.data.humidity,
+                  pm2_5: sensorObj.data.pm2_5,
+                  pm10: sensorObj.data.pm10,
+                  pressure: sensorObj.data.pressure,
+                  top: entry.top,
+                  left: entry.left
+                });
+              });
+            } else {
+              sensorsTemp.push({
+                id: mapValue.id,
+                name: sensorObj.data.deviceName,
+                co2: sensorObj.data.co2,
+                temperature: sensorObj.data.temperature,
+                humidity: sensorObj.data.humidity,
+                pm2_5: sensorObj.data.pm2_5,
+                pm10: sensorObj.data.pm10,
+                pressure: sensorObj.data.pressure,
+                top: mapValue.top,
+                left: mapValue.left
+              });
+            }
           }
-        ];
+        });
+        // Sort the sensors by id (so they match the floorplan order)
+        sensorsTemp.sort((a, b) => a.id - b.id);
+        this.sensors = sensorsTemp;
       } catch (error) {
         console.error('Error fetching sensor data:', error);
       }
     },
-
     openDialog(boxId) {
       this.selectedBoxId = boxId;
       this.showDialog = true;
     },
-
     closeDialog() {
       this.showDialog = false;
     },
-
     getCurrentFloorplanImage(boxId) {
       const floorplan = this.floorplans.find(fp => fp.id === boxId);
-      if (floorplan) {
-        return floorplan.image;
-      } else {
-        return ''; // Fallback in case no image is found
-      }
+      return floorplan ? floorplan.image : '';
     },
-
     getFloorName(boxId) {
       const floorplan = this.floorplans.find(fp => fp.id === boxId);
       return floorplan ? floorplan.name : '';
     },
-
     getFaceClass(value, type) {
       let goodLimit, badLimit;
-
       switch (type) {
         case 'co2':
           goodLimit = 1000;
           badLimit = 1500;
           break;
         case 'temperature':
-          goodLimit = 25.5; // Acceptable range is 22.5°C to 25.5°C
+          goodLimit = 25.5; // Acceptable range: 22.5°C to 25.5°C
           badLimit = 27.5;
           break;
         case 'humidity':
-          goodLimit = 70; // Acceptable range is < 70%
+          goodLimit = 70;   // Acceptable: less than 70%
           badLimit = 71;
           break;
         case 'pm2_5':
-          goodLimit = 35; // Acceptable range < 35 µg/m³
+          goodLimit = 35;   // Acceptable: less than 35 µg/m³
           badLimit = 75;
           break;
         case 'pm10':
-          goodLimit = 100; // Acceptable range < 100 µg/m³
+          goodLimit = 100;  // Acceptable: less than 100 µg/m³
           badLimit = 150;
           break;
         default:
           goodLimit = 0;
           badLimit = 0;
       }
-
       if (value < goodLimit) {
-        return 'fas fa-smile text-success modal-face-icon'; // Green smiley face for good values
+        return 'fas fa-smile text-success modal-face-icon';
       } else if (value >= goodLimit && value < badLimit) {
-        return 'fas fa-meh text-warning modal-face-icon'; // Orange neutral face for moderate values
+        return 'fas fa-meh text-warning modal-face-icon';
       } else {
-        return 'fas fa-frown text-danger modal-face-icon'; // Red frown face for bad values
+        return 'fas fa-frown text-danger modal-face-icon';
       }
     }
   }
 };
-
 </script>
+
 
 <style scoped>
 .container-fluid {

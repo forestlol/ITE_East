@@ -99,14 +99,14 @@ export default {
                 nh3: 0,
                 h2s: 0,
                 temperature: 0,
-                humidity: 0,
+                humidity: 0
             },
             femaleToiletData: {
                 occupancy: 0,
                 nh3: 0,
                 h2s: 0,
                 temperature: 0,
-                humidity: 0,
+                humidity: 0
             },
             sensorData: {
                 temperature: null,
@@ -128,36 +128,104 @@ export default {
     methods: {
         async fetchSensorData() {
             try {
-                const response = await axios.get('https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/toilet');
-                const data = response.data;
+                const response = await axios.get(
+                    'https://015d-119-56-103-190.ngrok-free.app/data/latest/Odor',
+                    { headers: { 'ngrok-skip-browser-warning': 'true' } }
+                );
+                // The API returns an array of odor sensor objects.
+                const odorDataArray = response.data;
+                console.log("Odor Sensor Data:", odorDataArray);
 
-                // Assuming devEUI '24e124798d482591' is for the Male Toilet Odor Detector
-                const maleToiletOdorSensor = data['24e124798d482591'];
-                const maleToiletPeopleCounter = data['24e124716d496395']; // devEUI for male toilet people counter
-                if (maleToiletOdorSensor && maleToiletPeopleCounter) {
-                    this.maleToiletData = {
-                        occupancy: maleToiletPeopleCounter.period_in || 0,
-                        nh3: maleToiletOdorSensor.nh3 || 0,
-                        h2s: maleToiletOdorSensor.h2s || 0,
-                        temperature: maleToiletOdorSensor.temperature || 0,
-                        humidity: maleToiletOdorSensor.humidity || 0,
-                    };
-                }
+                // Find the female toilet odor sensor (devEUI "24e124798d482365")
+                const femaleToiletOdorSensor = odorDataArray.find(
+                    sensor => sensor.devEUI === "24e124798d482365"
+                );
+                // Find the male toilet odor sensor (devEUI "24e124798d482591")
+                const maleToiletOdorSensor = odorDataArray.find(
+                    sensor => sensor.devEUI === "24e124798d482591"
+                );
 
-                // Assuming devEUI '24e124798d482365' is for the Female Toilet Odor Detector
-                const femaleToiletOdorSensor = data['24e124798d482365'];
-                const femaleToiletPeopleCounter = data['24e124716d496118']; // devEUI for female toilet people counter
-                if (femaleToiletOdorSensor && femaleToiletPeopleCounter) {
-                    this.femaleToiletData = {
-                        occupancy: femaleToiletPeopleCounter.period_in || 0,
-                        nh3: femaleToiletOdorSensor.nh3 || 0,
-                        h2s: femaleToiletOdorSensor.h2s || 0,
-                        temperature: femaleToiletOdorSensor.temperature || 0,
-                        humidity: femaleToiletOdorSensor.humidity || 0,
-                    };
-                }
+                // Update the data for the female toilet.
+                // If the sensor exists, use its decoded data; otherwise, default to 0.
+                this.femaleToiletData = {
+                    occupancy: 0, // Occupancy is not provided by the Odor API
+                    nh3: femaleToiletOdorSensor && femaleToiletOdorSensor.data
+                        ? femaleToiletOdorSensor.data.nh3 || 0
+                        : 0,
+                    h2s: femaleToiletOdorSensor && femaleToiletOdorSensor.data
+                        ? femaleToiletOdorSensor.data.h2s || 0
+                        : 0,
+                    temperature: femaleToiletOdorSensor && femaleToiletOdorSensor.data
+                        ? femaleToiletOdorSensor.data.temperature || 0
+                        : 0,
+                    humidity: femaleToiletOdorSensor && femaleToiletOdorSensor.data
+                        ? femaleToiletOdorSensor.data.humidity || 0
+                        : 0,
+                };
+
+                // For the male toilet, since data is not available, default all values to 0.
+                this.maleToiletData = {
+                    occupancy: 0,
+                    nh3: maleToiletOdorSensor && maleToiletOdorSensor.data
+                        ? maleToiletOdorSensor.data.nh3 || 0
+                        : 0,
+                    h2s: maleToiletOdorSensor && maleToiletOdorSensor.data
+                        ? maleToiletOdorSensor.data.h2s || 0
+                        : 0,
+                    temperature: maleToiletOdorSensor && maleToiletOdorSensor.data
+                        ? maleToiletOdorSensor.data.temperature || 0
+                        : 0,
+                    humidity: maleToiletOdorSensor && maleToiletOdorSensor.data
+                        ? maleToiletOdorSensor.data.humidity || 0
+                        : 0,
+                };
+
+                console.log("Female Toilet Data:", this.femaleToiletData);
+                console.log("Male Toilet Data:", this.maleToiletData);
             } catch (error) {
                 console.error('Error fetching sensor data:', error);
+            }
+        },
+        async fetchPeopleData() {
+            try {
+                const response = await axios.get(
+                    'https://015d-119-56-103-190.ngrok-free.app/data/latest/People',
+                    { headers: { 'ngrok-skip-browser-warning': 'true' } }
+                );
+                const peopleDataArray = response.data; // Expected to be an array
+                console.log("People API Data:", peopleDataArray);
+
+                // Find the female toilet occupancy sensor (devEUI: "24e124716d496118")
+                const femaleSensor = peopleDataArray.find(
+                    sensor => sensor.devEUI === "24e124716d496395"
+                );
+                // Find the male toilet occupancy sensor (devEUI: "24e124716d496395")
+                const maleSensor = peopleDataArray.find(
+                    sensor => sensor.devEUI === "24e124716d496118"
+                );
+
+                // Update female toilet occupancy: occupancy = period_in - period_out
+                if (femaleSensor && femaleSensor.data) {
+                    const periodIn = parseInt(femaleSensor.data.period_in, 10) || 0;
+                    const periodOut = parseInt(femaleSensor.data.period_out, 10) || 0;
+                    this.femaleToiletData.occupancy = periodIn - periodOut;
+                } else {
+                    this.femaleToiletData.occupancy = 0;
+                }
+
+                // Update male toilet occupancy: occupancy = period_in - period_out
+                if (maleSensor && maleSensor.data) {
+                    const periodIn = parseInt(maleSensor.data.period_in, 10) || 0;
+                    const periodOut = parseInt(maleSensor.data.period_out, 10) || 0;
+                    this.maleToiletData.occupancy = periodIn - periodOut;
+                } else {
+                    this.maleToiletData.occupancy = 0;
+                }
+
+                console.log("Updated female toilet occupancy:", this.femaleToiletData.occupancy);
+                console.log("Updated male toilet occupancy:", this.maleToiletData.occupancy);
+            } catch (error) {
+                console.error("Error fetching people data:", error);
             }
         },
         updateIcons(data) {
@@ -311,8 +379,10 @@ export default {
         }
     },
     mounted() {
-        this.fetchSensorData(); // Fetch sensor data when the component is mounted
-        this.generateChart();   // Generate the chart
+        // Call each function once, in the proper order
+        this.fetchSensorData();    // This fetches Odor data and sets default occupancy to 0.
+        this.generateChart();      // Generate your chart, if applicable.
+        this.fetchPeopleData();    // Then update occupancy based on People API data.
     }
 };
 </script>
@@ -422,6 +492,7 @@ export default {
 }
 
 .fas.fa-smile {
-  color: #90ee90; /* Light green */
+    color: #90ee90;
+    /* Light green */
 }
 </style>

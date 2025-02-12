@@ -110,20 +110,13 @@
           <div class="relation-view-container">
             <div class="relation-view position-relative">
               <img src="@/assets/Smart Landscape Schematic.jpg" alt="Relation View" class="relation-image">
-              <span class="point-label visible-label"
-                style="font-size: 1.4em; top: 76.4%; left: 10.5%; position: absolute; transform: translate(-50%, -50%);">
-                300ml
-              </span>
-              <span class="point-label visible-label"
-                style="font-size: 1.4em; top: 76.4%; left: 21.5%; position: absolute; transform: translate(-50%, -50%);">
-                No rain
-              </span>
-              <span class="point-label visible-label"
-                style="font-size: 1.4em; top: 76.4%; left: 32%; position: absolute; transform: translate(-50%, -50%);">
-                Full
-              </span>
-              <div v-for="(point, index) in relationPoints" :key="index"
-                :style="{ top: point.y + '%', left: point.x + '%', position: 'absolute', transform: 'translate(-50%, -50%)' }"
+              <!-- Removed static spans for "300ml", "No rain", "Full" -->
+              <div v-for="(point, index) in relationPoints" :key="index" :style="[{
+                top: point.y + '%',
+                left: point.x + '%',
+                position: 'absolute',
+                transform: 'translate(-50%, -50%)'
+              }, point.visibleClass ? { visibility: 'visible', color: 'white' } : {}]"
                 :class="['relation-point', { 'point-label-break': point.type === 'break', 'active': isAllOn }]">
                 <!-- For Sensor Points -->
                 <template v-if="point.type === 'sensor'">
@@ -132,10 +125,12 @@
 
                 <!-- For Other Points -->
                 <template v-else>
-                  <span class="point-label">{{ formatLabel(point.label) }}</span>
+                  <span class="point-label" :class="{ 'visible-label': point.visibleClass }">{{ formatLabel(point.label)
+                    }}</span>
                   <div v-if="point.type === 'Valve'"
                     :class="['status-dot', point.status === 'On' ? 'online' : 'offline']"></div>
                 </template>
+
 
                 <span v-if="hoveredIndex === index && point.type !== 'Valve'" class="value-tooltip">
                   <h5>{{ point.type === 'sensor' ? `Sensor ${point.number}` : point.label }}</h5>
@@ -158,6 +153,7 @@
         </div>
       </div>
 
+
       <!-- Sensors Tab -->
       <div class="tab-pane fade" id="sensors" role="tabpanel" aria-labelledby="sensors-tab">
         <div class="row mt-4">
@@ -179,6 +175,7 @@
           </div>
         </div>
       </div>
+
     </div>
 
     <!-- Modals and Buttons -->
@@ -365,53 +362,51 @@ export default {
     },
     async fetchSensorData() {
       try {
+        // ----- Fetch Soil Sensor Data -----
         const response = await axios.get(
-          'https://hammerhead-app-kva7n.ondigitalocean.app/api/Lorawan/latest/outdoor'
+          'https://015d-119-56-103-190.ngrok-free.app/data/latest/Soil',
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        // Assume the API returns an array of sensor objects
+        const sensorArray = response.data;
+
+        // Filter sensors that have decodedData
+        const validSensors = sensorArray.filter(sensorObj =>
+          sensorObj.data && sensorObj.data.decodedData
         );
 
-        const sensorData = [
-          response.data['aaaa202406140017'],
-          response.data['aaaa202406140009'],
-          response.data['aaaa202406140005'],
-          response.data['aaaa202406140006'],
-          response.data['aaaa202406140007'],
-          response.data['aaaa202406140008'],
-          response.data['aaaa202406140010'],
-          response.data['aaaa202406140011'],
-          response.data['aaaa202406140012'],
-          response.data['aaaa202406140015'],
-          response.data['aaaa202406140004'],
-          response.data['aaaa202406140001'],
-          response.data['aaaa202406140002'],
-        ];
+        // Build the sensors array with a nested "data" property and adjust time by +8 hours.
+        this.sensors = validSensors.map((sensorObj, index) => {
+          const decoded = sensorObj.data.decodedData;
+          const sensorTimeUTC = new Date(sensorObj.data.time);
+          const sensorLocalTime = new Date(sensorTimeUTC.getTime() + 8 * 60 * 60 * 1000);
+          return {
+            number: index + 1, // sensor number for display
+            data: {
+              temperature: decoded.Temperature,
+              soilMoisture: decoded.SoilMoisture,
+              pH: decoded.pH,
+              ec: decoded.EC,
+              n: decoded.N,
+              p: decoded.P,
+              k: decoded.K,
+              batteryVoltage: decoded.BatteryVoltage,
+              time: sensorLocalTime.toISOString() // Adjusted local time
+            },
+            devEUI: sensorObj.data.devEUI,
+            deviceName: sensorObj.data.deviceName
+          };
+        });
 
-        // Adding 4 more duplicated data points to match 20 sensors
-        for (let i = 0; i < 4; i++) {
-          sensorData.push(sensorData[i]);
-        }
-
-        this.relationPoints = sensorData.map((sensor, index) => ({
-          number: index + 1,
+        // Update relationPoints for the Sensors tab.
+        // Each sensor becomes a relation point with its nested "data" object.
+        this.relationPoints = this.sensors.map(sensor => ({
+          number: sensor.number,
           type: 'sensor',
-          data: {
-            temperature: sensor.Temperature,
-            soilMoisture: sensor.SoilMoisture,
-            pH: sensor.pH,
-            ec: sensor.EC,
-            n: sensor.N,
-            p: sensor.P,
-            k: sensor.K,
-            batteryVoltage: sensor.BatteryVoltage,
-          },
+          data: sensor.data
         }));
 
-        // Populate the sensors array for the Sensors tab
-        this.sensors = this.relationPoints.map((point) => ({
-          number: point.number,
-          data: point.data,
-        }));
-
-        // Include the Solenoid Valves and other static relation points
+        // ----- Static Points (Solenoid Valves and Additional Points) -----
         const solenoidValves = [
           { label: '1', type: 'Valve', x: 51, y: 53, status: 'Off' },
           { label: '2', type: 'Valve', x: 72.6, y: 41, status: 'Off' },
@@ -434,10 +429,12 @@ export default {
           { label: '19', type: 'Valve', x: 62.3, y: 19, status: 'Off' },
         ];
 
+        // Define additionalPoints for dynamic readings.
+        // Note: For the rain sensor, the code below updates the first additional point.
         const additionalPoints = [
-          { label: '300ml', type: 'reading', x: 15.4, y: 77, reading: '10 mm', visibleClass: 'show-label' },
-          { label: 'No rain', type: 'reading', x: 24.5, y: 77, reading: '1500 lux', visibleClass: 'show-label' },
-          { label: 'Full', type: 'reading', x: 34, y: 77, reading: '75%', visibleClass: 'show-label' },
+          { label: '300ml', type: 'reading', x: 15.4, y: 77, reading: '10 mm', visibleClass: true },
+          { label: 'No rain', type: 'reading', x: 24.5, y: 77, reading: '1500 lux', visibleClass: true },
+          { label: 'Full', type: 'reading', x: 34, y: 77, reading: '75%', visibleClass: true },
           { label: '7-in-1 Sensor (Readings/Threshold)', type: 'title', x: 18.5, y: 10 },
           { label: '(Readings/ Threshold)', x: 15.5, y: 85, type: 'break' },
           { label: '(Readings/ Threshold)', x: 24.5, y: 85, type: 'break' },
@@ -447,9 +444,34 @@ export default {
           { label: 'Solenoid Valve ON/OFF', type: 'title', x: 68, y: 37 },
         ];
 
+        // ----- Fetch Rain Sensor Data and Update the first Additional Point -----
+        try {
+          const rainResponse = await axios.get(
+            'https://015d-119-56-103-190.ngrok-free.app/data/latest/Rain',
+            { headers: { 'ngrok-skip-browser-warning': 'true' } }
+          );
+          const rainData = rainResponse.data; // Expected to be an array
+          if (
+            Array.isArray(rainData) &&
+            rainData.length > 0 &&
+            rainData[0].data &&
+            rainData[0].data.decodedData &&
+            typeof rainData[0].data.decodedData.Rainfall !== 'undefined'
+          ) {
+            const rainfall = rainData[0].data.decodedData.Rainfall;
+            // Update the first additional point with the rain sensor value.
+            additionalPoints[0].label = `${rainfall} ml`;
+            additionalPoints[0].reading = `${rainfall} ml`;
+          }
+        } catch (rainError) {
+          console.error("Error fetching rain sensor data:", rainError);
+        }
+
+        // Append the static relation points
         this.relationPoints.push(...solenoidValves, ...additionalPoints);
+
       } catch (error) {
-        console.error('Error fetching sensor data:', error);
+        console.error("Error fetching soil sensor data:", error);
       }
     },
     saveThreshold() {
@@ -484,9 +506,11 @@ export default {
       window.location.href = 'https://visualizer-lite-html.vercel.app/?site=23&levels=91';
     },
     formatLabel(label) {
-      if (label === 'Main Pump') {
-        return label;
+      // Only add a newline if the label isn't a measurement like "0 ml"
+      if (/^\d+\s+ml$/.test(label)) {
+        return label;  // Return as-is for measurements
       }
+      // Otherwise, replace the first space with a newline if desired
       return label.replace(' ', '\n');
     },
     async sendSwitchCommand(deviceEUI, switchStates) {
@@ -1075,5 +1099,8 @@ h2 {
 
 .visible-label {
   visibility: visible !important;
+  color: black;
+  /* Set a color that works with your design */
+  font-size: 1rem;
 }
 </style>

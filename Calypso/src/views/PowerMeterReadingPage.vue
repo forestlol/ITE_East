@@ -59,7 +59,6 @@
       </div>
     </div>
 
-    cumulative energy, current, pf and voltage
     <!-- Tooltip for Sensor Data -->
     <div v-if="tooltipVisible" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }" class="tooltip">
       <h5>{{ tooltipData.meterName || 'Meter Data' }}</h5>
