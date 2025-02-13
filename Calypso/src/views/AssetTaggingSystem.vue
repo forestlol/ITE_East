@@ -119,7 +119,7 @@ export default {
     },
     // Connect via MQTT using the proxy (running on ws://localhost:9001)
     connectMQTT() {
-      this.client = mqtt.connect('wss://mqtt.ite-east-calypso.com:9001');
+      this.client = mqtt.connect('ws://localhost:9001');
 
       this.client.on('connect', () => {
         console.log('Connected to MQTT broker via proxy');
