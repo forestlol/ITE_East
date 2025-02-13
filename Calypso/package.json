@@ -22,7 +22,7 @@
     "express": "^4.19.2",
     "hyperbeam": "^3.0.2",
     "leaflet": "^1.9.4",
-    "mqtt": "^5.9.1",
+    "mqtt": "^5.10.3",
     "paho-mqtt": "^1.1.0",
     "papaparse": "^5.4.1",
     "vue": "^3.4.27",

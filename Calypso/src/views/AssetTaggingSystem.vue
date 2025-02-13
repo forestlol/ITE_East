@@ -7,8 +7,9 @@
           <h4 class="text-center mb-4">Sensor Detection</h4>
           <div class="sensor-detection-diagram position-relative">
             <img src="@/assets/Asset Tagging Algo.png" alt="Relation View" class="relation-image">
-            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">Adjust
-              Condition</button>
+            <button class="btn btn-primary position-absolute bottom-0 end-0 m-3" @click="openModal">
+              Adjust Condition
+            </button>
           </div>
         </div>
       </div>
@@ -79,6 +80,8 @@
 </template>
 
 <script>
+import mqtt from 'mqtt';
+
 export default {
   name: 'AssetTaggingSystem',
   data() {
@@ -87,7 +90,7 @@ export default {
         { mac: 'fce8c0426458', type: 'BLE Beacon', isOnline: true, lastUpdated: new Date() }
       ],
       outOfRangeTags: [],
-      logs: [], // Array to store out-of-range logs
+      logs: [], // Array to store logs
       showModal: false,
       bleBeacon1Status: 'On',
       bleBeacon2Status: 'On',
@@ -99,6 +102,8 @@ export default {
       ],
       selectedCondition: "Conditions",
       allSensors: [],
+      client: null, // MQTT client
+      interval: null,
     };
   },
   methods: {
@@ -112,57 +117,78 @@ export default {
       alert(`BLE Beacon 1: ${this.bleBeacon1Status}, BLE Beacon 2: ${this.bleBeacon2Status}`);
       this.closeModal();
     },
-    fetchData() {
-      console.log("Fetching data...");
-      fetch('https://015d-119-56-103-190.ngrok-free.app/data/latest/AssetTagging', {
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
-      })
-        .then(response => response.json())
-        .then(data => {
-          // The returned data is an object where each key is a MAC address.
-          Object.keys(data).forEach(mac => {
-            const sensor = data[mac];
-            const rssi = sensor.rssi;
-            // Convert the provided timestamp (in milliseconds) into a Date object.
-            const sensorTimestamp = sensor.timestamp ? new Date(sensor.timestamp) : new Date();
+    // Connect via MQTT using the proxy (running on ws://localhost:9001)
+    connectMQTT() {
+      this.client = mqtt.connect('wss://mqtt.ite-east-calypso.com:9001');
 
-            // Check if this sensor already exists in the list.
-            const existingSensor = this.allSensors.find(s => s.mac === mac);
-            if (!existingSensor) {
-              // Add new sensor if the total is less than 28.
-              if (this.allSensors.length < 28) {
-                this.allSensors.push({ mac, rssi, lastUpdated: sensorTimestamp });
-              }
-            } else {
-              // Update the existing sensor data.
-              existingSensor.rssi = rssi;
-              existingSensor.lastUpdated = sensorTimestamp;
-            }
+      this.client.on('connect', () => {
+        console.log('Connected to MQTT broker via proxy');
+        this.addLog('Connected to MQTT broker via proxy');
 
-            // Check if the sensor is out of range based on its RSSI value.
-            if (rssi < -90) {
-              setTimeout(() => {
-                // After 20 seconds, if the RSSI is still below -90, add it to the out-of-range list.
-                if (rssi < -90) {
-                  this.addToOutOfRange(mac);
-                }
-              }, 20000);
-            } else {
-              // Remove sensor from out-of-range list if its RSSI is above the threshold.
-              this.removeFromOutOfRange(mac);
-            }
-          });
+        // Subscribe to your topic
+        this.client.subscribe('/MKGW3/fce8c0426458/send', (err) => {
+          if (!err) {
+            console.log('Subscribed to /MKGW3/fce8c0426458/send');
+            this.addLog('Subscribed to /MKGW3/fce8c0426458/send');
 
-          // When 28 sensors are filled, switch to checking every 10 milliseconds (as per your original logic).
-          if (this.allSensors.length >= 28) {
-            clearInterval(this.interval);
-            this.interval = setInterval(this.fetchData, 10);
+            // Optionally publish a test message
+            // this.client.publish('/MKGW3/fce8c0426458/send', 'Hello from Vue via proxy!');
+          } else {
+            console.error('Subscription error:', err);
+            this.addLog(`Subscription error: ${err}`);
           }
-        })
-        .catch(error => console.error('Error fetching data:', error));
+        });
+      });
+
+      // Handle incoming MQTT messages
+      this.client.on('message', (topic, message) => {
+        try {
+          const parsed = JSON.parse(message.toString());
+          // Check if the incoming data is an array (i.e., multiple sensor readings)
+          if (Array.isArray(parsed.data)) {
+            parsed.data.forEach(sensor => {
+              const rssi = sensor.rssi;
+              const sensorTimestamp = sensor.timestamp ? new Date(sensor.timestamp) : new Date();
+              const mac = sensor.mac;
+
+              // Update the sensor list (allSensors)
+              const existingSensor = this.allSensors.find(s => s.mac === mac);
+              if (!existingSensor) {
+                if (this.allSensors.length < 28) {
+                  this.allSensors.push({ mac, rssi, lastUpdated: sensorTimestamp });
+                }
+              } else {
+                existingSensor.rssi = rssi;
+                existingSensor.lastUpdated = sensorTimestamp;
+              }
+
+              // Only log and update out-of-range sensors if the rssi is below the threshold
+              if (rssi < -90) {
+                this.addToOutOfRange(mac);
+              } else {
+                this.removeFromOutOfRange(mac);
+              }
+            });
+          } else {
+            // If parsed.data is not an array, you can choose to ignore it or handle it differently.
+            // For now, we ignore non-array data so that logs are only generated from array sensor readings.
+          }
+        } catch (e) {
+          // For debugging purposes you might want to log errors,
+          // but if you want no logs except out-of-range, you can comment out the following line.
+          console.error('Error parsing MQTT message:', e);
+        }
+      });
+
+
+      // Error handling
+      this.client.on('error', (error) => {
+        console.error('MQTT Error:', error);
+        this.addLog(`MQTT Error: ${error}`);
+      });
     },
+
+    // Existing methods for handling sensors, out-of-range, logs, etc.
     addToOutOfRange(mac) {
       const tag = this.allSensors.find(d => d.mac === mac);
       if (tag && !this.outOfRangeTags.find(t => t.mac === mac)) {
@@ -180,22 +206,24 @@ export default {
       return new Date(date).toLocaleString();
     },
     addLog(message) {
-      this.logs.unshift(message); // Adds the log message to the top of the logs array
-    },
+      this.logs.unshift(message);
+    }
   },
   mounted() {
-    this.fetchData();
-    this.interval = setInterval(this.fetchData, 1000);
+    // Connect to the MQTT broker when the component mounts
+    this.connectMQTT();
   },
   beforeUnmount() {
     clearInterval(this.interval);
+    if (this.client) {
+      this.client.end();
+    }
   },
 };
 </script>
 
-
-
 <style scoped>
+/* Your existing styles */
 .container-fluid {
   width: 100%;
   padding: 2rem;
@@ -255,9 +283,7 @@ h2 {
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-height: 150px;
-  /* Set a maximum height */
   overflow-y: auto;
-  /* Enable scrolling if the logs exceed max height */
 }
 
 .log-list {
@@ -315,7 +341,7 @@ h2 {
 }
 
 .modal-body {
-  padding: 20px 20px;
+  padding: 20px;
 }
 
 .modal-footer {
